@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: realestate-proxy
+    env: docker
+    dockerContext: ./realestate-proxy
+    dockerfilePath: ./realestate-proxy/Dockerfile
+    envVars:
+      - key: PORT
+        value: 3001
+    autoDeploy: false

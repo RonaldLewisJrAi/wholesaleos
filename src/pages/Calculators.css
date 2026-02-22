@@ -1,0 +1,121 @@
+.calculators-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+}
+
+.calculator-layout {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: var(--spacing-6);
+    align-items: flex-start;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-4);
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-prefix {
+    position: absolute;
+    left: var(--spacing-3);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.with-prefix {
+    padding-left: calc(var(--spacing-8) + var(--spacing-1));
+    width: 100%;
+}
+
+.mt-4 {
+    margin-top: var(--spacing-4);
+}
+
+/* Results Styles */
+.mao-result-card {
+    background: linear-gradient(135deg, rgba(22, 24, 29, 0.9), rgba(16, 185, 129, 0.05));
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.mao-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-4);
+}
+
+.mao-header h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.mao-badge {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: var(--accent-secondary);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.mao-value-display {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    color: var(--accent-secondary);
+    margin-bottom: var(--spacing-2);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.mao-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+}
+
+.breakdown-card {
+    padding-top: var(--spacing-4);
+}
+
+.breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-2);
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.breakdown-item.minus {
+    color: var(--danger);
+}
+
+.breakdown-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: var(--spacing-1) 0;
+}
+
+.breakdown-item.total {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: var(--spacing-1);
+}
