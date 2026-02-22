@@ -117,7 +117,7 @@ const CalendarView = () => {
         const grid = [];
         // Blank spots for offset
         for (let i = 0; i < firstDay; i++) {
-            grid.push(<div key={`empty-${i}`} className="min-h-[120px] border border-[var(--border-light)] bg-[rgba(255,255,255,0.02)] p-2"></div>);
+            grid.push(<div key={`empty-${i}`} className="min-h-[140px] border-r border-b border-[var(--border-light)] bg-[var(--bg-secondary)] opacity-50 p-2"></div>);
         }
 
         // Actual days
@@ -129,7 +129,7 @@ const CalendarView = () => {
             const isToday = isCurrentMonthThisMonth && i === today.getDate();
 
             grid.push(
-                <div key={i} className={`min-h-[120px] border border-[var(--border-light)] p-2 transition-colors hover:bg-[rgba(255,255,255,0.05)] cursor-pointer ${isToday ? 'bg-[rgba(59,130,246,0.1)]' : ''}`} onClick={() => openModal(i)}>
+                <div key={i} className={`min-h-[140px] border-r border-b border-[var(--border-light)] p-2 transition-colors hover:bg-[rgba(255,255,255,0.05)] cursor-pointer ${isToday ? 'bg-[rgba(59,130,246,0.1)]' : 'bg-[var(--bg-primary)]'} ${(i + firstDay) % 7 === 0 ? 'border-r-0' : ''}`} onClick={() => openModal(i)}>
                     <div className="flex justify-between items-start mb-2">
                         <span className={`text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full ${isToday ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'text-muted'}`}>{i}</span>
                     </div>
@@ -178,9 +178,9 @@ const CalendarView = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-0 rounded-xl overflow-hidden border border-[var(--border-light)]">
+                <div className="grid grid-cols-7 gap-0 rounded-xl overflow-hidden border-2 border-[var(--border-light)] bg-[var(--bg-secondary)]">
                     {days.map(day => (
-                        <div key={day} className="text-center font-bold text-muted bg-[rgba(0,0,0,0.2)] py-3 uppercase text-xs tracking-wider border-b border-[var(--border-light)]">{day}</div>
+                        <div key={day} className="text-center font-bold text-muted bg-[rgba(0,0,0,0.3)] py-3 uppercase text-xs tracking-wider border-b-2 border-[var(--border-light)]">{day}</div>
                     ))}
                     {renderCalendarDays()}
                 </div>
