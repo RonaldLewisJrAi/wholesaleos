@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, X, Edit2, Trash2, MapPin, Clock, AlignLeft } from 'lucide-react';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import './CalendarView.css';
 
 // Basic utility to get days in month
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
@@ -117,7 +118,7 @@ const CalendarView = () => {
         const grid = [];
         // Blank spots for offset
         for (let i = 0; i < firstDay; i++) {
-            grid.push(<div key={`empty-${i}`} className="min-h-[140px] border-r border-b border-[var(--border-light)] bg-[var(--bg-secondary)] opacity-50 p-2"></div>);
+            grid.push(<div key={`empty-${i}`} className="calendar-cell is-empty"></div>);
         }
 
         // Actual days
@@ -129,14 +130,12 @@ const CalendarView = () => {
             const isToday = isCurrentMonthThisMonth && i === today.getDate();
 
             grid.push(
-                <div key={i} className={`min-h-[140px] border-r border-b border-[var(--border-light)] p-2 transition-colors hover:bg-[rgba(255,255,255,0.05)] cursor-pointer ${isToday ? 'bg-[rgba(59,130,246,0.1)]' : 'bg-[var(--bg-primary)]'} ${(i + firstDay) % 7 === 0 ? 'border-r-0' : ''}`} onClick={() => openModal(i)}>
-                    <div className="flex justify-between items-start mb-2">
-                        <span className={`text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full ${isToday ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'text-muted'}`}>{i}</span>
-                    </div>
-                    <div className="flex flex-col gap-1.5 overflow-y-auto max-h-[80px] custom-scrollbar">
+                <div key={i} className={`calendar-cell ${isToday ? 'is-today' : ''} ${(i + firstDay) % 7 === 0 ? 'no-right-border' : ''}`} onClick={() => openModal(i)}>
+                    <div className={`date-badge ${isToday ? 'is-today' : ''}`}>{i}</div>
+                    <div className="events-list custom-scrollbar">
                         {dayEvents.map(ev => (
-                            <div key={ev.id} className="text-xs bg-[var(--accent-primary)] text-white px-2 py-1 rounded truncate shadow-sm cursor-pointer hover:opacity-80 transition-opacity" onClick={(e) => { e.stopPropagation(); openModal(i, ev); }}>
-                                {ev.time && <span className="font-semibold mr-1">{ev.time}</span>}
+                            <div key={ev.id} className="calendar-event" onClick={(e) => { e.stopPropagation(); openModal(i, ev); }}>
+                                {ev.time && <span className="event-time">{ev.time}</span>}
                                 {ev.title}
                             </div>
                         ))}
@@ -153,7 +152,7 @@ const CalendarView = () => {
                 <div>
                     <h1 className="page-title flex items-center gap-2">
                         <CalendarIcon className="text-primary" size={28} /> Schedule
-                        {isDemoMode && <span className="badge bg-[rgba(255,255,255,0.1)] text-xs ml-2 border border-[var(--border-light)]">Demo Mode Active</span>}
+                        {isDemoMode && <span className="badge-demo">Demo Mode Active</span>}
                     </h1>
                     <p className="page-description">Manage walkthroughs, closings, notate details, and schedule follow-ups.</p>
                 </div>
@@ -164,23 +163,23 @@ const CalendarView = () => {
                 </div>
             </div>
 
-            <div className="glass-panel p-6 shadow-xl border-[var(--border-light)]">
-                <div className="flex-between mb-6">
-                    <h2 className="text-2xl font-bold flex items-center gap-4">
-                        <button className="icon-btn-small border border-[var(--border-light)] rounded hover:bg-[rgba(255,255,255,0.1)] transition-colors" onClick={prevMonth}><ChevronLeft size={20} /></button>
+            <div className="card shadow-xl p-0 overflow-hidden border-[var(--border-light)]">
+                <div className="flex-between p-6 pb-4">
+                    <div className="navigation-controls">
+                        <button className="icon-btn-small border-control" onClick={prevMonth}><ChevronLeft size={20} /></button>
                         {monthNames[month]} {year}
-                        <button className="icon-btn-small border border-[var(--border-light)] rounded hover:bg-[rgba(255,255,255,0.1)] transition-colors" onClick={nextMonth}><ChevronRight size={20} /></button>
-                    </h2>
-                    <div className="flex gap-2 bg-[var(--bg-tertiary)] p-1 rounded-lg border border-[var(--border-light)]">
-                        <button className="px-4 py-1.5 text-sm bg-[var(--accent-primary)] text-white font-medium rounded shadow-sm">Month</button>
-                        <button className="px-4 py-1.5 text-sm text-muted hover:text-white transition-colors disabled opacity-50 cursor-not-allowed">Week</button>
-                        <button className="px-4 py-1.5 text-sm text-muted hover:text-white transition-colors disabled opacity-50 cursor-not-allowed">Day</button>
+                        <button className="icon-btn-small border-control" onClick={nextMonth}><ChevronRight size={20} /></button>
+                    </div>
+                    <div className="view-toggles">
+                        <button className="toggle-btn active">Month</button>
+                        <button className="toggle-btn disabled">Week</button>
+                        <button className="toggle-btn disabled">Day</button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-0 rounded-xl overflow-hidden border-2 border-[var(--border-light)] bg-[var(--bg-secondary)]">
+                <div className="calendar-grid-container" style={{ margin: '0 24px 24px 24px' }}>
                     {days.map(day => (
-                        <div key={day} className="text-center font-bold text-muted bg-[rgba(0,0,0,0.3)] py-3 uppercase text-xs tracking-wider border-b-2 border-[var(--border-light)]">{day}</div>
+                        <div key={day} className="calendar-day-header">{day}</div>
                     ))}
                     {renderCalendarDays()}
                 </div>
