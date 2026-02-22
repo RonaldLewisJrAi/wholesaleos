@@ -139,7 +139,7 @@ const Radar = () => {
                             className="fillable-input w-full"
                             value={county}
                             onChange={(e) => setCounty(e.target.value)}
-                            placeholder="e.g. Harris County, TX"
+                            placeholder="e.g. Nashville, TN"
                             required
                         />
                     </div>
