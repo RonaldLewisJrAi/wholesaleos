@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, UserPlus, Mail, Phone, MapPin, X, UploadCloud } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import HeatMap from '../components/HeatMap';
+import { useDemoMode } from '../contexts/DemoModeContext';
 import './CRM.css';
 
 const mockContacts = [
@@ -67,6 +68,7 @@ const calculateOffers = (arv) => {
 };
 
 const CRM = () => {
+    const { isDemoMode } = useDemoMode();
     const [activeTab, setActiveTab] = useState('All');
     const [contacts, setContacts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -82,8 +84,16 @@ const CRM = () => {
 
     useEffect(() => {
         const fetchContacts = async () => {
-            if (!supabase) {
+            setLoading(true);
+            if (isDemoMode) {
                 setContacts(mockContacts);
+                setLoading(false);
+                return;
+            }
+
+            if (!supabase) {
+                console.warn('Live Mode active but Supabase is not configured. Contact list will be empty.');
+                setContacts([]);
                 setLoading(false);
                 return;
             }
@@ -98,18 +108,18 @@ const CRM = () => {
                 if (data && data.length > 0) {
                     setContacts(data);
                 } else {
-                    setContacts(mockContacts);
+                    setContacts([]);
                 }
             } catch (error) {
-                console.error('Error fetching CRM contacts, falling back to mock data:', error);
-                setContacts(mockContacts);
+                console.error('Error fetching CRM contacts:', error);
+                setContacts([]);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchContacts();
-    }, []);
+    }, [isDemoMode]);
 
     const handleOpenModal = () => {
         setIsAddModalOpen(true);
