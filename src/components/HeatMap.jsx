@@ -17,15 +17,15 @@ const createPulseIcon = (color) => {
 const redPulse = createPulseIcon('#ef4444');
 const orangePulse = createPulseIcon('#f59e0b');
 
-// Default coordinates for the United States
-const defaultCenter = [39.8283, -98.5795];
+// Default coordinates for Nashville, TN
+const defaultCenter = [36.1627, -86.7816];
 
 const demoSalesData = [
-    { id: 1, lat: 29.7520, lng: -95.3610, address: "1402 Dallas St, Houston, TX", buyer: "Blackstone Equity Group", amount: "$350,000", date: "2 days ago", type: "hot" },
-    { id: 2, lat: 29.7450, lng: -95.3650, address: "918 Webster St, Houston, TX", buyer: "Texas Reholdings LLC", amount: "$215,000", date: "5 days ago", type: "warm" },
-    { id: 3, lat: 29.7420, lng: -95.3520, address: "2104 Leeland St, Houston, TX", buyer: "OpenDoor Capital", amount: "$412,500", date: "1 week ago", type: "hot" },
-    { id: 4, lat: 29.7610, lng: -95.3480, address: "804 Nance St, Houston, TX", buyer: "Local Investor", amount: "$180,000", date: "3 days ago", type: "warm" },
-    { id: 5, lat: 29.7380, lng: -95.3710, address: "2310 Milam St, Houston, TX", buyer: "Zillow Offers", amount: "$520,000", date: "Just now", type: "hot" },
+    { id: 1, lat: 36.1659, lng: -86.7788, address: "401 Union St, Nashville, TN", buyer: "Blackstone Equity Group", amount: "$850,000", date: "2 days ago", type: "hot" },
+    { id: 2, lat: 36.1580, lng: -86.7850, address: "1002 Division St, Nashville, TN", buyer: "Music City Reholdings LLC", amount: "$425,000", date: "5 days ago", type: "warm" },
+    { id: 3, lat: 36.1730, lng: -86.7600, address: "500 Main St, Nashville, TN", buyer: "OpenDoor Capital", amount: "$612,500", date: "1 week ago", type: "hot" },
+    { id: 4, lat: 36.1450, lng: -86.8000, address: "2100 West End Ave, Nashville, TN", buyer: "Local Investor", amount: "$380,000", date: "3 days ago", type: "warm" },
+    { id: 5, lat: 36.1800, lng: -86.7500, address: "900 Eastland Ave, Nashville, TN", buyer: "Zillow Offers", amount: "$520,000", date: "Just now", type: "hot" },
 ];
 
 const HeatMap = () => {
@@ -45,7 +45,7 @@ const HeatMap = () => {
 
             <MapContainer
                 center={defaultCenter}
-                zoom={4}
+                zoom={13}
                 style={{ height: '100%', width: '100%', zIndex: 1 }}
                 zoomControl={false}
             >
