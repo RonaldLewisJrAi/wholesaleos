@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X } from 'lucide-react';
 import axios from 'axios';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import HeatMap from '../components/HeatMap';
 
 const Radar = () => {
     const { isDemoMode } = useDemoMode();
@@ -210,10 +211,8 @@ const Radar = () => {
                     </div>
                 </>
             ) : (
-                <div className="text-center py-12 text-muted glass-panel">
-                    <AlertTriangle size={48} className="mx-auto mb-4 opacity-50 text-warning" />
-                    <h3 className="text-lg">Radar Inactive</h3>
-                    <p className="text-sm">Enter a target county and scan the market to locate distressed properties.</p>
+                <div className="animate-fade-in">
+                    <HeatMap />
                 </div>
             )}
         </div>

@@ -5,16 +5,18 @@
   --bg-primary: #0f1115;
   --bg-secondary: #16181d;
   --bg-tertiary: #1c1f26;
-  
-  --accent-primary: #3b82f6; /* Premium Blue */
+
+  --accent-primary: #3b82f6;
+  /* Premium Blue */
   --accent-primary-hover: #2563eb;
-  --accent-secondary: #10b981; /* Success/Money Green */
+  --accent-secondary: #10b981;
+  /* Success/Money Green */
   --accent-secondary-hover: #059669;
-  
+
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  
+
   --border-color: #334155;
   --border-light: rgba(255, 255, 255, 0.05);
 
@@ -51,7 +53,8 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.5); /* Accent Glow */
+  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.5);
+  /* Accent Glow */
 
   /* Transitions */
   --transition-fast: 150ms ease-in-out;
@@ -140,47 +143,55 @@ button {
 }
 
 .btn-success {
-    background-color: var(--accent-secondary);
-    color: white;
+  background-color: var(--accent-secondary);
+  color: white;
 }
+
 .btn-success:hover {
-    background-color: var(--accent-secondary-hover);
+  background-color: var(--accent-secondary-hover);
 }
 
 /* Form Styles */
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-    margin-bottom: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
 }
 
 .form-label {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-    font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .form-input {
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: var(--spacing-2) var(--spacing-3);
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-    outline: none;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
 }
 
 .form-input:focus {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -204,4 +215,52 @@ button {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* --- Leaflet Custom Marker & Popup Styles --- */
+
+.pulse-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+
+  70% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: var(--bg-surface, #1c1f26) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.05)) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-tip {
+  background-color: var(--bg-surface, #1c1f26) !important;
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.05)) !important;
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 12px !important;
+  width: auto !important;
 }
