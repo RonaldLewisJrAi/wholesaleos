@@ -11,25 +11,28 @@ import Calculators from './pages/Calculators';
 import Compliance from './pages/Compliance';
 import Radar from './pages/Radar';
 import CalendarView from './pages/CalendarView';
+import { DemoModeProvider } from './contexts/DemoModeContext';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="properties/*" element={<Properties />} />
-          <Route path="pipeline" element={<Pipeline />} />
-          <Route path="crm" element={<CRM />} />
-          <Route path="documents" element={<Documents />} />
-          <Route path="calculators" element={<Calculators />} />
-          <Route path="radar" element={<Radar />} />
-          <Route path="calendar" element={<CalendarView />} />
-          <Route path="compliance" element={<Compliance />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <DemoModeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="properties/*" element={<Properties />} />
+            <Route path="pipeline" element={<Pipeline />} />
+            <Route path="crm" element={<CRM />} />
+            <Route path="documents" element={<Documents />} />
+            <Route path="calculators" element={<Calculators />} />
+            <Route path="radar" element={<Radar />} />
+            <Route path="calendar" element={<CalendarView />} />
+            <Route path="compliance" element={<Compliance />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </DemoModeProvider>
   );
 }
 

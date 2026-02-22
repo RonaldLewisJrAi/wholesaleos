@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, Plus, Home, MapPin, Database, X, CheckCircle, User, Mail } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import axios from 'axios';
+import { useDemoMode } from '../contexts/DemoModeContext';
 import './Properties.css';
 
 const mockProperties = [
@@ -46,6 +47,7 @@ const Properties = () => {
     const [assessorInput, setAssessorInput] = useState('');
     const [isScraping, setIsScraping] = useState(false);
     const [assessorResult, setAssessorResult] = useState(null);
+    const { isDemoMode } = useDemoMode();
 
     useEffect(() => {
         const fetchProperties = async () => {
@@ -116,22 +118,37 @@ const Properties = () => {
         setAssessorResult(null);
 
         try {
-            // Fetch live data through the Render proxy -> Python Propwire scraper pipeline
-            const response = await axios.post('https://wholesale-os.onrender.com/api/assessor', {
-                address: assessorInput
-            });
+            if (isDemoMode) {
+                // Simulated deep web scraping delay (2.5 seconds to feel like heavy lifting)
+                await new Promise(resolve => setTimeout(resolve, 2500));
 
-            if (response.data && response.data.status === 'success') {
-                setAssessorResult({
-                    realPropertyAddress: response.data.realPropertyAddress,
-                    ownerName: response.data.ownerName,
-                    mailingAddress: response.data.mailingAddress,
-                    assessedValue: response.data.assessedValue,
-                    yearBuilt: response.data.yearBuilt,
-                    lastSaleDate: response.data.lastSaleDate
-                });
+                const mockResult = {
+                    realPropertyAddress: assessorInput.toUpperCase(),
+                    ownerName: 'JOHNATHAN DOE & JANE DOE',
+                    mailingAddress: 'PO BOX ' + Math.floor(Math.random() * 9000 + 1000) + ', AUSTIN, TX 78701',
+                    assessedValue: '$' + (Math.floor(Math.random() * 400) + 150) + ',000',
+                    yearBuilt: Math.floor(Math.random() * 60) + 1960,
+                    lastSaleDate: '10/14/' + (Math.floor(Math.random() * 15) + 2005)
+                };
+                setAssessorResult(mockResult);
             } else {
-                alert("Failed to extract data: " + (response.data?.message || "Unknown error"));
+                // Fetch live data through the Render proxy -> Python Propwire scraper pipeline
+                const response = await axios.post('https://wholesale-os.onrender.com/api/assessor', {
+                    address: assessorInput
+                });
+
+                if (response.data && response.data.status === 'success') {
+                    setAssessorResult({
+                        realPropertyAddress: response.data.realPropertyAddress,
+                        ownerName: response.data.ownerName,
+                        mailingAddress: response.data.mailingAddress,
+                        assessedValue: response.data.assessedValue,
+                        yearBuilt: response.data.yearBuilt,
+                        lastSaleDate: response.data.lastSaleDate
+                    });
+                } else {
+                    alert("Failed to extract data: " + (response.data?.message || "Unknown error"));
+                }
             }
         } catch (err) {
             console.error(err);

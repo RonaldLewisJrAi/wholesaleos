@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter } from 'lucide-react';
+import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X } from 'lucide-react';
 import axios from 'axios';
+import { useDemoMode } from '../contexts/DemoModeContext';
 
 const Radar = () => {
+    const { isDemoMode } = useDemoMode();
     const [county, setCounty] = useState('');
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState([]);
     const [hasSearched, setHasSearched] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
 
     const fetchRealData = async (searchCounty) => {
         try {
@@ -41,12 +44,27 @@ const Radar = () => {
         }
     };
 
-    const handleSearch = (e) => {
-        e.preventDefault();
+    const handleSearch = async (e) => {
+        if (e) e.preventDefault();
         if (!county) return;
         setLoading(true);
         setHasSearched(true);
-        fetchRealData(county);
+
+        if (isDemoMode) {
+            // Bypass the backend completely and inject high-quality mock data
+            setTimeout(() => {
+                const demoResults = [
+                    { id: 1, address: `123 Main St, ${county}`, owner: 'John Doe', estimatedEquity: '$65,000', daysLeft: 45, status: 'Notice of Default', defaultAmount: '$12,450' },
+                    { id: 2, address: `456 Oak Ave, ${county}`, owner: 'Jane Smith', estimatedEquity: '$110,000', daysLeft: 12, status: 'Notice of Trustee Sale', defaultAmount: '$24,100' },
+                    { id: 3, address: `789 Pine Ln, ${county}`, owner: 'Robert Johnson', estimatedEquity: '$45,000', daysLeft: 83, status: 'Notice of Default', defaultAmount: '$8,900' }
+                ];
+                setResults(demoResults);
+                setLoading(false);
+            }, 1500);
+        } else {
+            // Live production mode
+            fetchRealData(county);
+        }
     };
 
     return (
@@ -54,15 +72,62 @@ const Radar = () => {
             <div className="page-header flex-between mb-6">
                 <div>
                     <h1 className="page-title flex items-center gap-2">
-                        <AlertTriangle className="text-warning" size={28} /> Opportunity Radar
+                        <AlertTriangle className={isDemoMode ? "text-muted" : "text-warning"} size={28} /> Opportunity Radar
+                        {isDemoMode && <span className="badge bg-[rgba(255,255,255,0.1)] text-xs ml-2 border border-[var(--border-light)]">Demo Mode Active</span>}
                     </h1>
                     <p className="page-description">Track preforeclosures, auctions, and distressed properties in your target markets.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-secondary"><Filter size={16} /> Advanced Filters</button>
+                    <button className="btn btn-secondary" onClick={() => setShowFilters(true)}><Filter size={16} /> Advanced Filters</button>
                     <button className="btn btn-primary" onClick={() => window.location.href = '/properties'}>Back to Properties</button>
                 </div>
             </div>
+
+            {/* Advanced Filters Modal */}
+            {showFilters && (
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '500px', width: '90%', padding: '24px', position: 'relative' }}>
+                        <div className="flex-between mb-4 pb-4 border-b border-[var(--border-light)]">
+                            <h2 className="text-xl font-bold flex items-center gap-2"><Filter size={20} className="text-primary" /> Advanced Filters</h2>
+                            <button className="icon-btn-small" onClick={() => setShowFilters(false)}><X size={20} /></button>
+                        </div>
+
+                        <div className="space-y-4 mb-6">
+                            <div>
+                                <label className="block text-xs text-muted mb-2 uppercase tracking-wide">Minimum Equity</label>
+                                <select className="fillable-input w-full">
+                                    <option value="any">Any Equity</option>
+                                    <option value="20k">$20,000+</option>
+                                    <option value="50k">$50,000+ (Recommended)</option>
+                                    <option value="100k">$100,000+</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs text-muted mb-2 uppercase tracking-wide">Days to Auction</label>
+                                <select className="fillable-input w-full">
+                                    <option value="any">Any Timeframe</option>
+                                    <option value="14">Less than 14 Days (Urgent)</option>
+                                    <option value="30">Less than 30 Days</option>
+                                    <option value="90">Less than 90 Days</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs text-muted mb-2 uppercase tracking-wide">Property Type</label>
+                                <select className="fillable-input w-full">
+                                    <option value="all">Single Family & Multi Family</option>
+                                    <option value="sfr">Single Family Only</option>
+                                    <option value="mfr">Multi Family Only</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border-light)]">
+                            <button className="btn btn-secondary" onClick={() => setShowFilters(false)}>Cancel</button>
+                            <button className="btn btn-primary" onClick={() => { setShowFilters(false); handleSearch(); }}>Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="glass-panel p-6 mb-8">
                 <form onSubmit={handleSearch} className="flex gap-4 items-end">

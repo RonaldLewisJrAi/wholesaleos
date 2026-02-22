@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, Settings, LogOut, User, Shield } from 'lucide-react';
+import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio } from 'lucide-react';
+import { useDemoMode } from '../contexts/DemoModeContext';
 import './Header.css';
 
 const Header = () => {
+    const { isDemoMode, setIsDemoMode } = useDemoMode();
     const [showNotifications, setShowNotifications] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
 
@@ -41,6 +43,24 @@ const Header = () => {
             </div>
 
             <div className="header-actions">
+                <div
+                    className="demo-toggle"
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
+                        padding: '6px 12px', borderRadius: '20px',
+                        backgroundColor: isDemoMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(239, 68, 68, 0.1)',
+                        border: `1px solid ${isDemoMode ? 'var(--border-light)' : 'rgba(239, 68, 68, 0.3)'}`,
+                        transition: 'all 0.2s ease'
+                    }}
+                    onClick={() => setIsDemoMode(!isDemoMode)}
+                    title={isDemoMode ? "Switch to Live Data Pipeline" : "Switch to Mock Data Demo"}
+                >
+                    {isDemoMode ? <ToggleLeft size={20} className="text-muted" /> : <ToggleRight size={20} className="text-danger" />}
+                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: isDemoMode ? 'var(--text-muted)' : 'var(--danger-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                        {isDemoMode ? 'Demo' : <span className="flex items-center gap-1"><Radio size={12} className="animate-pulse" /> Live</span>}
+                    </span>
+                </div>
+
                 <div className="dropdown-container">
                     <button className={`icon-btn ${showNotifications ? 'active' : ''}`} onClick={toggleNotifications}>
                         <Bell size={20} />

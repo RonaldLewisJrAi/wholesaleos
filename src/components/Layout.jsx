@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import ScrollChevron from './ScrollChevron';
 
 const Layout = () => {
     return (
@@ -13,6 +14,7 @@ const Layout = () => {
                     <Outlet />
                 </main>
             </div>
+            <ScrollChevron />
         </div>
     );
 };
