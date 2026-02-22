@@ -31,6 +31,20 @@ const Header = () => {
         setShowNotifications(false);
     };
 
+    const handleDemoToggle = () => {
+        if (isDemoMode) {
+            const password = window.prompt("Security Check: Enter Admin Password to access Live Production Data:");
+            if (password === "paidproperties2026!") {
+                setIsDemoMode(false);
+            } else if (password !== null) {
+                alert("Incorrect password. Access to Live Mode denied.");
+            }
+        } else {
+            // Switching back to demo mode is always allowed
+            setIsDemoMode(true);
+        }
+    };
+
     return (
         <header className="header glass-panel" ref={headerRef}>
             <div className="header-search">
@@ -52,7 +66,7 @@ const Header = () => {
                         border: `1px solid ${isDemoMode ? 'var(--border-light)' : 'rgba(239, 68, 68, 0.3)'}`,
                         transition: 'all 0.2s ease'
                     }}
-                    onClick={() => setIsDemoMode(!isDemoMode)}
+                    onClick={handleDemoToggle}
                     title={isDemoMode ? "Switch to Live Data Pipeline" : "Switch to Mock Data Demo"}
                 >
                     {isDemoMode ? <ToggleLeft size={20} className="text-muted" /> : <ToggleRight size={20} className="text-danger" />}
