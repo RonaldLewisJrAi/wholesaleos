@@ -10,8 +10,8 @@ const Radar = () => {
 
     const fetchRealData = async (searchCounty) => {
         try {
-            // Pointing to the local Node.js proxy we just built
-            const response = await axios.post('http://localhost:3001/api/foreclosures', {
+            // Pointing to the live Render Proxy
+            const response = await axios.post('https://wholesale-os.onrender.com/api/foreclosures', {
                 county: searchCounty,
                 state: 'TX' // Defaulting to TX for the prototype, could be dynamic
             });
