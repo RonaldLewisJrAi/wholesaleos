@@ -8,10 +8,10 @@ import CompEngineModal from '../components/CompEngineModal';
 import './Properties.css';
 
 const mockProperties = [
-    { id: 1, address: '1109 Whispering Hills Dr, Nashville, TN 37211', status: 'Under Contract', arv: '$500,000', mao: '$350,000', image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1500, beds: 3, baths: 2 },
-    { id: 2, address: '504 Fairlane Dr, Nashville, TN 37211', status: 'Lead', arv: '$650,000', mao: '$450,000', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 2200, beds: 4, baths: 3 },
-    { id: 3, address: '2800 McMurray Dr, Nashville, TN 37211', status: 'Marketing', arv: '$420,000', mao: '$290,000', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1100, beds: 2, baths: 2 },
-    { id: 4, address: '1205 Eastland Ave, Nashville, TN 37206', status: 'Lead', arv: '$750,000', mao: '$520,000', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1800, beds: 3, baths: 2.5 }
+    { id: 1, address: '1109 Whispering Hills Dr, Nashville, TN 37211', status: 'Under Contract', arv: '$500,000', mao: '$350,000', image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1500, beds: 3, baths: 2 },
+    { id: 2, address: '504 Fairlane Dr, Nashville, TN 37211', status: 'Lead', arv: '$650,000', mao: '$450,000', image: 'https://images.unsplash.com/photo-1605276374104-aa237f7cecd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 2200, beds: 4, baths: 3 },
+    { id: 3, address: '2800 McMurray Dr, Nashville, TN 37211', status: 'Marketing', arv: '$420,000', mao: '$290,000', image: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1100, beds: 2, baths: 2 },
+    { id: 4, address: '1205 Eastland Ave, Nashville, TN 37206', status: 'Lead', arv: '$750,000', mao: '$520,000', image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1800, beds: 3, baths: 2.5 }
 ];
 
 const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
@@ -20,9 +20,7 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
     return (
         <div className="property-card glass-panel">
             <div className="property-image" style={{
-                backgroundImage: `url(${property.image})`,
-                filter: isDemoMode ? 'blur(8px)' : 'none',
-                transition: 'filter 0.3s ease'
+                backgroundImage: `url(${property.image})`
             }}>
                 <span className={`status-badge ${property.status === 'Under Contract' ? 'bg-warning' : property.status === 'Marketing' ? 'bg-primary' : 'bg-success'}`}>
                     {property.status}
@@ -39,11 +37,19 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
                 <div className="property-metrics">
                     <div className="metric">
                         <span className="metric-label">ARV</span>
-                        <span className="metric-value">{property.arv}</span>
+                        <span className="metric-value font-mono" style={{
+                            filter: isDemoMode ? 'blur(6px)' : 'none',
+                            userSelect: isDemoMode ? 'none' : 'auto',
+                            transition: 'filter 0.3s ease'
+                        }}>{property.arv}</span>
                     </div>
                     <div className="metric">
                         <span className="metric-label">MAO</span>
-                        <span className="metric-value text-success">{property.mao}</span>
+                        <span className="metric-value text-success font-mono" style={{
+                            filter: isDemoMode ? 'blur(6px)' : 'none',
+                            userSelect: isDemoMode ? 'none' : 'auto',
+                            transition: 'filter 0.3s ease'
+                        }}>{property.mao}</span>
                     </div>
                 </div>
                 <div className="property-actions flex flex-col gap-2 mt-4">
