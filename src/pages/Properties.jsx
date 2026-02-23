@@ -8,10 +8,9 @@ import CompEngineModal from '../components/CompEngineModal';
 import './Properties.css';
 
 const mockProperties = [
-    { id: 1, address: '349 Rayon Dr, Old Hickory, TN 37138', status: 'FSBO Lead', arv: '$260,000', mao: '$180,000', image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1200, beds: 3, baths: 2 },
-    { id: 2, address: '6207 Laramie Ave, Nashville, TN 37209', status: 'Marketing', arv: '$550,000', mao: '$430,000', image: 'https://images.unsplash.com/photo-1605276374104-aa237f7cecd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1850, beds: 4, baths: 3 },
-    { id: 3, address: '52 Trimble St, Nashville, TN 37210', status: 'FSBO Lead', arv: '$480,000', mao: '$350,000', image: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1403, beds: 4, baths: 2 },
-    { id: 4, address: '1028 9th Ave N, Nashville, TN 37208', status: 'Under Contract', arv: '$650,000', mao: '$510,000', image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1335, beds: 2, baths: 2 }
+    { id: 1, address: '349 Rayon Dr, Old Hickory, TN 37138', status: 'FSBO Lead', arv: '$260,000', mao: '$180,000', image: 'https://photos.zillowstatic.com/fp/8a5840d24e54e42ba7ed03c2faeb9e7a-p_e.jpg', sqft: 1200, beds: 3, baths: 2 },
+    { id: 2, address: '6207 Laramie Ave, Nashville, TN 37209', status: 'Marketing', arv: '$550,000', mao: '$430,000', image: 'https://photos.zillowstatic.com/fp/9a957b98d4cf72bfec1b9542a17ba3f8-p_e.jpg', sqft: 1850, beds: 4, baths: 3 },
+    { id: 3, address: '52 Trimble St, Nashville, TN 37210', status: 'FSBO Lead', arv: '$480,000', mao: '$350,000', image: 'https://photos.zillowstatic.com/fp/7dce2e9c2f6d0a79a5baeb6dcbadadd5-p_e.jpg', sqft: 1403, beds: 4, baths: 2 }
 ];
 
 const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
@@ -37,19 +36,15 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
                 <div className="property-metrics">
                     <div className="metric">
                         <span className="metric-label">ARV</span>
-                        <span className="metric-value font-mono" style={{
-                            filter: isDemoMode ? 'blur(6px)' : 'none',
-                            userSelect: isDemoMode ? 'none' : 'auto',
-                            transition: 'filter 0.3s ease'
-                        }}>{property.arv}</span>
+                        <span className={`metric-value font-mono inline-block transition-all duration-300 ${isDemoMode ? 'blur-md select-none opacity-50 pointer-events-none' : ''}`}>
+                            {property.arv}
+                        </span>
                     </div>
                     <div className="metric">
                         <span className="metric-label">MAO</span>
-                        <span className="metric-value text-success font-mono" style={{
-                            filter: isDemoMode ? 'blur(6px)' : 'none',
-                            userSelect: isDemoMode ? 'none' : 'auto',
-                            transition: 'filter 0.3s ease'
-                        }}>{property.mao}</span>
+                        <span className={`metric-value font-mono inline-block transition-all duration-300 ${isDemoMode ? 'blur-md select-none opacity-50 pointer-events-none' : 'text-success'}`}>
+                            {property.mao}
+                        </span>
                     </div>
                 </div>
                 <div className="property-actions flex flex-col gap-2 mt-4">
