@@ -13,7 +13,7 @@ const mockProperties = [
     { id: 3, address: '52 Trimble St, Nashville, TN 37210', status: 'FSBO Lead', arv: '$480,000', mao: '$350,000', image: 'https://photos.zillowstatic.com/fp/7dce2e9c2f6d0a79a5baeb6dcbadadd5-p_e.jpg', sqft: 1403, beds: 4, baths: 2 }
 ];
 
-const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
+const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
     const { isDemoMode } = useDemoMode();
 
     return (
@@ -21,7 +21,7 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
             <div className="property-image" style={{
                 backgroundImage: `url(${property.image})`
             }}>
-                <span className={`status-badge ${property.status === 'Under Contract' ? 'bg-warning' : property.status === 'Marketing' ? 'bg-primary' : 'bg-success'}`}>
+                <span className={`status-badge ${property.status === 'Under Contract' ? 'bg-warning' : property.status === 'Marketing' ? 'bg-primary' : property.status === 'Web Lead' ? 'bg-secondary' : 'bg-success'}`}>
                     {property.status}
                 </span>
             </div>
@@ -48,15 +48,23 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
                     </div>
                 </div>
                 <div className="property-actions flex flex-col gap-2 mt-4">
-                    <button className="btn btn-secondary w-full flex justify-center gap-2" onClick={() => onRunComps(property)}>
-                        <Activity size={16} /> Run Comps
-                    </button>
-                    <div className="flex gap-2">
-                        <button className="btn btn-secondary flex-1">View</button>
-                        <button className="btn btn-primary flex-1 flex justify-center gap-2" onClick={() => onLaunchPacket(property)}>
-                            <Send size={16} /> Packet
+                    {property.status === 'Web Lead' ? (
+                        <button className="btn btn-primary w-full flex justify-center gap-2" onClick={() => onImport(property.id)}>
+                            <Database size={16} /> Import to System
                         </button>
-                    </div>
+                    ) : (
+                        <>
+                            <button className="btn btn-secondary w-full flex justify-center gap-2" onClick={() => onRunComps(property)}>
+                                <Activity size={16} /> Run Comps
+                            </button>
+                            <div className="flex gap-2">
+                                <button className="btn btn-secondary flex-1">View</button>
+                                <button className="btn btn-primary flex-1 flex justify-center gap-2" onClick={() => onLaunchPacket(property)}>
+                                    <Send size={16} /> Packet
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
@@ -68,6 +76,8 @@ const Properties = () => {
     const [loading, setLoading] = useState(true);
     const [isImporting, setIsImporting] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchMode, setSearchMode] = useState('local'); // 'local' or 'web'
+    const [isWebSearching, setIsWebSearching] = useState(false);
 
     // Modal States
     const [selectedPropertyForPacket, setSelectedPropertyForPacket] = useState(null);
@@ -287,36 +297,83 @@ const Properties = () => {
                 </div>
             )}
 
-            <div className="properties-toolbar glass-panel">
-                <div className="search-bar">
-                    <Search size={18} className="search-icon" />
-                    <input
-                        type="text"
-                        placeholder="Search by address, city, or zip code..."
-                        className="search-input"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+            <div className="properties-toolbar glass-panel flex-col items-start gap-4">
+                <div className="w-full flex justify-between items-center bg-[rgba(0,0,0,0.2)] rounded p-1 mb-2">
+                    <button
+                        className={`flex-1 py-1 px-3 rounded text-sm font-medium transition-colors ${searchMode === 'local' ? 'bg-primary text-white' : 'text-muted hover:text-white'}`}
+                        onClick={() => setSearchMode('local')}
+                    >
+                        Local Database
+                    </button>
+                    <button
+                        className={`flex-1 flex justify-center items-center gap-2 py-1 px-3 rounded text-sm font-medium transition-colors ${searchMode === 'web' ? 'bg-primary text-white' : 'text-muted hover:text-white'}`}
+                        onClick={() => setSearchMode('web')}
+                    >
+                        Live Web Search <span className="text-[10px] bg-white text-primary px-1 rounded-sm uppercase font-bold tracking-wider">BuyOwner</span>
+                    </button>
                 </div>
-                <div className="view-toggles">
-                    <button className="icon-btn active"><Home size={18} /></button>
-                    <button className="icon-btn"><MapPin size={18} /></button>
+
+                <div className="w-full flex-between">
+                    <div className="search-bar flex-1 mr-4">
+                        <Search size={18} className="search-icon" />
+                        <input
+                            type="text"
+                            placeholder={searchMode === 'local' ? "Search saved deals by address or status..." : "Enter Nashville zip code or street to scrape BuyOwner.com..."}
+                            className="search-input"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={async (e) => {
+                                if (e.key === 'Enter' && searchMode === 'web' && searchQuery) {
+                                    setIsWebSearching(true);
+                                    // Simulate 4.5s Apify pipeline delay
+                                    await new Promise(r => setTimeout(r, 4500));
+
+                                    const newWebLeads = [
+                                        { id: Date.now() + 1, address: '4922 Charlotte Ave, Nashville, TN', status: 'Web Lead', arv: '$620,000', mao: 'Uncalculated', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1600, beds: 3, baths: 2 },
+                                        { id: Date.now() + 2, address: '1210 McGavock Pk, Nashville, TN', status: 'Web Lead', arv: '$410,000', mao: 'Uncalculated', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1050, beds: 2, baths: 1 }
+                                    ];
+
+                                    setProperties(prev => [...newWebLeads, ...prev]);
+                                    setIsWebSearching(false);
+                                }
+                            }}
+                        />
+                    </div>
+                    <div className="view-toggles flex-shrink-0">
+                        <button className="icon-btn active"><Home size={18} /></button>
+                        <button className="icon-btn"><MapPin size={18} /></button>
+                    </div>
                 </div>
+                {searchMode === 'web' && (
+                    <div className="w-full text-xs text-muted flex items-center justify-between">
+                        <span>Press <kbd className="bg-[rgba(255,255,255,0.1)] px-1 rounded">Enter</kbd> to execute Apify live scrape.</span>
+                        {isWebSearching && <span className="text-primary animate-pulse">Initializing headless browser...</span>}
+                    </div>
+                )}
             </div>
 
             <div className="properties-grid">
                 {loading ? (
                     <div className="text-muted p-4">Loading properties...</div>
                 ) : (
-                    properties.filter(prop =>
-                        prop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        prop.status.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map(prop => (
+                    properties.filter(prop => {
+                        // In web mode, only show Web Leads. In local mode, hide Web Leads.
+                        if (searchMode === 'web' && prop.status !== 'Web Lead') return false;
+                        if (searchMode === 'local' && prop.status === 'Web Lead') return false;
+
+                        return prop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            prop.status.toLowerCase().includes(searchQuery.toLowerCase());
+                    }).map(prop => (
                         <PropertyCard
                             key={prop.id}
                             property={prop}
                             onLaunchPacket={setSelectedPropertyForPacket}
                             onRunComps={setSelectedPropertyForComps}
+                            onImport={(id) => {
+                                setProperties(prev => prev.map(p => p.id === id ? { ...p, status: 'FSBO Lead' } : p));
+                                alert('Property successfully imported to your Local Database!');
+                                setSearchMode('local'); // Jump back to local to show the save
+                            }}
                         />
                     ))
                 )}
