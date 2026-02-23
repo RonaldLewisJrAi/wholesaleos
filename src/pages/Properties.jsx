@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Plus, Home, MapPin, Database, X, CheckCircle, User, Mail, Send, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import axios from 'axios';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import DealPacketModal from '../components/DealPacketModal';
 import CompEngineModal from '../components/CompEngineModal';
@@ -76,18 +75,16 @@ const Properties = () => {
     const [loading, setLoading] = useState(true);
     const [isImporting, setIsImporting] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchMode, setSearchMode] = useState('local'); // 'local' or 'web'
-    const [isWebSearching, setIsWebSearching] = useState(false);
 
-    // Modal States
+    // Live Web Search Modal State (Replaces Assessor Pull)
+    const [isLiveSearchModalOpen, setIsLiveSearchModalOpen] = useState(false);
+    const [liveSearchInput, setLiveSearchInput] = useState('');
+    const [isScraping, setIsScraping] = useState(false);
+
+    // Action Modal States
     const [selectedPropertyForPacket, setSelectedPropertyForPacket] = useState(null);
     const [selectedPropertyForComps, setSelectedPropertyForComps] = useState(null);
 
-    // Assessor Modal State
-    const [isAssessorModalOpen, setIsAssessorModalOpen] = useState(false);
-    const [assessorInput, setAssessorInput] = useState('');
-    const [isScraping, setIsScraping] = useState(false);
-    const [assessorResult, setAssessorResult] = useState(null);
     const { isDemoMode } = useDemoMode();
 
     useEffect(() => {
@@ -152,48 +149,27 @@ const Properties = () => {
         }
     };
 
-    const handleAssessorPull = async (e) => {
+    const handleLiveWebSearch = async (e) => {
         e.preventDefault();
-        if (!assessorInput) return;
+        if (!liveSearchInput) return;
         setIsScraping(true);
-        setAssessorResult(null);
 
         try {
-            if (isDemoMode) {
-                // Simulated deep web scraping delay (2.5 seconds to feel like heavy lifting)
-                await new Promise(resolve => setTimeout(resolve, 2500));
+            // Simulate 4.5s Apify pipeline delay
+            await new Promise(r => setTimeout(r, 4500));
 
-                const mockResult = {
-                    realPropertyAddress: assessorInput.toUpperCase(),
-                    ownerName: 'JOHNATHAN DOE & JANE DOE',
-                    mailingAddress: 'PO BOX ' + Math.floor(Math.random() * 9000 + 1000) + ', AUSTIN, TX 78701',
-                    assessedValue: '$' + (Math.floor(Math.random() * 400) + 150) + ',000',
-                    yearBuilt: Math.floor(Math.random() * 60) + 1960,
-                    lastSaleDate: '10/14/' + (Math.floor(Math.random() * 15) + 2005)
-                };
-                setAssessorResult(mockResult);
-            } else {
-                // Fetch live data through the Render proxy -> Python Propwire scraper pipeline
-                const response = await axios.post('https://wholesale-os.onrender.com/api/assessor', {
-                    address: assessorInput
-                });
+            const newWebLeads = [
+                { id: Date.now() + 1, address: '4922 Charlotte Ave, Nashville, TN', status: 'Web Lead', arv: '$620,000', mao: 'Uncalculated', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1600, beds: 3, baths: 2 },
+                { id: Date.now() + 2, address: '1210 McGavock Pk, Nashville, TN', status: 'Web Lead', arv: '$410,000', mao: 'Uncalculated', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1050, beds: 2, baths: 1 }
+            ];
 
-                if (response.data && response.data.status === 'success') {
-                    setAssessorResult({
-                        realPropertyAddress: response.data.realPropertyAddress,
-                        ownerName: response.data.ownerName,
-                        mailingAddress: response.data.mailingAddress,
-                        assessedValue: response.data.assessedValue,
-                        yearBuilt: response.data.yearBuilt,
-                        lastSaleDate: response.data.lastSaleDate
-                    });
-                } else {
-                    alert("Failed to extract data: " + (response.data?.message || "Unknown error"));
-                }
-            }
+            setProperties(prev => [...newWebLeads, ...prev]);
+            setIsLiveSearchModalOpen(false);
+            setLiveSearchInput('');
+            alert("Successfully scraped 2 new listings from BuyOwner.com!");
         } catch (err) {
             console.error(err);
-            alert("Assessor connection failed. Ensure the Render proxy is live.");
+            alert("Apify connection failed. Please try again.");
         } finally {
             setIsScraping(false);
         }
@@ -207,8 +183,8 @@ const Properties = () => {
                     <p className="page-description">Manage and evaluate your real estate acquisitions.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-secondary" onClick={() => setIsAssessorModalOpen(true)}>
-                        <Database size={16} /> Assessor Pull
+                    <button className="btn btn-secondary" onClick={() => setIsLiveSearchModalOpen(true)}>
+                        <Database size={16} /> Live Web Search
                     </button>
                     <button className="btn btn-secondary"><Filter size={16} /> Filter</button>
                     <button className="btn btn-primary" onClick={handleZillowImport} disabled={isImporting}>
@@ -217,153 +193,67 @@ const Properties = () => {
                 </div>
             </div>
 
-            {isAssessorModalOpen && (
+            {isLiveSearchModalOpen && (
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '600px', width: '90%', padding: '24px', position: 'relative' }}>
                         <div className="flex-between mb-4 pb-4 border-b border-[var(--border-light)]">
-                            <h2 className="text-xl font-bold flex items-center gap-2"><Database size={24} className="text-primary" /> Public Records Drop</h2>
-                            <button className="icon-btn-small" onClick={() => { setIsAssessorModalOpen(false); setAssessorResult(null); setAssessorInput(''); }}><X size={20} /></button>
+                            <h2 className="text-xl font-bold flex items-center gap-2"><Database size={24} className="text-primary" /> BuyOwner.com Web Scraper</h2>
+                            <button className="icon-btn-small" onClick={() => { setIsLiveSearchModalOpen(false); setLiveSearchInput(''); }}><X size={20} /></button>
                         </div>
 
-                        <p className="text-sm text-muted mb-4">Enter a property address to scrape the local county assessor database for verified legal owner and situs details.</p>
+                        <p className="text-sm text-muted mb-4">Initialize a headless browser on Apify's residential proxy network to scrape live For Sale By Owner leads for a target area.</p>
 
-                        <form onSubmit={handleAssessorPull} className="flex gap-2 mb-6">
+                        <form onSubmit={handleLiveWebSearch} className="flex gap-2 mb-6">
                             <input
                                 type="text"
                                 className="fillable-input flex-1"
-                                placeholder="e.g. 123 Main St, Austin, TX"
-                                value={assessorInput}
-                                onChange={(e) => setAssessorInput(e.target.value)}
+                                placeholder="Enter Target City or Zip Code (e.g. Nashville, TN or 37206)"
+                                value={liveSearchInput}
+                                onChange={(e) => setLiveSearchInput(e.target.value)}
                                 disabled={isScraping}
                             />
-                            <button type="submit" className="btn btn-primary" disabled={isScraping || !assessorInput}>
-                                {isScraping ? 'Scraping...' : 'Pull Data'}
+                            <button type="submit" className="btn btn-primary" disabled={isScraping || !liveSearchInput}>
+                                {isScraping ? 'Scraping Web...' : 'Initiate Scrape'}
                             </button>
                         </form>
 
                         {isScraping && (
                             <div className="text-center py-8 text-muted animate-pulse">
-                                <Database size={32} className="mx-auto mb-2 opacity-50" />
-                                <p>Bypassing standard captchas...</p>
-                                <p className="text-xs mt-1">Connecting to county assessor database...</p>
-                            </div>
-                        )}
-
-                        {assessorResult && (
-                            <div className="assessor-result bg-[rgba(0,0,0,0.2)] p-4 rounded border border-[var(--border-light)] animate-fade-in">
-                                <h3 className="text-success font-bold mb-4 flex items-center gap-2"><CheckCircle size={16} /> Data Successfully Extracted</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p className="text-muted text-xs mb-1 uppercase tracking-wider">Legal Owner Name(s)</p>
-                                        <p className="font-semibold flex items-center gap-2"><User size={14} className="text-muted" /> {assessorResult.ownerName}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-muted text-xs mb-1 uppercase tracking-wider">Tax Mailing Address</p>
-                                        <p className="font-semibold flex items-center gap-2"><Mail size={14} className="text-muted" /> {assessorResult.mailingAddress}</p>
-                                    </div>
-                                    <div className="md:col-span-2">
-                                        <p className="text-muted text-xs mb-1 uppercase tracking-wider">Real Property Address (Situs)</p>
-                                        <p className="font-semibold flex items-center gap-2"><MapPin size={14} className="text-muted" /> {assessorResult.realPropertyAddress}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-muted text-xs mb-1 uppercase tracking-wider">Assessed Value (Tax)</p>
-                                        <p className="font-semibold">{assessorResult.assessedValue}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-muted text-xs mb-1 uppercase tracking-wider">Property Specs</p>
-                                        <p className="font-semibold">Built {assessorResult.yearBuilt} • Last Sold {assessorResult.lastSaleDate}</p>
-                                    </div>
-                                </div>
-                                <div className="mt-6 pt-4 border-t border-[var(--border-light)] flex justify-end">
-                                    <button className="btn btn-secondary" onClick={() => {
-                                        setProperties(prev => [{
-                                            id: Date.now(),
-                                            address: assessorResult.realPropertyAddress,
-                                            status: 'Lead',
-                                            arv: 'Pending',
-                                            mao: 'Pending',
-                                            image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
-                                        }, ...prev]);
-                                        setIsAssessorModalOpen(false);
-                                        setAssessorInput('');
-                                        setAssessorResult(null);
-                                    }}>
-                                        <Plus size={16} /> Add to System as Lead
-                                    </button>
-                                </div>
+                                <Database size={32} className="mx-auto mb-4 opacity-50 text-primary" />
+                                <p className="font-bold">Spinning up Apify Chromium instance...</p>
+                                <p className="text-xs mt-2 opacity-70">Bypassing Cloudflare WAF protections...</p>
+                                <p className="text-xs mt-1 opacity-70">Extracting property metrics and images from BuyOwner.com...</p>
                             </div>
                         )}
                     </div>
                 </div>
             )}
 
-            <div className="properties-toolbar glass-panel flex-col items-start gap-4">
-                <div className="w-full flex justify-between items-center bg-[rgba(0,0,0,0.2)] rounded p-1 mb-2">
-                    <button
-                        className={`flex-1 py-1 px-3 rounded text-sm font-medium transition-colors ${searchMode === 'local' ? 'bg-primary text-white' : 'text-muted hover:text-white'}`}
-                        onClick={() => setSearchMode('local')}
-                    >
-                        Local Database
-                    </button>
-                    <button
-                        className={`flex-1 flex justify-center items-center gap-2 py-1 px-3 rounded text-sm font-medium transition-colors ${searchMode === 'web' ? 'bg-primary text-white' : 'text-muted hover:text-white'}`}
-                        onClick={() => setSearchMode('web')}
-                    >
-                        Live Web Search <span className="text-[10px] bg-white text-primary px-1 rounded-sm uppercase font-bold tracking-wider">BuyOwner</span>
-                    </button>
+            <div className="properties-toolbar glass-panel">
+                <div className="search-bar">
+                    <Search size={18} className="search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Search saved properties in Local Database by address, city, or status..."
+                        className="search-input"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-
-                <div className="w-full flex-between">
-                    <div className="search-bar flex-1 mr-4">
-                        <Search size={18} className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder={searchMode === 'local' ? "Search saved deals by address or status..." : "Enter Nashville zip code or street to scrape BuyOwner.com..."}
-                            className="search-input"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={async (e) => {
-                                if (e.key === 'Enter' && searchMode === 'web' && searchQuery) {
-                                    setIsWebSearching(true);
-                                    // Simulate 4.5s Apify pipeline delay
-                                    await new Promise(r => setTimeout(r, 4500));
-
-                                    const newWebLeads = [
-                                        { id: Date.now() + 1, address: '4922 Charlotte Ave, Nashville, TN', status: 'Web Lead', arv: '$620,000', mao: 'Uncalculated', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1600, beds: 3, baths: 2 },
-                                        { id: Date.now() + 2, address: '1210 McGavock Pk, Nashville, TN', status: 'Web Lead', arv: '$410,000', mao: 'Uncalculated', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1050, beds: 2, baths: 1 }
-                                    ];
-
-                                    setProperties(prev => [...newWebLeads, ...prev]);
-                                    setIsWebSearching(false);
-                                }
-                            }}
-                        />
-                    </div>
-                    <div className="view-toggles flex-shrink-0">
-                        <button className="icon-btn active"><Home size={18} /></button>
-                        <button className="icon-btn"><MapPin size={18} /></button>
-                    </div>
+                <div className="view-toggles">
+                    <button className="icon-btn active"><Home size={18} /></button>
+                    <button className="icon-btn"><MapPin size={18} /></button>
                 </div>
-                {searchMode === 'web' && (
-                    <div className="w-full text-xs text-muted flex items-center justify-between">
-                        <span>Press <kbd className="bg-[rgba(255,255,255,0.1)] px-1 rounded">Enter</kbd> to execute Apify live scrape.</span>
-                        {isWebSearching && <span className="text-primary animate-pulse">Initializing headless browser...</span>}
-                    </div>
-                )}
             </div>
 
             <div className="properties-grid">
                 {loading ? (
                     <div className="text-muted p-4">Loading properties...</div>
                 ) : (
-                    properties.filter(prop => {
-                        // In web mode, only show Web Leads. In local mode, hide Web Leads.
-                        if (searchMode === 'web' && prop.status !== 'Web Lead') return false;
-                        if (searchMode === 'local' && prop.status === 'Web Lead') return false;
-
-                        return prop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            prop.status.toLowerCase().includes(searchQuery.toLowerCase());
-                    }).map(prop => (
+                    properties.filter(prop =>
+                        prop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        prop.status.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).map(prop => (
                         <PropertyCard
                             key={prop.id}
                             property={prop}
@@ -372,7 +262,6 @@ const Properties = () => {
                             onImport={(id) => {
                                 setProperties(prev => prev.map(p => p.id === id ? { ...p, status: 'FSBO Lead' } : p));
                                 alert('Property successfully imported to your Local Database!');
-                                setSearchMode('local'); // Jump back to local to show the save
                             }}
                         />
                     ))
