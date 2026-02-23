@@ -174,52 +174,65 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                     </div>
                 </div>
 
-                <div className="rehab-summary glass-panel p-4 flex flex-col">
-                    <h4 className="font-semibold text-sm uppercase tracking-wide mb-4 border-b border-[var(--border-light)] pb-2">Financial Summary</h4>
+                <div className="rehab-summary glass-panel p-4 flex flex-col justify-between">
+                    <div>
+                        <h4 className="font-semibold text-sm uppercase tracking-wide mb-4 border-b border-[var(--border-light)] pb-2">Financial Summary</h4>
 
-                    <div className="summary-row flex-between text-sm mb-2 text-gray-300">
-                        <span>Materials & Labor</span>
-                        <span>{formatCurrency(totals.subtotal)}</span>
-                    </div>
-
-                    <div className="summary-row flex-between text-sm mb-4">
-                        <span className="flex items-center gap-1 text-muted">
-                            Contractor Markup
-                            <input
-                                type="number"
-                                className="rehab-input-small w-12 text-center mx-1 bg-[rgba(255,255,255,0.05)] border border-[var(--border-light)] rounded px-1"
-                                value={markupPct}
-                                onFocus={(e) => e.target.select()}
-                                onChange={(e) => setMarkupPct(Number(e.target.value))}
-                            />%
-                        </span>
-                        <span>{formatCurrency(totals.markup)}</span>
-                    </div>
-
-                    <div className="total-box mt-auto bg-[rgba(0,0,0,0.3)] p-4 rounded border border-primary/30">
-                        <div className="flex-between mb-1">
-                            <span className="text-sm font-bold text-primary uppercase">Total Rehab Cost</span>
-                            <span className="text-xl font-bold">{formatCurrency(totals.total)}</span>
+                        <div className="summary-row grid grid-cols-[1fr_auto] gap-4 items-center text-sm mb-2 text-gray-300">
+                            <span>Materials & Labor</span>
+                            <span className="text-right">{formatCurrency(totals.subtotal)}</span>
                         </div>
-                        {property?.sqft && (
-                            <div className="text-right text-xs text-muted">
-                                {formatCurrency(totals.perSqft)} / sqft
-                            </div>
-                        )}
+
+                        <div className="summary-row grid grid-cols-[1fr_auto] gap-4 items-center text-sm mb-4">
+                            <span className="flex items-center gap-1 text-muted">
+                                Contractor Markup
+                                <input
+                                    type="number"
+                                    className="rehab-input-small w-12 text-center mx-1 bg-[rgba(255,255,255,0.05)] border border-[var(--border-light)] rounded px-1"
+                                    value={markupPct}
+                                    onFocus={(e) => e.target.select()}
+                                    onChange={(e) => setMarkupPct(Number(e.target.value))}
+                                />%
+                            </span>
+                            <span className="text-right">{formatCurrency(totals.markup)}</span>
+                        </div>
                     </div>
 
-                    <button
-                        className="btn btn-primary w-full mt-4 flex justify-center gap-2"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                    >
-                        {isSaving ? <span className="animate-pulse">Saving Matrix...</span> : <><Save size={16} /> Save to Deal Packet</>}
-                    </button>
+                    <div>
+                        <div className="flex items-stretch gap-3 mt-4">
+                            <div className="total-box flex-1 bg-[rgba(0,0,0,0.3)] p-3 rounded border border-primary/30 flex flex-col justify-center">
+                                <div className="flex-between mb-1">
+                                    <span className="text-xs font-bold text-primary uppercase">Total Rehab Cost</span>
+                                    <span className="text-lg font-bold">{formatCurrency(totals.total)}</span>
+                                </div>
+                                {property?.sqft && (
+                                    <div className="text-right text-[10px] text-muted">
+                                        {formatCurrency(totals.perSqft)} / sqft
+                                    </div>
+                                )}
+                            </div>
 
-                    <p className="text-[10px] text-muted flex items-start gap-1 mt-3 text-center">
-                        <Info size={12} className="mt-0.5 flex-shrink-0" />
-                        This estimate will be automatically attached to the investor disposition packet when generated.
-                    </p>
+                            <button
+                                className="btn btn-primary flex flex-col items-center justify-center px-4 rounded border border-primary/50"
+                                onClick={handleSave}
+                                disabled={isSaving}
+                            >
+                                {isSaving ? (
+                                    <span className="animate-pulse text-xs">Saving...</span>
+                                ) : (
+                                    <>
+                                        <Save size={18} className="mb-1" />
+                                        <span className="text-[10px] uppercase font-bold tracking-wider">Save</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+
+                        <p className="text-[10px] text-muted flex items-start gap-1 mt-3">
+                            <Info size={12} className="mt-0.5 flex-shrink-0" />
+                            This estimate will be automatically attached to the investor disposition packet when generated.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
