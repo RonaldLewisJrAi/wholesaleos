@@ -129,16 +129,16 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                     </div>
 
                     <div className="line-item-list">
-                        <div className="line-item-header flex text-xs text-muted mb-2 px-2 uppercase font-medium">
-                            <div className="w-1/3">Category</div>
-                            <div className="w-1/2">Description</div>
-                            <div className="w-1/4 text-right">Cost Estimate</div>
-                            <div className="w-8"></div>
+                        <div className="line-item-header grid grid-cols-[1fr_2fr_1fr_32px] gap-2 text-xs text-muted mb-2 px-2 uppercase font-medium">
+                            <div>Category</div>
+                            <div>Description</div>
+                            <div className="text-right pb-1">Cost Estimate</div>
+                            <div></div>
                         </div>
 
                         {lineItems.map(item => (
-                            <div key={item.id} className="line-item-row flex items-center gap-2 mb-2 bg-[rgba(0,0,0,0.2)] p-2 rounded">
-                                <div className="w-1/3">
+                            <div key={item.id} className="line-item-row grid grid-cols-[1fr_2fr_1fr_32px] gap-2 items-center mb-2 bg-[rgba(0,0,0,0.2)] p-2 rounded">
+                                <div>
                                     <input
                                         type="text"
                                         className="rehab-input w-full"
@@ -147,7 +147,7 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                                         placeholder="Category"
                                     />
                                 </div>
-                                <div className="w-1/2">
+                                <div>
                                     <input
                                         type="text"
                                         className="rehab-input w-full"
@@ -156,7 +156,7 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                                         placeholder="Description"
                                     />
                                 </div>
-                                <div className="w-1/4 relative">
+                                <div className="relative">
                                     <DollarSign size={12} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted" />
                                     <input
                                         type="number"
@@ -166,7 +166,7 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                                         onChange={(e) => handleUpdateLineItem(item.id, 'cost', Number(e.target.value))}
                                     />
                                 </div>
-                                <button className="w-8 flex justify-center text-muted hover:text-danger" onClick={() => handleRemoveLineItem(item.id)}>
+                                <button className="flex justify-center text-muted hover:text-danger" onClick={() => handleRemoveLineItem(item.id)}>
                                     <Trash2 size={14} />
                                 </button>
                             </div>
