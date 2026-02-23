@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, Home, MapPin, Database, X, CheckCircle, User, Mail } from 'lucide-react';
+import { Search, Filter, Plus, Home, MapPin, Database, X, CheckCircle, User, Mail, Send, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import axios from 'axios';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import DealPacketModal from '../components/DealPacketModal';
+import CompEngineModal from '../components/CompEngineModal';
 import './Properties.css';
 
 const mockProperties = [
-    { id: 1, address: '123 Main St, Austin, TX', status: 'Under Contract', arv: '$450,000', mao: '$310,000', image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
-    { id: 2, address: '456 Oak Ave, Dallas, TX', status: 'Lead', arv: '$320,000', mao: '$225,000', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
-    { id: 3, address: '789 Pine Ln, Houston, TX', status: 'Marketing', arv: '$550,000', mao: '$380,000', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
+    { id: 1, address: '123 Main St, Austin, TX', status: 'Under Contract', arv: '$450,000', mao: '$310,000', image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1850, beds: 3, baths: 2 },
+    { id: 2, address: '456 Oak Ave, Dallas, TX', status: 'Lead', arv: '$320,000', mao: '$225,000', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1400, beds: 3, baths: 1.5 },
+    { id: 3, address: '789 Pine Ln, Houston, TX', status: 'Marketing', arv: '$550,000', mao: '$380,000', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 2200, beds: 4, baths: 3 },
 ];
 
-const PropertyCard = ({ property }) => (
+const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => (
     <div className="property-card glass-panel">
         <div className="property-image" style={{ backgroundImage: `url(${property.image})` }}>
             <span className={`status-badge ${property.status === 'Under Contract' ? 'bg-warning' : property.status === 'Marketing' ? 'bg-primary' : 'bg-success'}`}>
@@ -30,8 +32,16 @@ const PropertyCard = ({ property }) => (
                     <span className="metric-value text-success">{property.mao}</span>
                 </div>
             </div>
-            <div className="property-actions">
-                <button className="btn btn-secondary w-full">View Details</button>
+            <div className="property-actions flex flex-col gap-2 mt-4">
+                <button className="btn btn-secondary w-full flex justify-center gap-2" onClick={() => onRunComps(property)}>
+                    <Activity size={16} /> Run Comps
+                </button>
+                <div className="flex gap-2">
+                    <button className="btn btn-secondary flex-1">View</button>
+                    <button className="btn btn-primary flex-1 flex justify-center gap-2" onClick={() => onLaunchPacket(property)}>
+                        <Send size={16} /> Packet
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -41,6 +51,10 @@ const Properties = () => {
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isImporting, setIsImporting] = useState(false);
+
+    // Modal States
+    const [selectedPropertyForPacket, setSelectedPropertyForPacket] = useState(null);
+    const [selectedPropertyForComps, setSelectedPropertyForComps] = useState(null);
 
     // Assessor Modal State
     const [isAssessorModalOpen, setIsAssessorModalOpen] = useState(false);
@@ -271,9 +285,28 @@ const Properties = () => {
                 {loading ? (
                     <div className="text-muted p-4">Loading properties...</div>
                 ) : (
-                    properties.map(prop => <PropertyCard key={prop.id} property={prop} />)
+                    properties.map(prop => (
+                        <PropertyCard
+                            key={prop.id}
+                            property={prop}
+                            onLaunchPacket={setSelectedPropertyForPacket}
+                            onRunComps={setSelectedPropertyForComps}
+                        />
+                    ))
                 )}
             </div>
+
+            <DealPacketModal
+                isOpen={!!selectedPropertyForPacket}
+                property={selectedPropertyForPacket}
+                onClose={() => setSelectedPropertyForPacket(null)}
+            />
+
+            <CompEngineModal
+                isOpen={!!selectedPropertyForComps}
+                property={selectedPropertyForComps}
+                onClose={() => setSelectedPropertyForComps(null)}
+            />
         </div>
     );
 };

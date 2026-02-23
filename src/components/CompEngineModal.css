@@ -1,0 +1,223 @@
+.comp-engine-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 24px;
+}
+
+.comp-engine-modal {
+    width: 100%;
+    max-width: 1000px;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.comp-engine-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: linear-gradient(135deg, rgba(8, 8, 12, 1) 0%, rgba(20, 20, 30, 1) 100%);
+}
+
+.comp-engine-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.comp-engine-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    overflow: hidden;
+}
+
+/* Sidebar Filters */
+.comp-filters {
+    padding: 24px;
+    border-right: 1px solid var(--border-light);
+    background: rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+}
+
+.filter-pill.active {
+    background: rgba(0, 112, 243, 0.15);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* Results Area */
+.comp-results {
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.comp-summary-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.arv-stat-box {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.2));
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.arv-stat-box.highlight {
+    border-color: var(--success);
+    background: rgba(46, 172, 109, 0.05);
+}
+
+.arv-stat-box .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.arv-stat-box .stat-val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.arv-stat-box.highlight .stat-val {
+    color: var(--success);
+}
+
+/* Confidence Score Tiers */
+.confidence-high {
+    color: var(--success);
+}
+
+.confidence-medium {
+    color: var(--warning);
+}
+
+.confidence-low {
+    color: var(--danger);
+}
+
+/* Comp List */
+.comp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.comp-row {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    align-items: center;
+    gap: 16px;
+    transition: background 0.2s;
+}
+
+.comp-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.comp-row.excluded {
+    opacity: 0.4;
+    filter: grayscale(1);
+}
+
+.comp-address {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.comp-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.comp-metric {
+    text-align: right;
+}
+
+.comp-metric .val {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.comp-metric .lbl {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}

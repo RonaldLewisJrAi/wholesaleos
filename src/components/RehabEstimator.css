@@ -1,0 +1,83 @@
+.rehab-estimator {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.rehab-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .rehab-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tier-selector {
+    display: flex;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.tier-selector .tier-btn {
+    padding: 6px 16px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tier-selector .tier-btn:hover {
+    color: var(--text-light);
+}
+
+.tier-selector .tier-btn.active {
+    background: var(--accent-primary);
+    color: white;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.rehab-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-light);
+    color: var(--text-light);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    transition: border-color 0.2s;
+}
+
+.rehab-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.rehab-input::-webkit-outer-spin-button,
+.rehab-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.rehab-input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.line-item-row {
+    transition: background-color 0.2s;
+}
+
+.line-item-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
