@@ -76,16 +76,16 @@ const Properties = () => {
     const [isImporting, setIsImporting] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Live Web Search Modal State (Replaces Assessor Pull)
-    const [isLiveSearchModalOpen, setIsLiveSearchModalOpen] = useState(false);
-    const [liveSearchInput, setLiveSearchInput] = useState('');
+    // Live Finder Modal State (Replaces Assessor Pull)
+    const [isLiveFinderModalOpen, setIsLiveFinderModalOpen] = useState(false);
+    const [liveFinderInput, setLiveFinderInput] = useState('');
     const [isScraping, setIsScraping] = useState(false);
 
     // Action Modal States
     const [selectedPropertyForPacket, setSelectedPropertyForPacket] = useState(null);
     const [selectedPropertyForComps, setSelectedPropertyForComps] = useState(null);
 
-    const { isDemoMode } = useDemoMode();
+
 
     useEffect(() => {
         const fetchProperties = async () => {
@@ -149,9 +149,9 @@ const Properties = () => {
         }
     };
 
-    const handleLiveWebSearch = async (e) => {
+    const handleLiveFinder = async (e) => {
         e.preventDefault();
-        if (!liveSearchInput) return;
+        if (!liveFinderInput) return;
         setIsScraping(true);
 
         try {
@@ -164,9 +164,9 @@ const Properties = () => {
             ];
 
             setProperties(prev => [...newWebLeads, ...prev]);
-            setIsLiveSearchModalOpen(false);
-            setLiveSearchInput('');
-            alert("Successfully scraped 2 new listings from BuyOwner.com!");
+            setIsLiveFinderModalOpen(false);
+            setLiveFinderInput('');
+            alert("Successfully scraped 2 new listings from the web!");
         } catch (err) {
             console.error(err);
             alert("Apify connection failed. Please try again.");
@@ -183,8 +183,8 @@ const Properties = () => {
                     <p className="page-description">Manage and evaluate your real estate acquisitions.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-secondary" onClick={() => setIsLiveSearchModalOpen(true)}>
-                        <Database size={16} /> Live Web Search
+                    <button className="btn btn-secondary" onClick={() => setIsLiveFinderModalOpen(true)}>
+                        <Database size={16} /> Live Finder
                     </button>
                     <button className="btn btn-secondary"><Filter size={16} /> Filter</button>
                     <button className="btn btn-primary" onClick={handleZillowImport} disabled={isImporting}>
@@ -193,27 +193,27 @@ const Properties = () => {
                 </div>
             </div>
 
-            {isLiveSearchModalOpen && (
+            {isLiveFinderModalOpen && (
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '600px', width: '90%', padding: '24px', position: 'relative' }}>
                         <div className="flex-between mb-4 pb-4 border-b border-[var(--border-light)]">
-                            <h2 className="text-xl font-bold flex items-center gap-2"><Database size={24} className="text-primary" /> BuyOwner.com Web Scraper</h2>
-                            <button className="icon-btn-small" onClick={() => { setIsLiveSearchModalOpen(false); setLiveSearchInput(''); }}><X size={20} /></button>
+                            <h2 className="text-xl font-bold flex items-center gap-2"><Database size={24} className="text-primary" /> Live Finder Engine</h2>
+                            <button className="icon-btn-small" onClick={() => { setIsLiveFinderModalOpen(false); setLiveFinderInput(''); }}><X size={20} /></button>
                         </div>
 
                         <p className="text-sm text-muted mb-4">Initialize a headless browser on Apify's residential proxy network to scrape live For Sale By Owner leads for a target area.</p>
 
-                        <form onSubmit={handleLiveWebSearch} className="flex gap-2 mb-6">
+                        <form onSubmit={handleLiveFinder} className="flex gap-2 mb-6">
                             <input
                                 type="text"
                                 className="fillable-input flex-1"
                                 placeholder="Enter Target City or Zip Code (e.g. Nashville, TN or 37206)"
-                                value={liveSearchInput}
-                                onChange={(e) => setLiveSearchInput(e.target.value)}
+                                value={liveFinderInput}
+                                onChange={(e) => setLiveFinderInput(e.target.value)}
                                 disabled={isScraping}
                             />
-                            <button type="submit" className="btn btn-primary" disabled={isScraping || !liveSearchInput}>
-                                {isScraping ? 'Scraping Web...' : 'Initiate Scrape'}
+                            <button type="submit" className="btn btn-primary" disabled={isScraping || !liveFinderInput}>
+                                {isScraping ? 'Searching...' : 'Initiate Radar'}
                             </button>
                         </form>
 
@@ -222,7 +222,7 @@ const Properties = () => {
                                 <Database size={32} className="mx-auto mb-4 opacity-50 text-primary" />
                                 <p className="font-bold">Spinning up Apify Chromium instance...</p>
                                 <p className="text-xs mt-2 opacity-70">Bypassing Cloudflare WAF protections...</p>
-                                <p className="text-xs mt-1 opacity-70">Extracting property metrics and images from BuyOwner.com...</p>
+                                <p className="text-xs mt-1 opacity-70">Extracting property metrics and images from public records...</p>
                             </div>
                         )}
                     </div>
