@@ -199,39 +199,39 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                     </div>
 
                     <div>
-                        <div className="flex items-stretch gap-3 mt-4">
-                            <div className="total-box flex-1 bg-[rgba(0,0,0,0.3)] p-3 rounded border border-primary/30 flex flex-col justify-center">
-                                <div className="flex-between mb-1">
-                                    <span className="text-xs font-bold text-primary uppercase">Total Rehab Cost</span>
-                                    <span className="text-lg font-bold">{formatCurrency(totals.total)}</span>
-                                </div>
-                                {property?.sqft && (
-                                    <div className="text-right text-[10px] text-muted">
-                                        {formatCurrency(totals.perSqft)} / sqft
-                                    </div>
-                                )}
+                        <div className="total-box mt-4 bg-[rgba(0,0,0,0.3)] p-3 rounded border border-primary/30">
+                            <div className="flex-between mb-1">
+                                <span className="text-sm font-bold text-primary uppercase">Total Rehab Cost</span>
+                                <span className="text-xl font-bold">{formatCurrency(totals.total)}</span>
                             </div>
+                            {property?.sqft && (
+                                <div className="text-right text-xs text-muted">
+                                    {formatCurrency(totals.perSqft)} / sqft
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-between items-center mt-4">
+                            <p className="text-[10px] text-muted flex items-start gap-1 flex-1 pr-4">
+                                <Info size={12} className="mt-0.5 flex-shrink-0" />
+                                Estimate is attached to investor packet upon save.
+                            </p>
 
                             <button
-                                className="btn btn-primary flex flex-col items-center justify-center px-4 rounded border border-primary/50"
+                                className="btn text-xs py-1.5 px-3 flex items-center gap-2 bg-primary/10 hover:bg-primary/30 text-primary border border-primary/30 rounded shadow-sm transition-all"
                                 onClick={handleSave}
                                 disabled={isSaving}
                             >
                                 {isSaving ? (
-                                    <span className="animate-pulse text-xs">Saving...</span>
+                                    <span className="animate-pulse">Saving...</span>
                                 ) : (
                                     <>
-                                        <Save size={18} className="mb-1" />
-                                        <span className="text-[10px] uppercase font-bold tracking-wider">Save</span>
+                                        <Save size={14} />
+                                        <span className="font-semibold uppercase tracking-wide">Save Matrix</span>
                                     </>
                                 )}
                             </button>
                         </div>
-
-                        <p className="text-[10px] text-muted flex items-start gap-1 mt-3">
-                            <Info size={12} className="mt-0.5 flex-shrink-0" />
-                            This estimate will be automatically attached to the investor disposition packet when generated.
-                        </p>
                     </div>
                 </div>
             </div>
