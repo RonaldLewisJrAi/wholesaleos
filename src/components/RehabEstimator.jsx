@@ -162,6 +162,7 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                                         type="number"
                                         className="rehab-input w-full pl-6 text-right"
                                         value={item.cost}
+                                        onFocus={(e) => e.target.select()}
                                         onChange={(e) => handleUpdateLineItem(item.id, 'cost', Number(e.target.value))}
                                     />
                                 </div>
@@ -188,6 +189,7 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                                 type="number"
                                 className="rehab-input-small w-12 text-center mx-1 bg-[rgba(255,255,255,0.05)] border border-[var(--border-light)] rounded px-1"
                                 value={markupPct}
+                                onFocus={(e) => e.target.select()}
                                 onChange={(e) => setMarkupPct(Number(e.target.value))}
                             />%
                         </span>
