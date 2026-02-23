@@ -8,10 +8,10 @@ import CompEngineModal from '../components/CompEngineModal';
 import './Properties.css';
 
 const mockProperties = [
-    { id: 1, address: '1109 Whispering Hills Dr, Nashville, TN 37211', status: 'Under Contract', arv: '$500,000', mao: '$350,000', image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1500, beds: 3, baths: 2 },
-    { id: 2, address: '504 Fairlane Dr, Nashville, TN 37211', status: 'Lead', arv: '$650,000', mao: '$450,000', image: 'https://images.unsplash.com/photo-1605276374104-aa237f7cecd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 2200, beds: 4, baths: 3 },
-    { id: 3, address: '2800 McMurray Dr, Nashville, TN 37211', status: 'Marketing', arv: '$420,000', mao: '$290,000', image: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1100, beds: 2, baths: 2 },
-    { id: 4, address: '1205 Eastland Ave, Nashville, TN 37206', status: 'Lead', arv: '$750,000', mao: '$520,000', image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1800, beds: 3, baths: 2.5 }
+    { id: 1, address: '349 Rayon Dr, Old Hickory, TN 37138', status: 'FSBO Lead', arv: '$260,000', mao: '$180,000', image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1200, beds: 3, baths: 2 },
+    { id: 2, address: '6207 Laramie Ave, Nashville, TN 37209', status: 'Marketing', arv: '$550,000', mao: '$430,000', image: 'https://images.unsplash.com/photo-1605276374104-aa237f7cecd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1850, beds: 4, baths: 3 },
+    { id: 3, address: '52 Trimble St, Nashville, TN 37210', status: 'FSBO Lead', arv: '$480,000', mao: '$350,000', image: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1403, beds: 4, baths: 2 },
+    { id: 4, address: '1028 9th Ave N, Nashville, TN 37208', status: 'Under Contract', arv: '$650,000', mao: '$510,000', image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80', sqft: 1335, beds: 2, baths: 2 }
 ];
 
 const PropertyCard = ({ property, onLaunchPacket, onRunComps }) => {
