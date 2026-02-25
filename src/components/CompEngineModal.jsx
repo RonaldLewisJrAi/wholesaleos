@@ -67,7 +67,8 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                 setZillowLink(`https://www.zillow.com/homes/recently_sold/?searchQueryState=${encodeURIComponent(JSON.stringify(searchQueryState))}`);
 
                 // 2. Ping Local Playwright Proxy
-                const res = await fetch('http://localhost:3001/api/comps', {
+                const baseUrl = import.meta.env.VITE_API_URL || 'https://wholesale-os.onrender.com';
+                const res = await fetch(`${baseUrl}/api/comps`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lat, lng, radius, timeframeMonths: timeframe, isDemoMode })

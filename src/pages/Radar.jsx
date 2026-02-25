@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X } from 'lucide-react';
-import axios from 'axios';
+import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X, AlertCircle, DollarSign, RefreshCw, ZoomIn } from 'lucide-react';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import HeatMap from '../components/HeatMap';
 
@@ -14,15 +13,20 @@ const Radar = () => {
 
     const fetchRealData = async (searchCounty) => {
         try {
-            // Pointing to the live Render Proxy
-            const response = await axios.post('https://wholesale-os.onrender.com/api/foreclosures', {
-                county: searchCounty,
-                state: 'TX' // Defaulting to TX for the prototype, could be dynamic
+            const baseUrl = import.meta.env.VITE_API_URL || 'https://wholesale-os.onrender.com';
+            const response = await fetch(`${baseUrl}/api/foreclosures`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    county: searchCounty,
+                    state: 'TX'
+                })
             });
+            const data = await response.json();
 
-            if (response.data && response.data.results) {
+            if (data && data.results) {
                 // Ensure data flows into the same shape the UI expects
-                const mappedResults = response.data.results.map((item, index) => ({
+                const mappedResults = data.results.map((item, index) => ({
                     id: Date.now() + index,
                     address: item.address,
                     owner: item.owner || 'Unknown',
