@@ -28,8 +28,8 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
         if (selectedTier === 'super' || selectedTier === 'elite') priceId = import.meta.env.VITE_STRIPE_SUPER_PRICE_ID;
 
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'https://wholesale-os.onrender.com';
-            const response = await fetch(`${baseUrl}/api/stripe/create-checkout-session`, {
+            // Native relative Vercel API path
+            const response = await fetch(`/api/stripe/create-checkout-session`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -117,7 +117,7 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                             >
                                 <div className="text-left w-full">
                                     <h3 className="font-bold text-lg mb-1">Starter</h3>
-                                    <div className="price font-bold text-2xl mb-3">$97<span className="text-sm font-normal text-muted">/mo</span></div>
+                                    <div className="price font-bold text-2xl mb-3">$100<span className="text-sm font-normal text-muted">/mo</span></div>
                                     <ul className="text-xs text-muted space-y-2">
                                         <li><CheckCircle size={12} className="inline mr-1 text-success" /> 25 Live Scrape Leads</li>
                                         <li><CheckCircle size={12} className="inline mr-1 text-success" /> Basic CRM Access</li>
@@ -132,7 +132,7 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                                 <div className="recommend-badge">RECOMMENDED</div>
                                 <div className="text-left w-full">
                                     <h3 className="font-bold text-lg mb-1 text-primary">Pro</h3>
-                                    <div className="price font-bold text-2xl mb-3">$197<span className="text-sm font-normal text-muted">/mo</span></div>
+                                    <div className="price font-bold text-2xl mb-3">$500<span className="text-sm font-normal text-muted">/mo</span></div>
                                     <ul className="text-xs text-muted space-y-2">
                                         <li><CheckCircle size={12} className="inline mr-1 text-success" /> Unlimited Live CRM</li>
                                         <li><CheckCircle size={12} className="inline mr-1 text-success" /> AI Document Extraction</li>
@@ -146,7 +146,7 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                             >
                                 <div className="text-left w-full">
                                     <h3 className="font-bold text-lg mb-1 text-accent">Super</h3>
-                                    <div className="price font-bold text-2xl mb-3">$297<span className="text-sm font-normal text-muted">/mo</span></div>
+                                    <div className="price font-bold text-2xl mb-3">$1,000<span className="text-sm font-normal text-muted">/mo</span></div>
                                     <ul className="text-xs text-muted space-y-2">
                                         <li><CheckCircle size={12} className="inline mr-1 text-success" /> Preforeclosure Radar</li>
                                         <li><CheckCircle size={12} className="inline mr-1 text-success" /> Live Zillow Comps</li>
