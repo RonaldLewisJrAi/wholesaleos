@@ -25,7 +25,7 @@ const Sidebar = () => {
         { name: 'Documents', path: '/documents', icon: <FileText size={20} /> },
         { name: 'Calculators', path: '/calculators', icon: <Calculator size={20} /> },
         { name: 'Compliance', path: '/compliance', icon: <ShieldCheck size={20} /> },
-        { name: 'Admin Dashboard', path: '/admin', icon: <Users size={20} /> },
+        // { name: 'Admin Dashboard', path: '/admin', icon: <Users size={20} /> },
     ];
 
     return (

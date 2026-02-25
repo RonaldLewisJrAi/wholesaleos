@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio } from 'lucide-react';
+import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft } from 'lucide-react';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import './Header.css';
 

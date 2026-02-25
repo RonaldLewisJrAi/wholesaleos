@@ -12,29 +12,34 @@ import Compliance from './pages/Compliance';
 import Radar from './pages/Radar';
 import CalendarView from './pages/CalendarView';
 import Profile from './pages/Profile';
+import AdminDashboard from './pages/AdminDashboard';
 import { DemoModeProvider } from './contexts/DemoModeContext';
+import { SubscriptionProvider } from './contexts/useSubscription';
 
 function App() {
   return (
-    <DemoModeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="properties/*" element={<Properties />} />
-            <Route path="pipeline" element={<Pipeline />} />
-            <Route path="crm" element={<CRM />} />
-            <Route path="documents" element={<Documents />} />
-            <Route path="calculators" element={<Calculators />} />
-            <Route path="radar" element={<Radar />} />
-            <Route path="calendar" element={<CalendarView />} />
-            <Route path="compliance" element={<Compliance />} />
-            <Route path="profile" element={<Profile />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </DemoModeProvider>
+    <SubscriptionProvider>
+      <DemoModeProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="properties/*" element={<Properties />} />
+              <Route path="pipeline" element={<Pipeline />} />
+              <Route path="crm" element={<CRM />} />
+              <Route path="documents" element={<Documents />} />
+              <Route path="calculators" element={<Calculators />} />
+              <Route path="radar" element={<Radar />} />
+              <Route path="calendar" element={<CalendarView />} />
+              <Route path="compliance" element={<Compliance />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="admin" element={<AdminDashboard />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </DemoModeProvider>
+    </SubscriptionProvider>
   );
 }
 

@@ -1,26 +1,57 @@
 import React, { useState } from 'react';
-import { CreditCard, CheckCircle, ShieldCheck, Lock, X, ChevronRight, Zap } from 'lucide-react';
+import { CreditCard, CheckCircle, ShieldCheck, Lock, X, ChevronRight, Zap, Key } from 'lucide-react';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { useSubscription } from '../contexts/useSubscription';
 import { useNavigate } from 'react-router-dom';
 import './UnlockLiveModeModal.css';
 
 const UnlockLiveModeModal = ({ isOpen, onClose }) => {
     const { setIsDemoMode } = useDemoMode();
+    const { setSubscriptionTier } = useSubscription();
     const navigate = useNavigate();
 
     // Steps: 1 = Payment Options, 2 = Processing, 3 = Account Creation
     const [step, setStep] = useState(1);
     const [selectedTier, setSelectedTier] = useState('pro');
     const [accountData, setAccountData] = useState({ password: '', confirmPassword: '' });
+    const [promoCode, setPromoCode] = useState('');
+    const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleCheckout = () => {
+    const handleCheckout = async () => {
         setStep(2);
-        // Simulate Stripe API call
-        setTimeout(() => {
-            setStep(3);
-        }, 2000);
+
+        let priceId = '';
+        if (selectedTier === 'starter') priceId = import.meta.env.VITE_STRIPE_BASIC_PRICE_ID;
+        if (selectedTier === 'pro') priceId = import.meta.env.VITE_STRIPE_ADVANCED_PRICE_ID;
+        if (selectedTier === 'elite' || selectedTier === 'super') priceId = import.meta.env.VITE_STRIPE_SUPER_PRICE_ID;
+
+        try {
+            const response = await fetch('http://localhost:3001/api/stripe/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    priceId: priceId,
+                    userEmail: 'Ronald_Lewis_Jr@live.com', // Mapped to Founder Email for initialization
+                    userId: '00000000-0000-0000-0000-000000000000' // Placeholder auth ID until actual signup
+                })
+            });
+            const data = await response.json();
+            if (data.url) {
+                // Redirect immediately to Stripe's massively secure Hosted Checkout
+                window.location.href = data.url;
+            } else {
+                alert('Checkout failed: ' + data.error);
+                setStep(1);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Could not connect to billing backend proxy.');
+            setStep(1);
+        }
     };
 
     const handleAccountCreation = (e) => {
@@ -36,6 +67,33 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
 
         // Redirect to profile
         navigate('/profile');
+    };
+
+    const handlePromoRedemption = async () => {
+        if (!promoCode.trim()) return;
+        setIsApplyingPromo(true);
+
+        try {
+            // Simulate backend validation delay
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            // In production, this would call Supabase to validate the code against `temporary_access_codes`
+            // and return the associated tier.
+            if (promoCode.toUpperCase() === 'VIP2026') {
+                setSubscriptionTier('SUPER');
+                setStep(3); // Skip Stripe checkout entirely
+            } else if (promoCode.toUpperCase() === 'BETAACCESS') {
+                setSubscriptionTier('ADVANCED');
+                setStep(3);
+            } else {
+                alert('Invalid or expired Live Access Code.');
+            }
+        } catch (error) {
+            console.error('Promo Code Error:', error);
+            alert('Could not validate Promo Code.');
+        } finally {
+            setIsApplyingPromo(false);
+        }
     };
 
     return (
@@ -96,6 +154,28 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                         <button className="btn btn-primary w-full text-lg py-3 flex justify-center items-center gap-2" onClick={handleCheckout}>
                             <Lock size={18} /> Process Secure Payment
                         </button>
+
+                        <div className="promo-code-section mt-6 pt-6 border-t border-[var(--border-light)]">
+                            <label className="block text-xs uppercase tracking-wide text-muted mb-2 font-bold flex items-center gap-2">
+                                <Key size={14} /> Have a Live Access Code?
+                            </label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    className="fillable-input flex-1 uppercase font-mono"
+                                    placeholder="ENTER PROMO CODE"
+                                    value={promoCode}
+                                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                />
+                                <button
+                                    className="btn btn-secondary whitespace-nowrap"
+                                    onClick={handlePromoRedemption}
+                                    disabled={!promoCode.trim() || isApplyingPromo}
+                                >
+                                    {isApplyingPromo ? 'Validating...' : 'Apply Code'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
 

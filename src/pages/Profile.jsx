@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock } from 'lucide-react';
-import { useSubscription } from '../contexts/SubscriptionContext';
+import { useSubscription } from '../contexts/useSubscription';
 import './Profile.css';
 
 const Profile = () => {
@@ -76,9 +76,9 @@ const Profile = () => {
                 setIsSaving(false);
             }
         } catch (err) {
-             console.error(err);
-             alert('Could not connect to billing backend proxy. Ensure comps_server is running on port 3001.');
-             setIsSaving(false);
+            console.error(err);
+            alert('Could not connect to billing backend proxy. Ensure comps_server is running on port 3001.');
+            setIsSaving(false);
         }
     };
 
@@ -190,9 +190,9 @@ const Profile = () => {
                                     </div>
                                 </div>
                             </div>
-                            
-                            <button 
-                                className="btn btn-primary w-full text-lg py-3 flex justify-center items-center gap-2 mb-6" 
+
+                            <button
+                                className="btn btn-primary w-full text-lg py-3 flex justify-center items-center gap-2 mb-6"
                                 onClick={handleCheckout}
                                 disabled={isSaving}
                             >

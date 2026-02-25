@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, Home, MapPin, Database, X, CheckCircle, User, Mail, Send, Activity } from 'lucide-react';
+import { MapPin, Database, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import DealPacketModal from '../components/DealPacketModal';

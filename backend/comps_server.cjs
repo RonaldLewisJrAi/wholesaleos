@@ -1,12 +1,32 @@
 const express = require('express');
 const cors = require('cors');
 const { chromium } = require('playwright');
+const rateLimit = require('express-rate-limit');
+const Redis = require('ioredis');
+const stripeRoutes = require('./stripe_routes.cjs');
+
+// Initialize Redis for Comps Data Caching
+const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
+    maxRetriesPerRequest: null,
+});
 
 const app = express();
 app.use(cors());
+
+// MUST be mounted BEFORE express.json() so Stripe Webhooks can parse the raw body cryptographically
+app.use('/api/stripe', stripeRoutes);
 app.use(express.json());
 
 const PORT = 3001;
+
+// General API Rate Limiter
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // Limit each IP to 20 requests per `window` (here, per 15 minutes)
+    message: { error: 'Too many requests from this IP, please try again after 15 minutes.' },
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 
 // Helper to calculate lat/lng bounds for a given radius in miles
 const getBounds = (lat, lng, radiusMiles) => {
@@ -20,11 +40,25 @@ const getBounds = (lat, lng, radiusMiles) => {
     };
 };
 
-app.post('/api/comps', async (req, res) => {
+// Apply rate limiter specifically to the expensive scraping endpoint
+app.post('/api/comps', apiLimiter, async (req, res) => {
     const { lat, lng, radius, timeframeMonths = 6, isDemoMode = false } = req.body;
 
     if (!lat || !lng || !radius) {
         return res.status(400).json({ error: 'Lat, Lng, and Radius are required.' });
+    }
+
+    const cacheKey = `comps:${Math.floor(lat * 1000)}:${Math.floor(lng * 1000)}:${radius}:${timeframeMonths}:${isDemoMode}`;
+
+    // 1. Check Redis Cache
+    try {
+        const cachedData = await redis.get(cacheKey);
+        if (cachedData) {
+            console.log(`[Comps Engine] ⚡ Serving Comps from Redis Cache for ${cacheKey}`);
+            return res.json(JSON.parse(cachedData));
+        }
+    } catch (err) {
+        console.warn(`[Redis Warn] Cache read failed:`, err.message);
     }
 
     if (!isDemoMode) {
@@ -99,14 +133,23 @@ app.post('/api/comps', async (req, res) => {
 
     const sortedComps = simulatedComps.sort((a, b) => a.distance - b.distance);
 
-    // Simulate API delay
+    const responsePayload = {
+        success: true,
+        count: sortedComps.length,
+        comps: sortedComps,
+        note: "Data simulated to bypass active Zillow CAPTCHA blockades. Rely on the Zillow Deep-Link for real-world validation."
+    };
+
+    // 2. Save to Redis Cache (expire in 2 hours)
+    try {
+        await redis.set(cacheKey, JSON.stringify(responsePayload), 'EX', 60 * 60 * 2);
+    } catch (err) {
+        console.warn(`[Redis Warn] Cache write failed for ${cacheKey}`, err.message);
+    }
+
+    // Simulate API delay for first load
     setTimeout(() => {
-        return res.json({
-            success: true,
-            count: sortedComps.length,
-            comps: sortedComps,
-            note: "Data simulated to bypass active Zillow CAPTCHA blockades. Rely on the Zillow Deep-Link for real-world validation."
-        });
+        return res.json(responsePayload);
     }, 1500);
 });
 
