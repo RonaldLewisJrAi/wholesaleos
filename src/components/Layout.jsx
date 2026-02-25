@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import ScrollChevron from './ScrollChevron';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import UnlockLiveModeModal from './UnlockLiveModeModal';
 
 const Layout = () => {
     const { isDemoMode } = useDemoMode();
+    const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
 
     return (
         <div className={`layout-container ${isDemoMode ? 'demo-mode-active' : ''}`} style={isDemoMode ? { paddingTop: '35px' } : {}}>
@@ -31,10 +33,31 @@ const Layout = () => {
                             letterSpacing: '2px',
                             textTransform: 'uppercase',
                             boxShadow: '0 4px 15px rgba(0, 0, 0, 0.5)',
-                            pointerEvents: 'none'
+                            pointerEvents: 'auto'
                         }}
                     >
                         ⚠️ ACTUAL DATA IS NOT AVAILABLE IN DEMO MODE ⚠️
+                        <button
+                            onClick={() => setIsUnlockModalOpen(true)}
+                            style={{
+                                marginLeft: '16px',
+                                backgroundColor: '#10b981',
+                                border: 'none',
+                                color: 'white',
+                                padding: '4px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '0.75rem',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                transition: 'all 0.2s ease',
+                                textTransform: 'uppercase'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            Unlock Live Mode
+                        </button>
                     </div>
                     <div
                         className="demo-watermark"
@@ -78,6 +101,7 @@ const Layout = () => {
                 </main>
             </div>
             <ScrollChevron />
+            <UnlockLiveModeModal isOpen={isUnlockModalOpen} onClose={() => setIsUnlockModalOpen(false)} />
         </div>
     );
 };
