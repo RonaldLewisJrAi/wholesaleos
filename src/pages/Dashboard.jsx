@@ -39,7 +39,7 @@ const Dashboard = () => {
                     <p className="page-description">Welcome back, Ronald. Here's what's happening with your deals today.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-secondary">Download Report</button>
+                    <button className="btn btn-secondary" onClick={() => alert("Report generation started. A PDF will be downloaded shortly.")}>Download Report</button>
                     <button className="btn btn-primary" onClick={() => navigate('/pipeline')}>+ New Deal</button>
                 </div>
             </div>

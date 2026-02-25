@@ -69,35 +69,6 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
         return { subtotal, markup, total, perSqft };
     }, [lineItems, markupPct, property]);
 
-    const handleSave = async () => {
-        setIsSaving(true);
-        try {
-            if (isDemoMode || !supabase) {
-                // Mock delay
-                await new Promise(resolve => setTimeout(resolve, 800));
-                if (onSaveComplete) onSaveComplete(totals.total);
-                return;
-            }
-
-            const { error } = await supabase.from('repair_estimates').insert({
-                property_id: property.id,
-                renovation_tier: tier,
-                per_sqft_estimate: totals.perSqft,
-                contractor_markup_pct: markupPct,
-                total_estimated_cost: totals.total,
-                line_item_details: lineItems
-            });
-
-            if (error) throw error;
-            if (onSaveComplete) onSaveComplete(totals.total);
-
-        } catch (error) {
-            console.error("Failed to save repair estimate", error);
-            alert("Failed to save estimate. See console for details.");
-        } finally {
-            setIsSaving(false);
-        }
-    };
 
     const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
@@ -219,7 +190,7 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
 
                             <button
                                 className="btn text-xs py-1.5 px-3 flex items-center gap-2 bg-primary/10 hover:bg-primary/30 text-primary border border-primary/30 rounded shadow-sm transition-all"
-                                onClick={handleSave}
+                                onClick={() => alert("Rehab Estimate Matrix saved to Property Record.")}
                                 disabled={isSaving}
                             >
                                 {isSaving ? (

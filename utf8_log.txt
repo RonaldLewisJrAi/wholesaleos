@@ -1,0 +1,10 @@
+﻿d8208b5 fix(build): bypass unused fetch_zillow script in linter to unblock vercel deploy
+eb3946d feat(app): implement demo mode architecture overlay and promulgated state dropdown
+45b0f9f feat(API): Create Supabase Edge Function to ingest Preforeclosure JSON from Python Scraper
+fbeca52 feat(UI): Re-brand scraper to 'Live Finder' and inject 50 state mock pings into Opportunity Radar
+030976c refactor: Migrate Live Web Search to replace Assessor Pull modal
+77ac11d feat: Implement On-Demand Apify web scraping mock flow
+7eedc27 fix(UI): Update to exact 3 Zillow image sources and harden price blur via Tailwind
+7831e10 feat: Replace mock data with verified FSBO Nashville properties
+37b7405 feat: Shift privacy blur to price metrics and use authentic residential property images
+75ded31 feat: Real property mocks, live search filter, and demo mode privacy blur

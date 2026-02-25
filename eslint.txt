@@ -1,0 +1,7 @@
+﻿
+C:\Users\ronal\.gemini\antigravity\playground\frozen-halo\fetch_zillow.js
+   1:15  error  'require' is not defined          no-undef
+  18:83  error  Unnecessary escape character: \.  no-useless-escape
+
+Γ£û 2 problems (2 errors, 0 warnings)
+

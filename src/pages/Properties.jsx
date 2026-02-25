@@ -57,7 +57,7 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
                                 <Activity size={16} /> Run Comps
                             </button>
                             <div className="flex gap-2">
-                                <button className="btn btn-secondary flex-1">View</button>
+                                <button className="btn btn-secondary flex-1" onClick={() => alert(`Opening detailed view for ${property.address}...`)}>View</button>
                                 <button className="btn btn-primary flex-1 flex justify-center gap-2" onClick={() => onLaunchPacket(property)}>
                                     <Send size={16} /> Packet
                                 </button>
@@ -196,7 +196,7 @@ const Properties = () => {
                     <button className="btn btn-secondary" onClick={() => setIsLiveFinderModalOpen(true)}>
                         <Database size={16} /> Live Finder
                     </button>
-                    <button className="btn btn-secondary"><Filter size={16} /> Filter</button>
+                    <button className="btn btn-secondary" onClick={() => alert("Opening Advanced Property Filters...")}><Filter size={16} /> Filter</button>
                     <button className="btn btn-primary" onClick={handleZillowImport} disabled={isImporting}>
                         <Plus size={16} /> {isImporting ? 'Importing...' : 'Import from Zillow'}
                     </button>

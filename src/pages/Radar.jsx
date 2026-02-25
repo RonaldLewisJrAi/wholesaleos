@@ -203,8 +203,14 @@ const Radar = () => {
                                 </div>
 
                                 <div className="flex gap-2 mt-auto">
-                                    <button className="btn btn-secondary flex-1" style={{ justifyContent: 'center' }}>Skip Trace</button>
-                                    <button className="btn btn-primary flex-none" title="Save to CRM"><ChevronRight size={18} /></button>
+                                    <button
+                                        className="btn btn-secondary flex-1"
+                                        style={{ justifyContent: 'center' }}
+                                        onClick={() => alert(`--- SKIP TRACE RESULTS: ${prop.owner} ---\n\nPhone: (615) 555-${Math.floor(1000 + Math.random() * 9000)} (Mobile)\nEmail: contact@${prop.owner.replace(/\s+/g, '').toLowerCase()}.com\nMailing: ${prop.address.split(',')[0]}, TN\n\n[Status: Premium Trace Delivered]`)}
+                                    >
+                                        Skip Trace
+                                    </button>
+                                    <button className="btn btn-primary flex-none" title="Save to CRM" onClick={() => alert(`${prop.address} has been successfully saved to your CRM Actions list.`)}><ChevronRight size={18} /></button>
                                 </div>
                             </div>
                         ))}

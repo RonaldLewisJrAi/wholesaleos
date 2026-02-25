@@ -15,6 +15,7 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
     const [activeTab, setActiveTab] = useState('overview');
     const [isGenerating, setIsGenerating] = useState(false);
     const [rehabTotal, setRehabTotal] = useState(null);
+    const [isPreviewing, setIsPreviewing] = useState(false);
 
     // Simulated Buyer Matching Engine (Phase 10)
     const matchedBuyers = React.useMemo(() => {
@@ -39,9 +40,13 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
         setIsGenerating(true);
         setTimeout(() => {
             setIsGenerating(false);
-            const rehabStr = rehabTotal ? `\n- Est. Rehab: $${rehabTotal.toLocaleString()}` : '';
-            alert("Deal Packet PDF Successfully Generated!\n\nContains:\n- Comps Summary\n- ARV Justification" + rehabStr);
-        }, 2000);
+            setIsPreviewing(true);
+        }, 800);
+    };
+
+    const handleDownloadPdf = () => {
+        alert("Downloading PDF to your device...");
+        setIsPreviewing(false);
     };
 
     const handleBlast = (method) => {
@@ -75,34 +80,106 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
 
                     {activeTab === 'overview' && (
                         <div className="tab-pane animate-fade-in">
-                            <div className="deal-hero-stats">
-                                <div className="deal-stat-box">
-                                    <div className="stat-label">ARV</div>
-                                    <div className="stat-val">{property.arv}</div>
-                                </div>
-                                <div className="deal-stat-box border-success">
-                                    <div className="stat-label text-success">Requested Price</div>
-                                    <div className="stat-val text-success">{property.mao}</div>
-                                </div>
-                                {rehabTotal !== null && (
-                                    <div className="deal-stat-box border-warning mt-4 col-span-2">
-                                        <div className="stat-label text-warning flex items-center justify-center gap-2"><Wrench size={16} /> Est. Rehab Cost</div>
-                                        <div className="stat-val text-warning text-center">${rehabTotal.toLocaleString()}</div>
+                            {isPreviewing ? (
+                                <div className="pdf-preview-mode animate-fade-in">
+                                    <div className="pdf-preview-container">
+                                        <div className="pdf-header">
+                                            <div className="pdf-title">Investment Deal Packet</div>
+                                            <div className="pdf-address">{property.address}</div>
+                                        </div>
+
+                                        <div className="pdf-section">
+                                            <div className="pdf-section-title">Property Financials</div>
+                                            <div className="pdf-metrics-grid">
+                                                <div className="pdf-metric">
+                                                    <span className="pdf-metric-label">After Repair Value (ARV)</span>
+                                                    <span className="pdf-metric-value">{property.arv}</span>
+                                                </div>
+                                                <div className="pdf-metric">
+                                                    <span className="pdf-metric-label">Asking Price</span>
+                                                    <span className="pdf-metric-value highlight">{property.mao}</span>
+                                                </div>
+                                                <div className="pdf-metric">
+                                                    <span className="pdf-metric-label">Est. Rehab Needed</span>
+                                                    <span className="pdf-metric-value">{rehabTotal ? `$${rehabTotal.toLocaleString()}` : 'TBD'}</span>
+                                                </div>
+                                                <div className="pdf-metric">
+                                                    <span className="pdf-metric-label">Estimated ROI</span>
+                                                    <span className="pdf-metric-value">22.4%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pdf-section">
+                                            <div className="pdf-section-title">Comparable Sales (Comps)</div>
+                                            <table className="pdf-comps-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Distance</th>
+                                                        <th>Beds/Baths</th>
+                                                        <th>Sqft</th>
+                                                        <th>Sold Price</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>0.2 mi</td>
+                                                        <td>3 / 2</td>
+                                                        <td>1,850</td>
+                                                        <td>$435,000</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>0.4 mi</td>
+                                                        <td>4 / 2</td>
+                                                        <td>2,100</td>
+                                                        <td>$460,000</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
-                                )}
-                            </div>
 
-                            <div className="mt-6 flex flex-col gap-3">
-                                <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-2">Deal Assets</h3>
+                                    <div className="preview-actions">
+                                        <button className="btn btn-secondary flex-1" onClick={() => setIsPreviewing(false)}>
+                                            <X size={18} className="mr-2" /> Cancel / Edit
+                                        </button>
+                                        <button className="btn btn-primary flex-1" onClick={handleDownloadPdf}>
+                                            <FileText size={18} className="mr-2" /> Download Document
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="deal-hero-stats">
+                                        <div className="deal-stat-box">
+                                            <div className="stat-label">ARV</div>
+                                            <div className="stat-val">{property.arv}</div>
+                                        </div>
+                                        <div className="deal-stat-box border-success">
+                                            <div className="stat-label text-success">Requested Price</div>
+                                            <div className="stat-val text-success">{property.mao}</div>
+                                        </div>
+                                        {rehabTotal !== null && (
+                                            <div className="deal-stat-box border-warning mt-4 col-span-2">
+                                                <div className="stat-label text-warning flex items-center justify-center gap-2"><Wrench size={16} /> Est. Rehab Cost</div>
+                                                <div className="stat-val text-warning text-center">${rehabTotal.toLocaleString()}</div>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                <button className="btn btn-primary w-full flex justify-center py-3" onClick={handleGeneratePacket} disabled={isGenerating}>
-                                    {isGenerating ? <span className="animate-pulse">Generating Packet...</span> : <><FileText size={18} /> Generate Deal Packet</>}
-                                </button>
+                                    <div className="mt-6 flex flex-col gap-3">
+                                        <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-2">Deal Assets</h3>
 
-                                <button className="btn btn-secondary w-full flex justify-center" onClick={handleCopyLink}>
-                                    <Link size={18} /> Copy Investor Link
-                                </button>
-                            </div>
+                                        <button className="btn btn-primary w-full flex justify-center py-3" onClick={handleGeneratePacket} disabled={isGenerating}>
+                                            {isGenerating ? <span className="animate-pulse">Generating Packet...</span> : <><FileText size={18} className="mr-2" /> Generate Deal Packet</>}
+                                        </button>
+
+                                        <button className="btn btn-secondary w-full flex justify-center" onClick={handleCopyLink}>
+                                            <Link size={18} className="mr-2" /> Copy Investor Link
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
 

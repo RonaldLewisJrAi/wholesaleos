@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, UserPlus, Mail, Phone, MapPin, X, UploadCloud } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import HeatMap from '../components/HeatMap';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import './CRM.css';
 
@@ -212,25 +211,6 @@ const CRM = () => {
                 </div>
             </div>
 
-            <div className="mb-6 animate-fade-in">
-                <HeatMap
-                    data={filteredContacts
-                        .filter(c => c.lat && c.lng)
-                        .map(c => ({
-                            id: c.id,
-                            lat: c.lat,
-                            lng: c.lng,
-                            name: c.name,
-                            location: c.location,
-                            buyer: c.type.includes('Buyer') ? c.name : null,
-                            amount: c.type.includes('Lead') ? `${calculateEquity(c.arv, c.mortgage_balance).toFixed(0)}% Est. Equity` : null,
-                            date: c.last_contact_date || 'Recent',
-                            heatScore: calculateHeatScore(c),
-                            type: calculateHeatScore(c) >= 70 ? 'hot' : 'warm'
-                        }))
-                    }
-                />
-            </div>
 
             <div className="card table-card glass-panel">
                 <div className="table-responsive">
@@ -473,21 +453,21 @@ const CRM = () => {
                                                     <p className="font-bold text-success">{formatCurrency(calculateOffers(selectedLead.arv).aggressive)}</p>
                                                     <p className="text-[10px] text-muted font-medium uppercase mt-0.5">Aggressive Offer (60%)</p>
                                                 </div>
-                                                <button className="btn btn-secondary btn-sm bg-[rgba(16,185,129,0.1)] hover:bg-[rgba(16,185,129,0.2)] text-success border-0">Select</button>
+                                                <button className="btn btn-secondary btn-sm bg-[rgba(16,185,129,0.1)] hover:bg-[rgba(16,185,129,0.2)] text-success border-0" onClick={() => alert(`Aggressive Offer of ${formatCurrency(calculateOffers(selectedLead.arv).aggressive)} selected for Deal Packet.`)}>Select</button>
                                             </div>
                                             <div className="offer-tier target">
                                                 <div>
                                                     <p className="font-bold text-warning">{formatCurrency(calculateOffers(selectedLead.arv).target)}</p>
                                                     <p className="text-[10px] text-muted font-medium uppercase mt-0.5">Target Offer (65%)</p>
                                                 </div>
-                                                <button className="btn btn-secondary btn-sm bg-[rgba(245,158,11,0.1)] hover:bg-[rgba(245,158,11,0.2)] text-warning border-0">Select</button>
+                                                <button className="btn btn-secondary btn-sm bg-[rgba(245,158,11,0.1)] hover:bg-[rgba(245,158,11,0.2)] text-warning border-0" onClick={() => alert(`Target Offer of ${formatCurrency(calculateOffers(selectedLead.arv).target)} selected for Deal Packet.`)}>Select</button>
                                             </div>
                                             <div className="offer-tier max">
                                                 <div>
                                                     <p className="font-bold text-danger">{formatCurrency(calculateOffers(selectedLead.arv).mao)}</p>
                                                     <p className="text-[10px] text-muted font-medium uppercase mt-0.5">MAO Limit (70%)</p>
                                                 </div>
-                                                <button className="btn btn-secondary btn-sm bg-[rgba(239,68,68,0.1)] hover:bg-[rgba(239,68,68,0.2)] text-danger border-0">Select</button>
+                                                <button className="btn btn-secondary btn-sm bg-[rgba(239,68,68,0.1)] hover:bg-[rgba(239,68,68,0.2)] text-danger border-0" onClick={() => alert(`Maximum Allowable Offer limit logged at ${formatCurrency(calculateOffers(selectedLead.arv).mao)}.`)}>Select</button>
                                             </div>
                                         </div>
                                     </div>
@@ -501,13 +481,13 @@ const CRM = () => {
                             {/* Actions Group */}
                             <div className="mt-auto flex flex-col gap-2 pt-4">
                                 {selectedLead.type?.includes('Lead') && (
-                                    <button className="btn btn-primary w-full justify-center">
+                                    <button className="btn btn-primary w-full justify-center" onClick={() => alert("Draft Contract Generation initialized. Please wait...")}>
                                         Generate Draft Contract
                                     </button>
                                 )}
                                 <div className="flex gap-2">
-                                    <button className="btn btn-secondary flex-1 justify-center">Add Note</button>
-                                    <button className="btn btn-secondary flex-1 justify-center">Send Email</button>
+                                    <button className="btn btn-secondary flex-1 justify-center" onClick={() => alert("Note Editor opened.")}>Add Note</button>
+                                    <button className="btn btn-secondary flex-1 justify-center" onClick={() => alert("Email Composer opened.")}>Send Email</button>
                                 </div>
                             </div>
                         </div>

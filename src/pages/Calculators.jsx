@@ -84,7 +84,7 @@ const Calculators = () => {
                             </div>
                         </div>
                     </div>
-                    <button className="btn btn-primary w-full mt-4">Save Analysis to Property</button>
+                    <button className="btn btn-primary w-full mt-4" onClick={() => alert("Analysis saved to Property Record.")}>Save Analysis to Property</button>
                 </div>
 
                 {/* Results Column */}

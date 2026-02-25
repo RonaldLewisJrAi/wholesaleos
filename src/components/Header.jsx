@@ -111,7 +111,7 @@ const Header = () => {
                                 </div>
                             </div>
                             <div className="dropdown-footer">
-                                <button className="btn-link w-full">View all notifications</button>
+                                <button className="btn-link w-full" onClick={() => alert("Opening Full Notification Center...")}>View all notifications</button>
                             </div>
                         </div>
                     )}
@@ -129,14 +129,14 @@ const Header = () => {
                                 <span className="text-xs text-muted">ronal@example.com</span>
                             </div>
                             <div className="dropdown-body">
-                                <button className="dropdown-item">
+                                <Link to="/profile" className="dropdown-item" onClick={toggleSettings}>
                                     <User size={16} /> Profile Settings
-                                </button>
-                                <button className="dropdown-item">
+                                </Link>
+                                <button className="dropdown-item" onClick={() => alert("Navigating to Billing & Subscriptions...")}>
                                     <Settings size={16} /> Account Preferences
                                 </button>
                                 <div className="dropdown-divider"></div>
-                                <button className="dropdown-item text-danger">
+                                <button className="dropdown-item text-danger" onClick={() => alert("Securely logging out of the application...")}>
                                     <LogOut size={16} /> Sign Out
                                 </button>
                             </div>

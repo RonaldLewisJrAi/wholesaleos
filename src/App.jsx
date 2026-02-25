@@ -11,6 +11,7 @@ import Calculators from './pages/Calculators';
 import Compliance from './pages/Compliance';
 import Radar from './pages/Radar';
 import CalendarView from './pages/CalendarView';
+import Profile from './pages/Profile';
 import { DemoModeProvider } from './contexts/DemoModeContext';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="radar" element={<Radar />} />
             <Route path="calendar" element={<CalendarView />} />
             <Route path="compliance" element={<Compliance />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
       </BrowserRouter>
