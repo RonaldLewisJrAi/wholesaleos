@@ -37,7 +37,19 @@ const Layout = () => {
         return () => document.removeEventListener('click', handleGlobalClick, true);
     }, [isDemoMode]);
     return (
-        <div className="layout-container">
+        <div className={`layout-container ${isDemoMode ? 'demo-mode-active' : ''}`}>
+            {isDemoMode && (
+                <>
+                    <div className="demo-banner">
+                        Actual data is not available in demo mode
+                    </div>
+                    <div className="demo-watermark">
+                        {[...Array(24)].map((_, i) => (
+                            <div key={i} className="watermark-text">DEMO ONLY</div>
+                        ))}
+                    </div>
+                </>
+            )}
             <Sidebar />
             <div className="main-wrapper">
                 <Header />

@@ -84,8 +84,8 @@ body {
 /* Glassmorphism Utilities */
 .glass-panel {
   background: rgba(22, 24, 29, 0.7);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
 }
@@ -263,4 +263,58 @@ button {
 .custom-popup .leaflet-popup-content {
   margin: 12px !important;
   width: auto !important;
+}
+
+/* --- Global Demo Mode Security Overlays --- */
+.demo-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 32px;
+  background-color: var(--danger, #ef4444);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  z-index: 99999;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.demo-watermark {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99998;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: center;
+  overflow: hidden;
+  opacity: 0.08;
+  /* Increased opacity for clear visibility during demo validation */
+}
+
+.watermark-text {
+  font-size: 10rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.7);
+  transform: rotate(-35deg);
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+  margin: -100px;
+}
+
+/* Adjust application layout when banner is active */
+.demo-mode-active {
+  padding-top: 32px;
 }

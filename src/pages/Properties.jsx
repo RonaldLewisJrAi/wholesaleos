@@ -71,6 +71,7 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
 };
 
 const Properties = () => {
+    const { isDemoMode } = useDemoMode();
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isImporting, setIsImporting] = useState(false);
@@ -89,6 +90,15 @@ const Properties = () => {
 
     useEffect(() => {
         const fetchProperties = async () => {
+            setLoading(true);
+
+            if (isDemoMode) {
+                // Explicitly use mock data in demo mode to protect real client info
+                setProperties(mockProperties);
+                setLoading(false);
+                return;
+            }
+
             if (!supabase) {
                 // No supabase client (e.g. no .env connection), fallback to mock
                 setProperties(mockProperties);
@@ -108,18 +118,18 @@ const Properties = () => {
                 if (data && data.length > 0) {
                     setProperties(data);
                 } else {
-                    setProperties(mockProperties);
+                    setProperties([]);
                 }
             } catch (error) {
-                console.error('Error fetching properties, falling back to mock data:', error);
-                setProperties(mockProperties);
+                console.error('Error fetching properties:', error);
+                setProperties([]);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProperties();
-    }, []);
+    }, [isDemoMode]);
 
     const handleZillowImport = async () => {
         const url = window.prompt("Enter Zillow Property URL:");

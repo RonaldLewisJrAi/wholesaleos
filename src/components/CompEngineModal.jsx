@@ -1,55 +1,102 @@
-import React, { useState, useMemo } from 'react';
-import { X, Search, Filter, Home, MapPin, Calculator, AlertCircle, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, Search, Filter, Home, MapPin, Calculator, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
+import { useDemoMode } from '../contexts/DemoModeContext';
 import './CompEngineModal.css';
 
-// Mock Comparable Properties Database
-const generateMockComps = (baseZip) => {
-    return Array.from({ length: 15 }).map((_, i) => {
-        const distance = (Math.random() * 1.5).toFixed(2); // 0.01 to 1.50 miles
-        const monthsAgo = Math.floor(Math.random() * 12) + 1; // 1 to 12 months
-        const sqft = Math.floor(Math.random() * 1000) + 1200; // 1200 to 2200 sqft
-        const yearBuilt = Math.floor(Math.random() * 50) + 1960;
-        const price = Math.floor(Math.random() * 300000) + 200000;
-        const ppsqft = (price / sqft).toFixed(2);
-
-        return {
-            id: `comp-${i}`,
-            address: `${Math.floor(Math.random() * 9999)} Comp St, ${baseZip}`,
-            distance: parseFloat(distance),
-            monthsAgo: monthsAgo,
-            sqft: sqft,
-            yearBuilt: yearBuilt,
-            beds: Math.floor(Math.random() * 2) + 2,
-            baths: Math.floor(Math.random() * 1.5) + 1,
-            price: price,
-            ppsqft: parseFloat(ppsqft),
-        };
-    }).sort((a, b) => a.distance - b.distance);
-};
-
 const CompEngineModal = ({ isOpen, onClose, property }) => {
+    const { isDemoMode } = useDemoMode();
+
     // Top-Level Filter State
-    const [radius, setRadius] = useState(0.5); // Miles
+    const [radius, setRadius] = useState(1.0); // Miles
     const [timeframe, setTimeframe] = useState(6); // Months
     const [sqftVariance, setSqftVariance] = useState(15); // Percentage +/-
     const [exactBedBath, setExactBedBath] = useState(false);
     const [renovationTier, setRenovationTier] = useState('moderate');
 
-    const mockComps = useMemo(() => {
-        if (!property) return [];
-        // Generate a deterministic set of mock comps based on property ID
-        return generateMockComps('TX');
-    }, [property]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [rawComps, setRawComps] = useState([]);
+    const [zillowLink, setZillowLink] = useState(null);
 
-    // Active Comps Calculation Engine (Phase 11 Logic)
+    // Initial Fetch when Modal Opens or Filters change
+    useEffect(() => {
+        if (!isOpen || !property) return;
+
+        let isStale = false;
+
+        const fetchZillowComps = async () => {
+            setIsLoading(true);
+            try {
+                let lat = property.lat;
+                let lng = property.lng;
+
+                // 1. Geocode if missing coordinates using free OpenStreetMap API
+                if (!lat || !lng) {
+                    const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(property.address)}&limit=1`;
+                    const geoRes = await fetch(geocodeUrl);
+                    const geoData = await geoRes.json();
+                    if (geoData && geoData.length > 0) {
+                        lat = parseFloat(geoData[0].lat);
+                        lng = parseFloat(geoData[0].lon);
+                    } else {
+                        // Fallback coordinates (Nashville)
+                        lat = 36.1627;
+                        lng = -86.7816;
+                    }
+                }
+
+                // Calculate bounds for the Zillow Map Pop-out link
+                const latDelta = radius / 69.0;
+                const lngDelta = radius / (69.0 * Math.cos(lat * Math.PI / 180));
+                const bounds = {
+                    north: lat + latDelta,
+                    south: lat - latDelta,
+                    east: lng + lngDelta,
+                    west: lng - lngDelta
+                };
+
+                const searchQueryState = {
+                    mapBounds: bounds,
+                    isMapVisible: true,
+                    filterState: {
+                        sortSelection: { value: 'globalrelevanceex' },
+                        isRecentlySold: { value: true },
+                        doz: { value: `${timeframe}m` }
+                    },
+                    isListVisible: true
+                };
+                setZillowLink(`https://www.zillow.com/homes/recently_sold/?searchQueryState=${encodeURIComponent(JSON.stringify(searchQueryState))}`);
+
+                // 2. Ping Local Playwright Proxy
+                const res = await fetch('http://localhost:3001/api/comps', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat, lng, radius, timeframeMonths: timeframe, isDemoMode })
+                });
+
+                if (!res.ok) throw new Error('Failed to fetch real comps from proxy');
+
+                const data = await res.json();
+                if (!isStale) setRawComps(data.comps || []);
+
+            } catch (error) {
+                console.error("CompEngine Error:", error);
+                if (!isStale) setRawComps([]); // Fallback to empty
+            } finally {
+                if (!isStale) setIsLoading(false);
+            }
+        };
+
+        fetchZillowComps();
+
+        return () => { isStale = true; };
+    }, [isOpen, property, radius, timeframe, isDemoMode]); // Auto-refetch if radius/timeframe changes
+
+    // Active Comps Data Filtering (Phase 11 Logic)
     const { activeComps, avgPpsqft, calculatedArv, confidence } = useMemo(() => {
-        if (!property) return { activeComps: [], avgPpsqft: 0, calculatedArv: 0, confidence: 'low' };
+        if (!property || rawComps.length === 0) return { activeComps: [], avgPpsqft: 0, calculatedArv: 0, confidence: 'low' };
 
-        // 1. Filter the database based on UI parameters
-        const filtered = mockComps.filter(comp => {
-            const matchesRadius = comp.distance <= radius;
-            const matchesTime = comp.monthsAgo <= timeframe;
-            // Mock property sqft placeholder for demo if one doesn't exist
+        // sqft/beds/baths filter done client side
+        const filtered = rawComps.filter(comp => {
             const subjectSqft = property.sqft || 1500;
             const sqftDiff = Math.abs(comp.sqft - subjectSqft) / subjectSqft * 100;
             const matchesSqft = sqftDiff <= sqftVariance;
@@ -59,38 +106,33 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                 matchesBedBath = (comp.beds === (property.beds || 3) && comp.baths === (property.baths || 2));
             }
 
-            return matchesRadius && matchesTime && matchesSqft && matchesBedBath;
+            return matchesSqft && matchesBedBath;
         });
 
         if (filtered.length === 0) return { activeComps: [], avgPpsqft: 0, calculatedArv: 0, confidence: 'low' };
 
-        // 2. Calculate Weighted Average Price per SqFt
         const totalPpsqft = filtered.reduce((sum, comp) => sum + comp.ppsqft, 0);
         const avg = totalPpsqft / filtered.length;
 
-        // 3. Apply Renovation Tier Multipliers
-        // Light = standard average, Moderate = 90% of max, Gut = 80% (needs discount for risk)  
-        // In a real app, this multiplier is dynamic based on neighborhood condition.
         let renoMultiplier = 1.0;
-        if (renovationTier === 'light') renoMultiplier = 1.05; // Slightly higher ARV for turnkey comps
+        if (renovationTier === 'light') renoMultiplier = 1.05;
         if (renovationTier === 'moderate') renoMultiplier = 1.0;
-        if (renovationTier === 'gut') renoMultiplier = 0.85; // Heavier discount applied to baseline
+        if (renovationTier === 'gut') renoMultiplier = 0.85;
 
         const subjectSqft = property.sqft || 1500;
         const arv = (avg * subjectSqft * renoMultiplier).toFixed(0);
 
-        // 4. Derive Confidence Rating
         let conf = 'low';
-        if (filtered.length >= 5 && radius <= 0.5 && timeframe <= 6) conf = 'high';
+        if (filtered.length >= 5 && radius <= 1.0 && timeframe <= 6) conf = 'high';
         else if (filtered.length >= 3) conf = 'medium';
 
         return {
-            activeComps: filtered,
+            activeComps: filtered.slice(0, 15), // cap to 15 for UI
             avgPpsqft: avg.toFixed(2),
             calculatedArv: parseInt(arv).toLocaleString(),
             confidence: conf
         };
-    }, [mockComps, property, radius, timeframe, sqftVariance, exactBedBath, renovationTier]);
+    }, [rawComps, property, sqftVariance, exactBedBath, renovationTier, radius, timeframe]);
 
     if (!isOpen || !property) return null;
 
@@ -113,7 +155,7 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                         <div className="filter-group">
                             <span className="filter-label">Radius (Miles)</span>
                             <div className="pill-group">
-                                {[0.25, 0.5, 1.0, 2.0].map(r => (
+                                {[1.0, 2.0, 3.0].map(r => (
                                     <button
                                         key={r}
                                         className={`filter-pill ${radius === r ? 'active' : ''}`}
@@ -211,13 +253,25 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                                     <MapPin size={18} className="text-primary" />
                                     Comparable Sales <span className="badge bg-[rgba(255,255,255,0.1)] text-xs ml-2">{activeComps.length} Found</span>
                                 </h3>
-                                <button className="btn btn-secondary text-xs py-1"><RefreshCw size={12} className="mr-1" /> Refresh Data</button>
+                                <div className="flex gap-2">
+                                    {zillowLink && (
+                                        <button className="btn btn-primary text-xs py-1 px-3" onClick={() => window.open(zillowLink, '_blank')}>
+                                            <ExternalLink size={12} className="mr-1" /> View on Zillow
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
-                            {activeComps.length === 0 ? (
+                            {isLoading ? (
+                                <div className="text-center py-12 text-muted border border-dashed border-[var(--border-light)] rounded-lg">
+                                    <RefreshCw size={32} className="mx-auto mb-2 opacity-50 animate-spin" />
+                                    <p>Connecting to Stealth Proxy...</p>
+                                    <p className="text-sm mt-1">Intercepting live maps for a {radius}-mile radius.</p>
+                                </div>
+                            ) : activeComps.length === 0 ? (
                                 <div className="text-center py-12 text-muted border border-dashed border-[var(--border-light)] rounded-lg">
                                     <AlertCircle size={32} className="mx-auto mb-2 opacity-50" />
-                                    <p>No comparables found matching these strict criteria.</p>
+                                    <p>No real comparables found matching these strict criteria.</p>
                                     <p className="text-sm mt-1">Try expanding your radius or timeframe filters.</p>
                                 </div>
                             ) : (
@@ -226,10 +280,10 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                                         <div key={comp.id} className="comp-row">
                                             <div>
                                                 <div className="comp-address">{comp.address}</div>
-                                                <div className="comp-meta">{comp.beds} beds • {comp.baths} baths • {comp.sqft} sqft • Built {comp.yearBuilt}</div>
+                                                <div className="comp-meta">{comp.beds || "?"} beds • {comp.baths || "?"} baths • {comp.sqft || "?"} sqft • Built {comp.yearBuilt || "?"}</div>
                                             </div>
                                             <div className="comp-metric">
-                                                <div className="val">{comp.distance} mi</div>
+                                                <div className="val">{comp.distance.toFixed(2)} mi</div>
                                                 <div className="lbl">Distance</div>
                                             </div>
                                             <div className="comp-metric">
@@ -238,7 +292,7 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                                             </div>
                                             <div className="comp-metric">
                                                 <div className="val text-success">{formatMoney(comp.price)}</div>
-                                                <div className="lbl">${comp.ppsqft} / sqft</div>
+                                                <div className="lbl">${comp.ppsqft.toFixed(2)} / sqft</div>
                                             </div>
                                         </div>
                                     ))}

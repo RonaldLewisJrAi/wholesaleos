@@ -249,12 +249,32 @@ const Documents = () => {
                                         <span className="state-req">{template.states}</span>
                                     </div>
                                 </div>
-                                <button
-                                    className={`btn btn - sm ${selectedTemplate === template.id ? 'btn-primary' : 'btn-secondary'} `}
-                                    onClick={() => setSelectedTemplate(template.id)}
-                                >
-                                    {selectedTemplate === template.id ? 'Active' : 'Use'}
-                                </button>
+                                {template.id === 't4' ? (
+                                    <select
+                                        className={`btn btn-sm ${selectedTemplate === template.id ? 'btn-primary' : 'btn-secondary'} border-none`}
+                                        style={{ cursor: 'pointer', appearance: 'auto' }}
+                                        value={selectedTemplate === template.id ? promulgatedState : ''}
+                                        onChange={(e) => {
+                                            if (e.target.value) {
+                                                setSelectedTemplate(template.id);
+                                                setPromulgatedState(e.target.value);
+                                            }
+                                        }}
+                                    >
+                                        <option value="" disabled={selectedTemplate === template.id}>Select State...</option>
+                                        <option value="TX">Texas (TREC)</option>
+                                        <option value="FL">Florida (FAR/BAR)</option>
+                                        <option value="CA">California (C.A.R.)</option>
+                                        <option value="GA">Georgia (GAR)</option>
+                                    </select>
+                                ) : (
+                                    <button
+                                        className={`btn btn-sm ${selectedTemplate === template.id ? 'btn-primary' : 'btn-secondary'}`}
+                                        onClick={() => setSelectedTemplate(template.id)}
+                                    >
+                                        {selectedTemplate === template.id ? 'Active' : 'Use'}
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>
