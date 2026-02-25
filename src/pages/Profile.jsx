@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { User, Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home } from 'lucide-react';
+import { User, Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock } from 'lucide-react';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import './Profile.css';
 
 const Profile = () => {
@@ -13,6 +14,8 @@ const Profile = () => {
         bio: 'Real estate acquisition specialist focused on off-market distressed assets in the Greater Nashville area.',
         role: 'Wholesaler', // 'Wholesaler' or 'Investor'
     });
+
+    const { subscriptionTier, setSubscriptionTier } = useSubscription();
 
     // Investor Buy Box State
     const [buyBox, setBuyBox] = useState({
@@ -42,6 +45,41 @@ const Profile = () => {
             setIsSaving(false);
             alert("Profile preferences successfully updated and synced via Supabase!");
         }, 800);
+    };
+
+    const handleCheckout = async () => {
+        setIsSaving(true);
+        let priceId = ''; // Default Fallback 
+        if (subscriptionTier === 'BASIC') priceId = import.meta.env.VITE_STRIPE_BASIC_PRICE_ID;
+        // The user explicitly requested this Live Price ID for the Pro tier.
+        if (subscriptionTier === 'ADVANCED') priceId = 'price_1T4jOFK2qPJKpuPcVKh0BG4W';
+        if (subscriptionTier === 'SUPER') priceId = import.meta.env.VITE_STRIPE_SUPER_PRICE_ID;
+
+        try {
+            const response = await fetch('http://localhost:3001/api/stripe/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    priceId: priceId,
+                    userEmail: profile.email,
+                    userId: '00000000-0000-0000-0000-000000000000' // Real Supabase ID needed after Auth integration
+                })
+            });
+            const data = await response.json();
+            if (data.url) {
+                // Redirect globally to Stripe Hosted Checkout
+                window.location.href = data.url;
+            } else {
+                alert('Checkout failed: ' + data.error);
+                setIsSaving(false);
+            }
+        } catch (err) {
+             console.error(err);
+             alert('Could not connect to billing backend proxy. Ensure comps_server is running on port 3001.');
+             setIsSaving(false);
+        }
     };
 
     return (
@@ -99,6 +137,67 @@ const Profile = () => {
                                     <small>I buy and fund deals</small>
                                 </button>
                             </div>
+
+                            <h3 className="section-title mb-4 border-b pb-2 flex items-center justify-between">
+                                Active SaaS Subscription
+                                <span className={`text-[10px] px-2 py-1 rounded badge tier-${subscriptionTier.toLowerCase()}`}>{subscriptionTier}</span>
+                            </h3>
+
+                            <div className="pricing-tiers grid grid-cols-2 gap-4 mb-6">
+                                <div
+                                    className={`pricing-card ${subscriptionTier === 'BASIC' ? 'active' : ''}`}
+                                    onClick={() => setSubscriptionTier('BASIC')}
+                                >
+                                    <div className="text-left w-full">
+                                        <h3 className="font-bold text-lg mb-1">Starter</h3>
+                                        <div className="price font-bold text-xl mb-3">$97<span className="text-xs font-normal text-muted">/mo</span></div>
+                                        <ul className="text-xs text-muted space-y-2">
+                                            <li><CheckCircle size={12} className="inline mr-1 text-success" /> Basic CRM Access</li>
+                                            <li><CheckCircle size={12} className="inline mr-1 text-success" /> 5 Documents / mo</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div
+                                    className={`pricing-card recommended ${subscriptionTier === 'ADVANCED' ? 'active' : ''}`}
+                                    onClick={() => setSubscriptionTier('ADVANCED')}
+                                >
+                                    <div className="recommend-badge">POPULAR</div>
+                                    <div className="text-left w-full">
+                                        <h3 className="font-bold text-lg mb-1 text-primary">Pro</h3>
+                                        <div className="price font-bold text-xl mb-3">$197<span className="text-xs font-normal text-muted">/mo</span></div>
+                                        <ul className="text-xs text-muted space-y-2">
+                                            <li><CheckCircle size={12} className="inline mr-1 text-success" /> AI Escrow Extraction</li>
+                                            <li><CheckCircle size={12} className="inline mr-1 text-success" /> 20 Documents / mo</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div
+                                    className={`pricing-card ${subscriptionTier === 'SUPER' ? 'active' : ''} col-span-2`}
+                                    onClick={() => setSubscriptionTier('SUPER')}
+                                >
+                                    <div className="text-left w-full flex justify-between items-center flex-wrap gap-2">
+                                        <div>
+                                            <h3 className="font-bold text-lg mb-1 text-warning flex items-center gap-2">Elite <Lock size={14} /></h3>
+                                            <div className="price font-bold text-xl mb-2">$497<span className="text-xs font-normal text-muted">/mo</span></div>
+                                        </div>
+                                        <ul className="text-xs text-muted space-y-1 text-left sm:text-right">
+                                            <li><CheckCircle size={12} className="inline text-success mr-1 sm:mr-0 sm:ml-1" /> Pre-foreclosure Radar</li>
+                                            <li><CheckCircle size={12} className="inline text-success mr-1 sm:mr-0 sm:ml-1" /> Zillow Comp Engine</li>
+                                            <li><CheckCircle size={12} className="inline text-success mr-1 sm:mr-0 sm:ml-1" /> Unlimited Documents</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button 
+                                className="btn btn-primary w-full text-lg py-3 flex justify-center items-center gap-2 mb-6" 
+                                onClick={handleCheckout}
+                                disabled={isSaving}
+                            >
+                                {isSaving ? 'Connecting to Stripe...' : <><Lock size={18} /> Upgrade to {subscriptionTier} Tier via Stripe</>}
+                            </button>
 
                             <h3 className="section-title mb-4 border-b pb-2">Personal Details</h3>
                             <div className="form-grid-2">
