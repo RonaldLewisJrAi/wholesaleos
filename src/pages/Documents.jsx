@@ -10,7 +10,8 @@ const SignatureBlock = ({ label, printedNameValue, defaultNameValue, printedName
     const value = printedNameValue !== undefined ? printedNameValue : defaultNameValue;
     return (
         <div className="sig-block flex-1" style={{ minWidth: '200px', maxWidth: '300px' }}>
-            <div className="sig-canvas-container" style={{ borderBottom: '1px dashed var(--border-light)', marginBottom: '8px', height: '80px', width: '100%', position: 'relative', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '4px 4px 0 0' }}>
+            <div className="sig-canvas-container relative mb-2 h-20 w-full bg-[rgba(0,0,0,0.2)] border border-[rgba(255,255,255,0.15)] rounded-lg shadow-inner flex items-center justify-center">
+                <span className="absolute text-muted opacity-30 pointer-events-none select-none text-sm font-medium">Draw Signature Here</span>
                 <SignatureCanvas
                     ref={sigRef}
                     penColor="white"
