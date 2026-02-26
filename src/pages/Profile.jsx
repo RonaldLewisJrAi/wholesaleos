@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
+import { supabase } from '../lib/supabase';
 import './Profile.css';
 
 const Profile = () => {
@@ -27,6 +28,44 @@ const Profile = () => {
     });
 
     const [isSaving, setIsSaving] = useState(false);
+    const [userId, setUserId] = useState(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (!supabase) return;
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setUserId(user.id);
+                setProfile(prev => ({ ...prev, email: user.email }));
+
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (data && !error) {
+                    setProfile({
+                        firstName: data.first_name || '',
+                        lastName: data.last_name || '',
+                        email: user.email,
+                        phone: data.phone || '',
+                        company: data.company || '',
+                        bio: data.bio || '',
+                        role: data.role || 'Wholesaler'
+                    });
+                    setBuyBox({
+                        targetMarkets: data.target_markets || '',
+                        maxPrice: data.max_price || 0,
+                        minROI: data.min_roi || 0,
+                        propertyTypes: data.property_types || 'SFR, Small MFR',
+                        rehabLevel: data.rehab_level || 'Moderate to Full Gut'
+                    });
+                }
+            }
+        };
+        fetchProfile();
+    }, []);
 
     const handleProfileChange = (e) => {
         const { name, value } = e.target;
@@ -38,13 +77,35 @@ const Profile = () => {
         setBuyBox(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (!supabase || !userId) {
+            alert('Cannot save: Not connected to database or user not authenticated.');
+            return;
+        }
         setIsSaving(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsSaving(false);
+        try {
+            const { error } = await supabase.from('profiles').update({
+                first_name: profile.firstName,
+                last_name: profile.lastName,
+                company: profile.company,
+                phone: profile.phone,
+                bio: profile.bio,
+                role: profile.role,
+                target_markets: buyBox.targetMarkets,
+                max_price: parseFloat(buyBox.maxPrice) || 0,
+                min_roi: parseFloat(buyBox.minROI) || 0,
+                property_types: buyBox.propertyTypes,
+                rehab_level: buyBox.rehabLevel
+            }).eq('id', userId);
+
+            if (error) throw error;
             alert("Profile preferences successfully updated and synced via Supabase!");
-        }, 800);
+        } catch (error) {
+            console.error("Save Error:", error);
+            alert("Failed to save profile. Make sure you are logged in.");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleCheckout = async () => {
@@ -64,7 +125,7 @@ const Profile = () => {
                 body: JSON.stringify({
                     priceId: priceId,
                     userEmail: profile.email,
-                    userId: '00000000-0000-0000-0000-000000000000' // Real Supabase ID needed after Auth integration
+                    userId: userId || '00000000-0000-0000-0000-000000000000'
                 })
             });
             const data = await response.json();
