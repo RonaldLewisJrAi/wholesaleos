@@ -16,15 +16,16 @@ const SignatureBlock = ({ label, printedNameValue, defaultNameValue, printedName
                     penColor="white"
                     canvasProps={{ className: 'sig-canvas', style: { width: '100%', height: '100%', cursor: 'crosshair' } }}
                 />
+            </div>
+            <div className="flex justify-between items-center">
+                <p className="text-sm font-medium m-0 p-0">{label} Signature</p>
                 <button
                     onClick={(e) => { e.preventDefault(); sigRef.current?.clear(); }}
-                    className="absolute right-1 top-1 text-[10px] text-muted hover:text-white px-1 rounded z-10"
-                    style={{ background: 'rgba(0,0,0,0.5)' }}
+                    className="text-[10px] text-muted hover:text-white px-2 py-0.5 rounded bg-[rgba(255,255,255,0.1)] transition-colors hover:bg-[rgba(255,255,255,0.2)]"
                 >
                     Clear
                 </button>
             </div>
-            <p className="text-sm font-medium">{label} Signature</p>
             <div className="text-xs text-muted mt-2 flex items-center gap-1">
                 <span className="whitespace-nowrap">Printed Name:</span>
                 <input
@@ -163,15 +164,16 @@ const Documents = () => {
 
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
-            // Append E-Sign Audit Trail Page
-            pdf.addPage();
-            pdf.setTextColor(40, 40, 40);
-            pdf.setFontSize(18);
-            pdf.setFont("helvetica", "bold");
-            pdf.text('Electronic Signature Certificate of Completion', 20, 20);
-
-            pdf.setFontSize(10);
-            pdf.setFont("helvetica", "normal");
+            // Append E-Sign Audit Trail Page securely as a rasterized image (Prevents text highlighting/copying)
+            const auditDiv = document.createElement('div');
+            auditDiv.style.position = 'absolute';
+            auditDiv.style.left = '-9999px';
+            auditDiv.style.top = '0';
+            auditDiv.style.width = '800px';
+            auditDiv.style.backgroundColor = 'white';
+            auditDiv.style.padding = '40px';
+            auditDiv.style.color = 'black';
+            auditDiv.style.fontFamily = 'Helvetica, sans-serif';
 
             const timestamp = new Date().toISOString();
             const userAgent = navigator.userAgent;
@@ -185,31 +187,47 @@ const Documents = () => {
                 ip = 'Unavailable (Client Network Error)';
             }
 
-            pdf.text(`Document Reference: DOC - ${Date.now()} `, 20, 40);
-            pdf.text(`Execution Timestamp: ${timestamp} `, 20, 50);
-            pdf.text(`Executing IP Address: ${ip} `, 20, 60);
-            pdf.text(`Client User - Agent: ${userAgent} `, 20, 70);
-
-            pdf.setFont("helvetica", "bold");
-            pdf.text('Executed By:', 20, 90);
-            pdf.setFont("helvetica", "normal");
-
-            let y = 100;
-            if (selectedTemplate === 't1') {
-                pdf.text(`Seller Printed Name: ${formData.sellerPrinted || formData.seller || 'N/A'} `, 20, y); y += 10;
-                pdf.text(`Buyer Printed Name: ${formData.buyerPrinted || formData.buyer || 'N/A'} `, 20, y); y += 10;
+            let printedNamesHtml = '';
+            if (selectedTemplate === 't1' || selectedTemplate === 't4') {
+                printedNamesHtml = `
+                    <div style="margin-bottom: 10px;">Seller Printed Name: ${formData.sellerPrinted || formData.seller || 'N/A'}</div>
+                    <div style="margin-bottom: 10px;">Buyer Printed Name: ${formData.buyerPrinted || formData.buyer || 'N/A'}</div>
+                `;
             } else if (selectedTemplate === 't2') {
-                pdf.text(`Assignor Printed Name: ${formData.assignorPrinted || formData.assignor || 'N/A'} `, 20, y); y += 10;
-                pdf.text(`Assignee Printed Name: ${formData.assigneePrinted || formData.assignee || 'N/A'} `, 20, y); y += 10;
+                printedNamesHtml = `
+                    <div style="margin-bottom: 10px;">Assignor Printed Name: ${formData.assignorPrinted || formData.assignor || 'N/A'}</div>
+                    <div style="margin-bottom: 10px;">Assignee Printed Name: ${formData.assigneePrinted || formData.assignee || 'N/A'}</div>
+                `;
             } else if (selectedTemplate === 't3') {
-                pdf.text(`Party A Printed Name: ${formData.partyAPrinted || formData.partyA || 'N/A'} `, 20, y); y += 10;
-                pdf.text(`Party B Printed Name: ${formData.partyBPrinted || formData.partyB || 'N/A'} `, 20, y); y += 10;
-            } else if (selectedTemplate === 't4') {
-                pdf.text(`Seller Printed Name: ${formData.sellerPrinted || formData.seller || 'N/A'} `, 20, y); y += 10;
-                pdf.text(`Buyer Printed Name: ${formData.buyerPrinted || formData.buyer || 'N/A'} `, 20, y); y += 10;
+                printedNamesHtml = `
+                    <div style="margin-bottom: 10px;">Party A Printed Name: ${formData.partyAPrinted || formData.partyA || 'N/A'}</div>
+                    <div style="margin-bottom: 10px;">Party B Printed Name: ${formData.partyBPrinted || formData.partyB || 'N/A'}</div>
+                `;
             }
 
-            pdf.text(`Status: EXECUTED & SEALED`, 20, y + 10);
+            auditDiv.innerHTML = `
+                <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 30px; letter-spacing: -0.5px;">Electronic Signature Certificate of Completion</h1>
+                <div style="font-size: 14px; margin-bottom: 15px;">Document Reference: DOC-${Date.now()}</div>
+                <div style="font-size: 14px; margin-bottom: 15px;">Execution Timestamp: ${timestamp}</div>
+                <div style="font-size: 14px; margin-bottom: 15px;">Executing IP Address: ${ip}</div>
+                <div style="font-size: 14px; margin-bottom: 30px; color: #555;">Client User-Agent: ${userAgent}</div>
+                <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 20px;">Executed By:</h2>
+                <div style="font-size: 14px;">
+                    ${printedNamesHtml}
+                </div>
+                <div style="margin-top: 30px; font-weight: bold; font-size: 14px;">Status: EXECUTED & SEALED</div>
+            `;
+
+            document.body.appendChild(auditDiv);
+
+            const auditCanvas = await html2canvas(auditDiv, { scale: 2 });
+            const auditImgData = auditCanvas.toDataURL('image/png');
+
+            pdf.addPage();
+            const auditImgHeight = (auditCanvas.height * pdfWidth) / auditCanvas.width;
+            pdf.addImage(auditImgData, 'PNG', 0, 0, pdfWidth, auditImgHeight);
+
+            document.body.removeChild(auditDiv);
 
             pdf.save(`Contract_${Date.now()}.pdf`);
         } catch (error) {
