@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Plus, Trash2, Save, Wrench, Info, DollarSign } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import './RehabEstimator.css';
 
 const defaultLineItems = [
@@ -14,30 +12,12 @@ const defaultLineItems = [
 ];
 
 const RehabEstimator = ({ property, onSaveComplete }) => {
-    const { isDemoMode } = useDemoMode();
     const [tier, setTier] = useState('Moderate');
-    const [lineItems, setLineItems] = useState([]);
-    const [isCustomEditing, setIsCustomEditing] = useState(false);
+    const [lineItems, setLineItems] = useState(defaultLineItems);
     const [markupPct, setMarkupPct] = useState(20);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Initial setup based on tier
-    useEffect(() => {
-        if (!isCustomEditing) {
-            // Adjust mock prices based on tier for the demo if not in custom mode
-            let multiplier = 1;
-            if (tier === 'Light') multiplier = 0.5;
-            if (tier === 'Full Gut') multiplier = 1.8;
-
-            setLineItems(defaultLineItems.map(item => ({
-                ...item,
-                cost: Math.round(item.cost * multiplier)
-            })));
-        }
-    }, [tier, isCustomEditing]);
-
     const handleAddLineItem = () => {
-        setIsCustomEditing(true);
         setLineItems([
             ...lineItems,
             { id: Date.now().toString(), category: 'Custom', description: 'New Line Item', cost: 0 }
@@ -45,14 +25,12 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
     };
 
     const handleUpdateLineItem = (id, field, value) => {
-        setIsCustomEditing(true);
         setLineItems(lineItems.map(item =>
             item.id === id ? { ...item, [field]: value } : item
         ));
     };
 
     const handleRemoveLineItem = (id) => {
-        setIsCustomEditing(true);
         setLineItems(lineItems.filter(item => item.id !== id));
     };
 
@@ -84,7 +62,16 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
                         <button
                             key={t}
                             className={`tier-btn ${tier === t ? 'active' : ''}`}
-                            onClick={() => { setTier(t); setIsCustomEditing(false); }}
+                            onClick={() => {
+                                setTier(t);
+                                let multiplier = 1;
+                                if (t === 'Light') multiplier = 0.5;
+                                if (t === 'Full Gut') multiplier = 1.8;
+                                setLineItems(defaultLineItems.map(item => ({
+                                    ...item,
+                                    cost: Math.round(item.cost * multiplier)
+                                })));
+                            }}
                         >
                             {t}
                         </button>
@@ -190,7 +177,14 @@ const RehabEstimator = ({ property, onSaveComplete }) => {
 
                             <button
                                 className="btn text-xs py-1.5 px-3 flex items-center gap-2 bg-primary/10 hover:bg-primary/30 text-primary border border-primary/30 rounded shadow-sm transition-all"
-                                onClick={() => alert("Rehab Estimate Matrix saved to Property Record.")}
+                                onClick={() => {
+                                    setIsSaving(true);
+                                    setTimeout(() => {
+                                        setIsSaving(false);
+                                        alert("Rehab Estimate Matrix saved to Property Record.");
+                                        if (onSaveComplete) onSaveComplete();
+                                    }, 500);
+                                }}
                                 disabled={isSaving}
                             >
                                 {isSaving ? (

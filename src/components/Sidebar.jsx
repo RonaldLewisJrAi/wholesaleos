@@ -1,32 +1,55 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import {
-    LayoutDashboard,
-    Map,
-    KanbanSquare,
-    Users,
-    FileText,
-    Calculator,
-    ShieldCheck,
-    Activity,
-    Calendar as CalendarIcon
+    LayoutDashboard, Map, KanbanSquare, Users, FileText, Calculator,
+    ShieldCheck, Activity, Calendar as CalendarIcon, Target, Search, FolderHeart,
+    List, Briefcase, Inbox, PhoneCall, ListTodo, CheckSquare, Settings
 } from 'lucide-react';
+import { useSubscription } from '../contexts/useSubscription';
 import './Sidebar.css';
 import logoUrl from '../assets/logo.png';
 
 const Sidebar = () => {
-    const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
-        { name: 'Properties', path: '/properties', icon: <Map size={20} /> },
-        { name: 'Opportunity Radar', path: '/radar', icon: <Activity size={20} /> },
-        { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> },
-        { name: 'Pipeline', path: '/pipeline', icon: <KanbanSquare size={20} /> },
-        { name: 'CRM (Leads & Buyers)', path: '/crm', icon: <Users size={20} /> },
-        { name: 'Documents', path: '/documents', icon: <FileText size={20} /> },
-        { name: 'Calculators', path: '/calculators', icon: <Calculator size={20} /> },
-        { name: 'Compliance', path: '/compliance', icon: <ShieldCheck size={20} /> },
-        // { name: 'Admin Dashboard', path: '/admin', icon: <Users size={20} /> },
-    ];
+    const { activePersona } = useSubscription();
+
+    const personaNavs = {
+        'WHOLESALER': [
+            { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+            { name: 'Properties', path: '/properties', icon: <Map size={20} /> },
+            { name: 'Opportunity Radar', path: '/radar', icon: <Activity size={20} /> },
+            { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> },
+            { name: 'Pipeline', path: '/pipeline', icon: <KanbanSquare size={20} /> },
+            { name: 'CRM (Leads & Buyers)', path: '/crm', icon: <Users size={20} /> },
+            { name: 'Documents', path: '/documents', icon: <FileText size={20} /> },
+            { name: 'Calculators', path: '/calculators', icon: <Calculator size={20} /> },
+            { name: 'Compliance', path: '/compliance', icon: <ShieldCheck size={20} /> },
+            { name: 'Integration & API', path: '/integrations', icon: <Settings size={20} /> },
+        ],
+        'INVESTOR': [
+            { name: 'Investor Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+            { name: 'Match Feed', path: '/match-feed', icon: <Target size={20} /> },
+            { name: 'My Criteria', path: '/criteria', icon: <Search size={20} /> },
+            { name: 'Saved Deals', path: '/saved', icon: <FolderHeart size={20} /> },
+            { name: 'Offers Submitted', path: '/offers', icon: <Briefcase size={20} /> },
+            { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
+        ],
+        'REALTOR': [
+            { name: 'Realtor Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+            { name: 'Referral Inbox', path: '/referrals', icon: <Inbox size={20} /> },
+            { name: 'My Listings', path: '/listings', icon: <List size={20} /> },
+            { name: 'CMA Tool', path: '/cma', icon: <Calculator size={20} /> },
+            { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
+        ],
+        'VIRTUAL_ASSISTANT': [
+            { name: 'VA Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+            { name: 'Dialer & Scripts', path: '/dialer', icon: <PhoneCall size={20} /> },
+            { name: 'Leads Queue', path: '/leads-queue', icon: <ListTodo size={20} /> },
+            { name: 'Appointments Set', path: '/appointments', icon: <CheckSquare size={20} /> },
+            { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
+        ]
+    };
+
+    const navItems = personaNavs[activePersona] || personaNavs['WHOLESALER'];
 
     return (
         <aside className="sidebar glass-panel">
@@ -55,13 +78,13 @@ const Sidebar = () => {
             </nav>
 
             <div className="sidebar-footer">
-                <div className="user-profile-mini">
+                <Link to="/profile" className="user-profile-mini hover:bg-white/5 transition-colors cursor-pointer rounded-md p-2">
                     <div className="avatar">RL</div>
                     <div className="user-info">
                         <span className="user-name">Ronald Lewis</span>
                         <span className="user-role">Administrator</span>
                     </div>
-                </div>
+                </Link>
             </div>
         </aside>
     );

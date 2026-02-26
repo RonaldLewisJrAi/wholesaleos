@@ -7,6 +7,8 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import pdfplumber
+import urllib.request
+import urllib.error
 
 # ==========================================
 # RUTHERFORD COUNTY AI WEB CRAWLER
@@ -70,14 +72,35 @@ def parse_court_document_pdf(pdf_path):
                 if text:
                     extracted_text += text + "\n"
         
-        # Example NLP heuristic extraction for TN Notice of Default
-        # (In production, replace with RegEx or LLM parsing of the extracted_text)
-        print(f"[{datetime.datetime.now()}] Successfully extracted {len(extracted_text)} characters of legal text.")
+        # --- NLP Distress Trigger Extraction ---
+        # The AI Deal Intelligence engine scans public records for signs of extreme seller motivation
+        distress_keywords = {
+            "IRS": 25, "TAX LIEN": 20, "DELINQUENT": 15, "DIVORCE": 30, 
+            "BANKRUPTCY": 40, "CHAPTER 13": 40, "CHAPTER 7": 40, "DEATH": 25,
+            "PROBATE": 20, "AUCTION": 35, "FORECLOSURE": 15, "DEFAULT": 10,
+            "WATER SHUTOFF": 15, "CODE VIOLATION": 10, "CONDEMNED": 35
+        }
+        
+        detected_signals = []
+        distress_score = 0
+        
+        text_upper = extracted_text.upper()
+        for keyword, weight in distress_keywords.items():
+            if keyword in text_upper:
+                detected_signals.append(keyword)
+                distress_score += weight
+                
+        # Cap score at 100
+        distress_score = min(distress_score, 100)
+
+        print(f"[{datetime.datetime.now()}] AI Intelligence Layer found {len(detected_signals)} Distress Triggers. Score: {distress_score}/100")
         
         parsed_data = {
-            "borrower_name": "JOHNATHAN DOE", # Simulated NLP extraction
+            "borrower_name": "JOHNATHAN DOE", # Simulated NLP extraction for testing
             "legal_description": f"Extracted from Doc: {extracted_text[:100]}...", 
             "original_loan_amount": 345000,
+            "distress_score": distress_score,
+            "distress_signals": detected_signals,
             "raw_text_snippet": extracted_text[:200] + "..." if extracted_text else "No parseable text found. Might be a flat image."
         }
         return parsed_data
@@ -127,7 +150,48 @@ def send_extraction_email(leads_data):
 
 
 # --- 3. MAIN CRAWLER PIPELINE ---
+
+def check_kill_switch():
+    print(f"[{datetime.datetime.now()}] Security Check: Verifying Admin Kill-Switch in Supabase...")
+    
+    try:
+        from dotenv import load_dotenv
+        load_dotenv('.env.local')
+    except ImportError:
+        pass
+
+    supabase_url = os.getenv("VITE_SUPABASE_URL")
+    supabase_key = os.getenv("VITE_SUPABASE_ANON_KEY")
+    
+    if not supabase_url or not supabase_key:
+        print(f"[{datetime.datetime.now()}] Missing Supabase credentials. Defaulting to block scraper.")
+        return False
+        
+    try:
+        url = f"{supabase_url}/rest/v1/scraper_admin_config?id=eq.sc-1&select=active"
+        req = urllib.request.Request(url, headers={
+            "apikey": supabase_key,
+            "Authorization": f"Bearer {supabase_key}"
+        })
+        
+        with urllib.request.urlopen(req) as response:
+            data = json.loads(response.read())
+            if len(data) > 0:
+                is_active = data[0].get("active", False)
+                if not is_active:
+                    print(f"[{datetime.datetime.now()}] 🛑 ADMIN KILL-SWITCH ENGAGED. ABORTING SCRAPER.")
+                    return False
+    except Exception as e:
+        print(f"[{datetime.datetime.now()}] Error checking kill-switch: {e}. Defaulting to block scraper.")
+        return False
+        
+    print(f"[{datetime.datetime.now()}] Security Check Passed. Crawler Authorized.")
+    return True
+
 async def run_crawler():
+    if not check_kill_switch():
+        return
+        
     print(f"[{datetime.datetime.now()}] Booting AI Crawler in HUMAN-PROXY mode (Visible UI)...")
     
     async with async_playwright() as p:
@@ -187,7 +251,10 @@ async def run_crawler():
                 print(f"[{datetime.datetime.now()}] [Mock Simulation] No local PDF found to parse. In live production, pdfplumber extracts NLP data from the retrieved court document here.")
 
             # Scrape the hypothetical results table
-            extracted_leads = [
+            extracted_leads = []
+            
+            # Simulated data rows parsing
+            raw_crawled_rows = [
                  {
                     "county": "Rutherford",
                     "state": "TN",
@@ -209,6 +276,19 @@ async def run_crawler():
                     "trustee_name": "RUBIN LUBLIN TN, PLLC"
                 }
             ]
+            
+            for index, row in enumerate(raw_crawled_rows):
+                # Only inject the parsed PDF data to the first mock row for the simulation
+                if index == 0 and os.path.exists(pdf_download_path):
+                    parsed_pdf_data = parse_court_document_pdf(pdf_download_path)
+                    row["distress_score"] = parsed_pdf_data.get("distress_score", 0)
+                    row["distress_signals"] = parsed_pdf_data.get("distress_signals", [])
+                else:
+                    # Generic mock baseline if no PDF available
+                    row["distress_score"] = 15
+                    row["distress_signals"] = ["DEFAULT"]
+                    
+                extracted_leads.append(row)
             
             # Save local backup
             os.makedirs("scraper_debug", exist_ok=True)

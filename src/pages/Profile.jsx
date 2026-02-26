@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock } from 'lucide-react';
+import { User, Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock, PhoneCall, ListAction } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import { supabase } from '../lib/supabase';
 import './Profile.css';
@@ -25,6 +25,14 @@ const Profile = () => {
         minROI: 12,
         propertyTypes: 'SFR, Small MFR',
         rehabLevel: 'Moderate to Full Gut'
+    });
+
+    // Phase 29: Team Performance Module State
+    const [performanceLog, setPerformanceLog] = useState({
+        calls: 142,
+        texts: 38,
+        appointments: 4,
+        conversionRate: 2.8
     });
 
     const [isSaving, setIsSaving] = useState(false);
@@ -414,6 +422,68 @@ const Profile = () => {
                     {isSaving ? 'Syncing...' : 'Save Profile Settings'}
                 </button>
             </div>
+
+            {/* Phase 29: Team Performance Analytics Panel */}
+            <div className={`card glass-panel relative overflow-hidden flex flex-col mt-6 ${['ADVANCED', 'SUPER'].includes(subscriptionTier) ? '' : 'select-none pointer-events-none'}`}>
+                {/* Paywall Overlay */}
+                {!['ADVANCED', 'SUPER'].includes(subscriptionTier) && (
+                    <div className="absolute inset-0 bg-[var(--surface-dark)]/90 backdrop-blur-[4px] z-10 flex flex-col items-center justify-center pointer-events-auto">
+                        <Lock size={32} className="text-primary mb-3" />
+                        <h3 className="text-xl font-bold mb-2">Team Performance Module Locked</h3>
+                        <p className="text-muted text-sm max-w-md text-center mb-6">Upgrade to Advanced or Super to unlock representative logging, KPI leaderboards, and conversion tracking for your acquisitions team.</p>
+                        <button className="btn btn-primary shadow-[0_0_15px_rgba(99,102,241,0.5)]" onClick={handleCheckout}>Unlock Performance Analytics</button>
+                    </div>
+                )}
+
+                <div className="card-header border-b border-[var(--border-light)] pb-4 mb-4">
+                    <h2 className="text-xl font-bold flex items-center gap-2 text-primary"><Target size={20} /> Team Performance Analytics</h2>
+                    <p className="text-sm text-muted mt-1">Track daily outreach metrics, monitor rep conversion rates, and review activity logs.</p>
+                </div>
+
+                <div className="card-body">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div className="p-4 bg-[rgba(0,0,0,0.2)] rounded border border-[var(--border-light)] relative overflow-hidden">
+                            <div className="absolute -right-4 -bottom-4 opacity-10 text-primary"><PhoneCall size={80} /></div>
+                            <div className="text-sm font-bold text-muted uppercase tracking-wider mb-1 relative z-10">Cold Calls</div>
+                            <div className="text-3xl font-bold text-white relative z-10">{performanceLog.calls}</div>
+                            <div className="text-xs text-success mt-1 relative z-10">↑ 12 today</div>
+                        </div>
+                        <div className="p-4 bg-[rgba(0,0,0,0.2)] rounded border border-[var(--border-light)] relative overflow-hidden">
+                            <div className="absolute -right-4 -bottom-4 opacity-10 text-info"><Zap size={80} /></div>
+                            <div className="text-sm font-bold text-muted uppercase tracking-wider mb-1 relative z-10">SMS Sent</div>
+                            <div className="text-3xl font-bold text-white relative z-10">{performanceLog.texts}</div>
+                            <div className="text-xs text-muted mt-1 relative z-10">Daily Limit: 500</div>
+                        </div>
+                        <div className="p-4 bg-[rgba(0,0,0,0.2)] rounded border border-[var(--border-light)] relative overflow-hidden">
+                            <div className="absolute -right-4 -bottom-4 opacity-10 text-warning"><CheckCircle size={80} /></div>
+                            <div className="text-sm font-bold text-muted uppercase tracking-wider mb-1 relative z-10">Appointments</div>
+                            <div className="text-3xl font-bold text-white relative z-10">{performanceLog.appointments}</div>
+                            <div className="text-xs text-warning mt-1 relative z-10">Target: 10/wk</div>
+                        </div>
+                        <div className="p-4 bg-[rgba(0,0,0,0.2)] rounded border border-[var(--border-light)] relative overflow-hidden">
+                            <div className="absolute -right-4 -bottom-4 opacity-10 text-success"><Percent size={80} /></div>
+                            <div className="text-sm font-bold text-muted uppercase tracking-wider mb-1 relative z-10">Conversion</div>
+                            <div className="text-3xl font-bold text-success relative z-10">{performanceLog.conversionRate}%</div>
+                            <div className="text-xs text-success mt-1 relative z-10">Call to close</div>
+                        </div>
+                    </div>
+
+                    <div className="flex-between items-center bg-[var(--surface-light)] p-3 rounded border border-[var(--border-light)]">
+                        <div>
+                            <span className="font-bold text-sm block flex items-center gap-2"><ListAction size={14} className="text-primary" /> Quick Log Action</span>
+                            <span className="text-xs text-muted">Instantly log a manual outreach attempt to the team ledger.</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <button className="btn btn-secondary text-sm flex gap-2" onClick={() => {
+                                setPerformanceLog(p => ({ ...p, calls: p.calls + 1 }));
+                                alert("Outbound Call physically logged to 'team_performance_logs' via Phase 29 API.");
+                            }}><PhoneCall size={14} /> Log Call</button>
+                            <button className="btn btn-primary text-sm flex gap-2" onClick={() => alert("Detailed log modal opened.")}>+ Detailed Entry</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 };

@@ -12,7 +12,9 @@ import Compliance from './pages/Compliance';
 import Radar from './pages/Radar';
 import CalendarView from './pages/CalendarView';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import { DemoModeProvider } from './contexts/DemoModeContext';
 import { SubscriptionProvider } from './contexts/useSubscription';
 
@@ -34,7 +36,9 @@ function App() {
               <Route path="calendar" element={<CalendarView />} />
               <Route path="compliance" element={<Compliance />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="integrations" element={<Settings />} />
               <Route path="admin" element={<AdminDashboard />} />
+              <Route path="super-admin" element={<SuperAdminDashboard />} />
             </Route>
           </Routes>
         </BrowserRouter>

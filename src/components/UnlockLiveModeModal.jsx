@@ -67,7 +67,10 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
         onClose();
 
         // Redirect to profile
-        navigate('/profile');
+        // Added a short timeout to let the modal fully unmount before navigation to avoid trapped state issues
+        setTimeout(() => {
+            navigate('/profile');
+        }, 100);
     };
 
     const handlePromoRedemption = async () => {

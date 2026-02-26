@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft } from 'lucide-react';
+import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import WorkspaceSwitcher from './WorkspaceSwitcher';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import './Header.css';
 
@@ -57,6 +59,7 @@ const Header = () => {
             </div>
 
             <div className="header-actions">
+                <WorkspaceSwitcher />
                 <div
                     className="demo-toggle"
                     style={{

@@ -3,20 +3,28 @@
         "county": "Rutherford",
         "state": "TN",
         "instrument_type": "SUBSTITUTE TRUSTEE SALE",
-        "file_date": "2026-02-24",
+        "file_date": "2026-02-25",
         "borrower_name": "JOHNATHAN DOE",
         "legal_description": "LOT 42, PHASE 1, BLACKMAN FARMS, MURFREESBORO",
         "original_loan_amount": 345000,
-        "trustee_name": "WILSON & ASSOCIATES, PLLC"
+        "trustee_name": "WILSON & ASSOCIATES, PLLC",
+        "distress_score": 15,
+        "distress_signals": [
+            "DEFAULT"
+        ]
     },
     {
         "county": "Rutherford",
         "state": "TN",
         "instrument_type": "NOTICE OF DEFAULT",
-        "file_date": "2026-02-24",
+        "file_date": "2026-02-25",
         "borrower_name": "MARY SMITH",
         "legal_description": "DISTRICT 9, MAP 072, PARCEL 014.00, SMYRNA",
         "original_loan_amount": 210000,
-        "trustee_name": "RUBIN LUBLIN TN, PLLC"
+        "trustee_name": "RUBIN LUBLIN TN, PLLC",
+        "distress_score": 15,
+        "distress_signals": [
+            "DEFAULT"
+        ]
     }
 ]

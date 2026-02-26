@@ -221,7 +221,35 @@ CREATE TABLE IF NOT EXISTS kpi_snapshots (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 -- =======================================================
--- 6. ROW LEVEL SECURITY (RLS) POLICIES
+-- 6. RETROFIT EXISTING SINGLE-TENANT TABLES
+-- =======================================================
+-- The CRM tables already exist from previous phases.
+-- CREATE TABLE IF NOT EXISTS does not retroactively add new columns,
+-- so we must explicitly add organization_id to all existing tables.
+ALTER TABLE leads
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE buyers
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE buyer_criteria
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE properties
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE deal_stages
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE deals
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE compliance_rules
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE documents
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE repair_estimates
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE marketing_channels
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+ALTER TABLE kpi_snapshots
+ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
+-- =======================================================
+-- 7. ROW LEVEL SECURITY (RLS) POLICIES
 -- =======================================================
 -- Enable RLS on all highly sensitive tables
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;

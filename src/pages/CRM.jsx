@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, UserPlus, Mail, Phone, MapPin, X, UploadCloud } from 'lucide-react';
+import { Search, Filter, UserPlus, Mail, Phone, MapPin, X, UploadCloud, Target } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { calculateDealProbability, calculateBuyerDemandIndex } from '../lib/DealIntelligence';
 import './CRM.css';
 
 const mockContacts = [
@@ -80,6 +81,17 @@ const CRM = () => {
 
     // Intelligence Panel State
     const [selectedLead, setSelectedLead] = useState(null);
+    const [simulatedBdi, setSimulatedBdi] = useState(null);
+
+    // Phase 28: Fetch BDI asynchronously when a lead is selected 
+    useEffect(() => {
+        if (selectedLead && selectedLead.type?.includes("Lead")) {
+            // We use a mock zip code here for CRM contacts lacking full property location details
+            calculateBuyerDemandIndex("37206", "SFR").then(bdi => setSimulatedBdi(bdi));
+        } else {
+            setSimulatedBdi(null);
+        }
+    }, [selectedLead]);
 
     useEffect(() => {
         const fetchContacts = async () => {
@@ -406,10 +418,31 @@ const CRM = () => {
                                         <div className="flex-between mb-2">
                                             <h3 className="text-xs font-bold text-muted uppercase tracking-wider">Acquisition Intelligence</h3>
                                             <span className={`badge ${calculateHeatScore(selectedLead) >= 70 ? 'bg-danger text-white border-danger' : 'bg-warning text-white border-warning'}`}>
-                                                Heat: {calculateHeatScore(selectedLead)}
+                                                Lead Heat: {calculateHeatScore(selectedLead)}
                                             </span>
                                         </div>
                                         <div className="space-y-3">
+                                            {/* Phase 28: Render Predictive Deal Probability */}
+                                            {(() => {
+                                                const eqPct = calculateEquity(selectedLead.arv, selectedLead.mortgage_balance);
+                                                const probScore = calculateDealProbability(eqPct, selectedLead.motivation_level || 3, simulatedBdi ? simulatedBdi.matches : 0);
+
+                                                let probColor = "text-danger";
+                                                if (probScore > 75) probColor = "text-success";
+                                                else if (probScore > 50) probColor = "text-warning";
+
+                                                return (
+                                                    <div className="mb-3 p-3 bg-[rgba(0,0,0,0.3)] rounded border border-warning/30 shadow-[0_0_10px_rgba(234,179,8,0.1)]">
+                                                        <div className="flex-between mb-2">
+                                                            <span className="text-xs text-muted flex items-center gap-1"><Target size={12} /> AI Deal Probability</span>
+                                                            <span className={`text-sm font-bold ${probColor}`}>{probScore}%</span>
+                                                        </div>
+                                                        <div className="bg-warning/10 text-warning text-[10px] px-2 py-1 rounded border border-warning/20 text-center font-mono">
+                                                            ⚠️ BETA INTELLIGENCE: Under 50 Closed Deals Mapped. Estimates may fluctuate.
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
                                             <div>
                                                 <div className="flex-between text-xs mb-1">
                                                     <span className="text-gray-400">Distress Level</span>

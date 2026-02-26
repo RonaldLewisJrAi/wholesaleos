@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { chromium } = require('playwright');
 const rateLimit = require('express-rate-limit');
+const RedisStore = require('rate-limit-redis').default || require('rate-limit-redis');
 const Redis = require('ioredis');
 const stripeRoutes = require('./stripe_routes.cjs');
 
@@ -21,6 +22,9 @@ const PORT = 3001;
 
 // General API Rate Limiter
 const apiLimiter = rateLimit({
+    store: new RedisStore({
+        sendCommand: (...args) => redis.call(...args),
+    }),
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 20, // Limit each IP to 20 requests per `window` (here, per 15 minutes)
     message: { error: 'Too many requests from this IP, please try again after 15 minutes.' },

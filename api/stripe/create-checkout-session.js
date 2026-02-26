@@ -1,4 +1,5 @@
 /* eslint-env node */
+/* global process */
 import Stripe from 'stripe';
 
 export default async function handler(req, res) {

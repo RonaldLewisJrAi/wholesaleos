@@ -1,5 +1,6 @@
 .live-mode-overlay {
     background-color: rgba(10, 10, 10, 0.85);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
