@@ -56,7 +56,8 @@ const templates = [
 
 const Documents = () => {
     const { subscriptionTier } = useSubscription();
-    const isDemoMode = !subscriptionTier || subscriptionTier === 'demo';
+    // Block downloads and apply DRM if tier is missing, 'demo', or the default 'free'
+    const isDemoMode = !subscriptionTier || subscriptionTier === 'demo' || subscriptionTier === 'free';
 
     const [selectedTemplate, setSelectedTemplate] = useState('t2');
     const [formData, setFormData] = useState({
