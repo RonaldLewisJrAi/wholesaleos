@@ -131,18 +131,51 @@ const Properties = () => {
         fetchProperties();
     }, [isDemoMode]);
 
+    const checkExclusivityLock = async (address) => {
+        if (isDemoMode || !supabase) return { isLocked: false };
+        try {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            const { data, error } = await supabase
+                .from('properties')
+                .select('exclusive_locked_by, exclusive_locked_at')
+                .eq('address', address)
+                .gte('exclusive_locked_at', thirtyDaysAgo.toISOString())
+                .limit(1)
+                .single();
+
+            if (error && error.code !== 'PGRST116') {
+                return { isLocked: false, error };
+            }
+            if (data) {
+                return { isLocked: true };
+            }
+            return { isLocked: false };
+        } catch (err) {
+            console.error("Exclusivity check failed", err);
+            return { isLocked: false };
+        }
+    };
+
     const handleZillowImport = async () => {
         const url = window.prompt("Enter Zillow Property URL:");
         if (!url) return;
 
         setIsImporting(true);
         try {
-            // Simulate scraping delay
             await new Promise(resolve => setTimeout(resolve, 1500));
+            const scrapedAddress = 'Scraped Property: ' + Math.floor(Math.random() * 9999) + ' Zillow Ln';
+
+            const { isLocked } = await checkExclusivityLock(scrapedAddress);
+            if (isLocked) {
+                alert("🔒 Access Denied: This property is actively being worked by another investor. The 30-day exclusivity lock has not expired.");
+                return;
+            }
 
             const newProperty = {
                 id: Date.now(),
-                address: 'Scraped Property: ' + Math.floor(Math.random() * 9999) + ' Zillow Ln',
+                address: scrapedAddress,
                 status: 'Lead',
                 arv: '$' + (Math.floor(Math.random() * 50) + 30) + '0,000',
                 mao: 'Pending Calc',
@@ -269,7 +302,16 @@ const Properties = () => {
                             property={prop}
                             onLaunchPacket={setSelectedPropertyForPacket}
                             onRunComps={setSelectedPropertyForComps}
-                            onImport={(id) => {
+                            onImport={async (id) => {
+                                const targetProp = properties.find(p => p.id === id);
+                                if (!targetProp) return;
+
+                                const { isLocked } = await checkExclusivityLock(targetProp.address);
+                                if (isLocked) {
+                                    alert("🔒 Access Denied: This property is actively being worked by another investor. The 30-day exclusivity lock has not expired.");
+                                    return;
+                                }
+
                                 setProperties(prev => prev.map(p => p.id === id ? { ...p, status: 'FSBO Lead' } : p));
                                 alert('Property successfully imported to your Local Database!');
                             }}
