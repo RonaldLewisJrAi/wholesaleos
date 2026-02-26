@@ -82,6 +82,13 @@ const Profile = () => {
             alert('Cannot save: Not connected to database or user not authenticated.');
             return;
         }
+
+        const isUnpaid = !subscriptionTier || subscriptionTier === 'demo' || subscriptionTier === 'free';
+        if (isUnpaid) {
+            alert("🔒 Upgrade Required: Setting up your Investor Buy Box and custom Profile requires an active SaaS tier.");
+            return;
+        }
+
         setIsSaving(true);
         try {
             const { error } = await supabase.from('profiles').update({
