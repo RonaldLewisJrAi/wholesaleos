@@ -374,7 +374,21 @@ const Documents = () => {
                     </div>
 
                     <div className="mock-pdf-container">
-                        <div className="mock-pdf-page text-black" ref={pdfContainerRef} style={{ background: '#ffffff', color: '#000000' }}>
+                        <div
+                            className={`mock-pdf-page text-black ${isDemoMode ? 'select-none' : ''}`}
+                            ref={pdfContainerRef}
+                            style={{
+                                background: '#ffffff',
+                                color: '#000000',
+                                userSelect: isDemoMode ? 'none' : 'auto',
+                                WebkitUserSelect: isDemoMode ? 'none' : 'auto',
+                                MozUserSelect: isDemoMode ? 'none' : 'auto',
+                                msUserSelect: isDemoMode ? 'none' : 'auto'
+                            }}
+                            onSelectStart={(e) => {
+                                if (isDemoMode) e.preventDefault();
+                            }}
+                        >
                             {selectedTemplate === 't1' && (
                                 <div className="animate-fade-in">
                                     <h2 className="text-center font-bold mb-6">REAL ESTATE PURCHASE AND SALE AGREEMENT</h2>
