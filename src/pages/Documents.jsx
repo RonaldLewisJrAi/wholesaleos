@@ -4,6 +4,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import { supabase } from '../lib/supabase';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useSubscription } from '../contexts/useSubscription';
 import './Documents.css';
 
 const SignatureBlock = ({ label, printedNameValue, defaultNameValue, printedNameKey, onPrintedNameChange, sigRef }) => {
@@ -16,7 +17,7 @@ const SignatureBlock = ({ label, printedNameValue, defaultNameValue, printedName
                 </span>
                 <SignatureCanvas
                     ref={sigRef}
-                    penColor="white"
+                    penColor="black"
                     canvasProps={{ style: { width: '100%', height: '100%', minHeight: '100px', cursor: 'crosshair', display: 'block', position: 'relative', zIndex: 2 } }}
                 />
             </div>
@@ -54,6 +55,9 @@ const templates = [
 ];
 
 const Documents = () => {
+    const { subscriptionTier } = useSubscription();
+    const isDemoMode = !subscriptionTier || subscriptionTier === 'demo';
+
     const [selectedTemplate, setSelectedTemplate] = useState('t2');
     const [formData, setFormData] = useState({
         date: '',
@@ -153,6 +157,10 @@ const Documents = () => {
     };
 
     const generatePDF = async () => {
+        if (isDemoMode) {
+            alert('PDF Download is strictly disabled in Demo Mode. Please unlock Live Mode to generate official documents.');
+            return;
+        }
         if (!pdfContainerRef.current) return;
         setIsGeneratingPDF(true);
         try {
@@ -242,7 +250,26 @@ const Documents = () => {
     };
 
     return (
-        <div className="documents-container animate-fade-in">
+        <div
+            className={`documents-container animate-fade-in ${isDemoMode ? 'select-none' : ''}`}
+            onContextMenu={(e) => {
+                if (isDemoMode) {
+                    e.preventDefault();
+                    alert("Right-click is disabled in Demo Mode to protect proprietary templates.");
+                }
+            }}
+            onCopy={(e) => {
+                if (isDemoMode) {
+                    e.preventDefault();
+                    alert("Copying text is disabled in Demo Mode.");
+                }
+            }}
+            onCut={(e) => {
+                if (isDemoMode) {
+                    e.preventDefault();
+                }
+            }}
+        >
             <div className="page-header flex-between">
                 <div>
                     <h1 className="page-title">Document Automation</h1>
