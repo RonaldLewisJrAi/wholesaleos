@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock, PhoneCall, ListAction } from 'lucide-react';
+import { Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock, PhoneCall, ListChecks } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import { supabase } from '../lib/supabase';
 import './Profile.css';
@@ -470,7 +470,7 @@ const Profile = () => {
 
                     <div className="flex-between items-center bg-[var(--surface-light)] p-3 rounded border border-[var(--border-light)]">
                         <div>
-                            <span className="font-bold text-sm block flex items-center gap-2"><ListAction size={14} className="text-primary" /> Quick Log Action</span>
+                            <span className="font-bold text-sm block flex items-center gap-2"><ListChecks size={14} className="text-primary" /> Quick Log Action</span>
                             <span className="text-xs text-muted">Instantly log a manual outreach attempt to the team ledger.</span>
                         </div>
                         <div className="flex gap-2">
