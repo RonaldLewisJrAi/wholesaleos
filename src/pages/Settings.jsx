@@ -22,18 +22,49 @@ const Settings = () => {
         setFeatureFlags(prev => ({ ...prev, [flag]: !prev[flag] }));
     };
 
-    // Phase 32: Secure Action Handler
-    const handleSecureAction = (actionName, finalStatus) => {
-        if (actionName === 'RESUME') {
-            setSubscriptionStatus(finalStatus);
-            return;
+    // Phase 32: Secure Action Handler wired to Real Netlify API
+    const handleSecureAction = async (actionName, finalStatus) => {
+        const actionMap = {
+            'PAUSE': 'pause',
+            'RESUME': 'resume',
+            'CANCEL': 'cancel',
+            'TERMINATE': 'terminate'
+        };
+
+        const apiAction = actionMap[actionName];
+        if (!apiAction) return;
+
+        let password = null;
+        if (actionName !== 'RESUME') {
+            password = prompt(`Security Verification Required.\n\nPlease enter your password to confirm [${actionName}]:`);
+            if (password === null || password === "") {
+                return; // User canceled
+            }
         }
 
-        const password = prompt(`Security Verification Required.\n\nPlease enter your password to confirm [${actionName}]:`);
-        if (password !== null && password !== "") {
-            // In production, we'd hit /api/subscription/action with the password payload.
-            setSubscriptionStatus(finalStatus);
-            alert(`${actionName} confirmed and executed. Immutable log generated.`);
+        try {
+            // Mapping local dev or prod origin naturally
+            const response = await fetch('/api/subscription/action', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: apiAction,
+                    password: password || 'dummy_for_resume' // Note: REAL backend auth verifies bearer token, password re-entry is an extra layer handled by the auth helper if configured
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setSubscriptionStatus(finalStatus);
+                alert(`${actionName} confirmed and executed. Immutable log generated.`);
+            } else {
+                alert(`Action Failed: ${data.error}`);
+            }
+        } catch (error) {
+            console.error('API Error:', error);
+            alert('Failed to reach backend infrastructure. Check your connection.');
         }
     };
 
