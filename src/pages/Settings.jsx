@@ -10,6 +10,7 @@ const Settings = () => {
     const {
         integrations = [],
         featureFlags: dbFlags = [],
+        apiKeys = [],
         loading: integrationsLoading = false,
         saveIntegrationConfig,
         toggleFeatureFlag
@@ -36,20 +37,34 @@ const Settings = () => {
     const [twilioSid, setTwilioSid] = useState('');
     const [twilioToken, setTwilioToken] = useState('');
 
+    // Keep Local state for un-saved SendGrid Inputs
+    const sendgridInt = integrations.find(i => i.type === 'SENDGRID');
+    const [sendgridApiKey, setSendgridApiKey] = useState('');
+
     // Sync external DB configuration into local controlled inputs when it loads
     useEffect(() => {
         if (twilioInt?.config) {
-            // eslint-disable-next-line
             setTwilioSid(prev => prev || twilioInt.config.account_sid || '');
-            // eslint-disable-next-line
             setTwilioToken(prev => prev || twilioInt.config.auth_token || '');
         }
-    }, [twilioInt]);
+        if (sendgridInt?.config) {
+            setSendgridApiKey(prev => prev || sendgridInt.config.api_key || '');
+        }
+    }, [twilioInt, sendgridInt]);
 
     const handleSaveTwilio = async () => {
         const res = await saveIntegrationConfig('TWILIO', { account_sid: twilioSid, auth_token: twilioToken });
         if (res.success) {
             alert("Twilio configuration saved successfully.");
+        } else {
+            alert("Error saving: " + res.error);
+        }
+    };
+
+    const handleSaveSendgrid = async () => {
+        const res = await saveIntegrationConfig('SENDGRID', { api_key: sendgridApiKey });
+        if (res.success) {
+            alert("SendGrid configuration saved successfully.");
         } else {
             alert("Error saving: " + res.error);
         }
@@ -282,10 +297,30 @@ const Settings = () => {
                             <div className="card glass-panel p-6 border-t-4 border-info">
                                 <div className="flex-between mb-4">
                                     <h3 className="text-xl font-bold flex items-center gap-2"><Mail className="text-info" /> SendGrid (Email)</h3>
-                                    <span className="badge bg-[var(--surface-light)] text-muted text-xs border border-[var(--border-light)]">NOT CONFIGURED</span>
+                                    {sendgridInt?.config ? (
+                                        <span className="badge bg-success/20 text-success text-xs border border-success/50">ACTIVE</span>
+                                    ) : (
+                                        <span className="badge bg-[var(--surface-light)] text-muted text-xs border border-[var(--border-light)]">NOT CONFIGURED</span>
+                                    )}
                                 </div>
                                 <p className="text-sm text-muted mb-6">Enables automated Deal Packets, Investor broadcasts, and Realtor CMA generation emails.</p>
-                                <button className="btn btn-primary text-sm flex items-center gap-2"><Zap size={14} /> Connect SendGrid</button>
+
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div className="form-group">
+                                        <label>API Key</label>
+                                        <input
+                                            type="password"
+                                            value={sendgridApiKey}
+                                            onChange={(e) => setSendgridApiKey(e.target.value)}
+                                            className="form-control"
+                                            placeholder="SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mt-4 flex gap-3">
+                                    <button className="btn btn-primary text-sm flex items-center gap-2" onClick={handleSaveSendgrid}><Zap size={14} /> Connect SendGrid</button>
+                                    <button className="btn text-danger text-sm hover:underline">Disconnect</button>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -302,26 +337,41 @@ const Settings = () => {
                                     <button className="btn btn-primary">+ New Endpoint</button>
                                 </div>
 
-                                <div className="border border-[var(--border-light)] rounded overflow-hidden">
-                                    <table className="w-full text-left text-sm">
-                                        <thead className="bg-[var(--surface-light)]">
-                                            <tr>
-                                                <th className="p-3">Endpoint URL</th>
-                                                <th className="p-3">Events Subscribed</th>
-                                                <th className="p-3">Status</th>
-                                                <th className="p-3">Last Fired</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-[var(--border-light)]">
-                                            <tr>
-                                                <td className="p-3 font-mono text-xs text-muted">https://hooks.zapier.com/hooks/catch/123/abc/</td>
-                                                <td className="p-3"><span className="badge text-[10px]">deal.created</span> <span className="badge text-[10px]">deal.stage_changed</span></td>
-                                                <td className="p-3"><span className="text-success font-bold text-xs flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-success"></div> Active</span></td>
-                                                <td className="p-3 text-xs text-muted">2 mins ago</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                {integrations.filter(i => i.type === 'WEBHOOK').length === 0 ? (
+                                    <div className="text-center py-6 text-muted border border-dashed border-[var(--border-light)] rounded mt-4">
+                                        No outbound webhooks configured.
+                                    </div>
+                                ) : (
+                                    <div className="border border-[var(--border-light)] rounded overflow-hidden mt-4">
+                                        <table className="w-full text-left text-sm">
+                                            <thead className="bg-[var(--surface-light)]">
+                                                <tr>
+                                                    <th className="p-3">Endpoint URL</th>
+                                                    <th className="p-3">Events Subscribed</th>
+                                                    <th className="p-3">Status</th>
+                                                    <th className="p-3">Last Fired</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-[var(--border-light)]">
+                                                {integrations.filter(i => i.type === 'WEBHOOK').map(hook => (
+                                                    <tr key={hook.id}>
+                                                        <td className="p-3 font-mono text-xs text-muted">{hook.config?.endpoint_url || 'Unknown'}</td>
+                                                        <td className="p-3">
+                                                            {hook.config?.events?.map(ev => <span key={ev} className="badge text-[10px] mr-1">{ev}</span>) || <span className="text-muted text-xs">All</span>}
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <span className={`font-bold text-xs flex items-center gap-1 ${hook.status === 'ACTIVE' ? 'text-success' : 'text-muted'}`}>
+                                                                <div className={`w-2 h-2 rounded-full ${hook.status === 'ACTIVE' ? 'bg-success' : 'bg-muted'}`}></div>
+                                                                {hook.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-xs text-muted">Just now</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -335,18 +385,29 @@ const Settings = () => {
                                         <h3 className="text-xl font-bold flex items-center gap-2"><Key className="text-primary" /> Access Tokens</h3>
                                         <p className="text-sm text-muted mt-1">Manage Bearer tokens for connecting external BI reporting or custom mobile apps.</p>
                                     </div>
-                                    <button className="btn btn-primary text-sm">Generate New Key</button>
+                                    <button className="btn btn-primary text-sm" onClick={() => alert("Key generation requires backend endpoint implementation.")}>Generate New Key</button>
                                 </div>
-                                <div className="bg-[var(--surface-dark)] p-4 rounded border border-[var(--border-light)] flex-between">
-                                    <div>
-                                        <div className="font-bold text-sm">Production Reporting Server</div>
-                                        <div className="font-mono text-xs text-muted mt-1">whos_********************a9f2</div>
+
+                                {apiKeys.length === 0 ? (
+                                    <div className="text-center py-6 text-muted border border-dashed border-[var(--border-light)] rounded">
+                                        No API Keys generated.
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-xs text-success font-bold pb-1">READ_ONLY</div>
-                                        <button className="text-danger text-xs hover:underline">Revoke</button>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {apiKeys.map(key => (
+                                            <div key={key.id || key.key_name} className="bg-[var(--surface-dark)] p-4 rounded border border-[var(--border-light)] flex-between">
+                                                <div>
+                                                    <div className="font-bold text-sm">{key.key_name}</div>
+                                                    <div className="font-mono text-xs text-muted mt-1">{key.api_key ? `${key.api_key.substring(0, 8)}********************` : ''}</div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-xs text-success font-bold pb-1">ACTIVE</div>
+                                                    <button className="text-danger text-xs hover:underline">Revoke</button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     )}
