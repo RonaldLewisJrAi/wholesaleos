@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, Shield, Webhook, Zap, ChevronUp, ChevronDown } from 'lucide-react';
+import { Activity, Shield, Webhook, Zap, ChevronUp } from 'lucide-react';
 
 const OrgHealthWidget = () => {
     const [isExpanded, setIsExpanded] = useState(false);
