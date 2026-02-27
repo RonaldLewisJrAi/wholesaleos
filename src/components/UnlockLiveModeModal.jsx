@@ -13,6 +13,8 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
     // Steps: 1 = Payment Options, 2 = Processing, 3 = Account Creation
     const [step, setStep] = useState(1);
     const [selectedTier, setSelectedTier] = useState('pro');
+    const [selectedPersona, setSelectedPersona] = useState('WHOLESALER');
+    const [termsAccepted, setTermsAccepted] = useState(false);
     const [accountData, setAccountData] = useState({ password: '', confirmPassword: '' });
     const [promoCode, setPromoCode] = useState('');
     const [isApplyingPromo, setIsApplyingPromo] = useState(false);
@@ -37,7 +39,8 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                 body: JSON.stringify({
                     priceId: priceId,
                     userEmail: 'Ronald_Lewis_Jr@live.com', // Mapped to Founder Email for initialization
-                    userId: '00000000-0000-0000-0000-000000000000' // Placeholder auth ID until actual signup
+                    userId: '00000000-0000-0000-0000-000000000000', // Placeholder auth ID until actual signup
+                    persona: selectedPersona
                 })
             });
             const data = await response.json();
@@ -169,7 +172,43 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                             </div>
                         </div>
 
-                        <button className="btn btn-primary w-full text-lg py-3 flex justify-center items-center gap-2" onClick={handleCheckout}>
+                        <div className="persona-selection mb-6 p-4 bg-[rgba(0,0,0,0.2)] rounded-lg border border-[var(--border-light)]">
+                            <h4 className="text-sm font-bold mb-3 flex items-center gap-2"><Lock size={16} /> Select Your Platform Persona</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    className={`btn ${selectedPersona === 'WHOLESALER' ? 'btn-primary' : 'btn-secondary'} py-2 flex items-center justify-center gap-2`}
+                                    onClick={() => setSelectedPersona('WHOLESALER')}
+                                >
+                                    <CheckCircle size={16} className={selectedPersona === 'WHOLESALER' ? 'opacity-100' : 'opacity-0'} /> Wholesaler
+                                </button>
+                                <button
+                                    className={`btn ${selectedPersona === 'INVESTOR' ? 'btn-primary' : 'btn-secondary'} py-2 flex items-center justify-center gap-2`}
+                                    onClick={() => setSelectedPersona('INVESTOR')}
+                                >
+                                    <CheckCircle size={16} className={selectedPersona === 'INVESTOR' ? 'opacity-100' : 'opacity-0'} /> VIP Investor
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="terms-checkbox mb-6 bg-[rgba(239,68,68,0.05)] p-3 rounded border border-danger/20">
+                            <label className="flex items-start gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="mt-1 cursor-pointer accent-primary"
+                                    checked={termsAccepted}
+                                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                                />
+                                <span className="text-xs text-muted">
+                                    I agree to the Wholesale OS <a href="#" className="text-primary hover:underline">Enterprise Terms of Service</a>, including the AI Liability Waiver, Data Purge policies, and Master Subscription Agreement.
+                                </span>
+                            </label>
+                        </div>
+
+                        <button
+                            className="btn btn-primary w-full text-lg py-3 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handleCheckout}
+                            disabled={!termsAccepted}
+                        >
                             <Lock size={18} /> Process Secure Payment
                         </button>
 
