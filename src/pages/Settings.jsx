@@ -1,25 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, Shield, Webhook, Key, Terminal, ToggleLeft, ToggleRight, MessageSquare, Mail, Zap, Phone, CreditCard, Users as UsersIcon } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
+import { useIntegrations } from '../contexts/useIntegrations';
 import './Settings.css';
 
 const Settings = () => {
     const { subscriptionTier, subscriptionStatus, setSubscriptionStatus } = useSubscription();
     const [activeTab, setActiveTab] = useState('communication');
+    const {
+        integrations = [],
+        featureFlags: dbFlags = [],
+        loading: integrationsLoading = false,
+        saveIntegrationConfig,
+        toggleFeatureFlag
+    } = useIntegrations() || {};
 
     // Mock User - Assume Admin check passed for this demo
     const isAdmin = true;
     const isBasic = subscriptionTier === 'BASIC';
 
-    const [featureFlags, setFeatureFlags] = useState({
-        enable_scraper: true,
-        enable_webhooks: true,
-        enable_predictive_recalibration: false,
-        enable_dialer: true,
-    });
+    // Parse Flags Array to object map for easy toggling lookup
+    const featureFlags = {
+        enable_scraper: dbFlags.find(f => f.flag_name === 'enable_scraper')?.enabled || false,
+        enable_webhooks: dbFlags.find(f => f.flag_name === 'enable_webhooks')?.enabled || false,
+        enable_predictive_recalibration: dbFlags.find(f => f.flag_name === 'enable_predictive_recalibration')?.enabled || false,
+    };
 
-    const toggleFlag = (flag) => {
-        setFeatureFlags(prev => ({ ...prev, [flag]: !prev[flag] }));
+    const toggleFlag = async (flagName) => {
+        const currentValue = featureFlags[flagName];
+        await toggleFeatureFlag(flagName, !currentValue);
+    };
+
+    // Keep Local state for un-saved Twilio Inputs
+    const twilioInt = integrations.find(i => i.type === 'TWILIO');
+    const [twilioSid, setTwilioSid] = useState('');
+    const [twilioToken, setTwilioToken] = useState('');
+
+    // Sync external DB configuration into local controlled inputs when it loads
+    useEffect(() => {
+        if (twilioInt?.config) {
+            // eslint-disable-next-line
+            setTwilioSid(prev => prev || twilioInt.config.account_sid || '');
+            // eslint-disable-next-line
+            setTwilioToken(prev => prev || twilioInt.config.auth_token || '');
+        }
+    }, [twilioInt]);
+
+    const handleSaveTwilio = async () => {
+        const res = await saveIntegrationConfig('TWILIO', { account_sid: twilioSid, auth_token: twilioToken });
+        if (res.success) {
+            alert("Twilio configuration saved successfully.");
+        } else {
+            alert("Error saving: " + res.error);
+        }
     };
 
     // Phase 32: Secure Action Handler wired to Real Netlify API
@@ -80,6 +113,11 @@ const Settings = () => {
 
     return (
         <div className="settings-container animate-fade-in max-w-6xl mx-auto">
+            {integrationsLoading && (
+                <div className="fixed inset-0 bg-[var(--bg-dark)]/80 z-50 flex items-center justify-center backdrop-blur-sm">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                </div>
+            )}
             <div className="page-header flex-between mb-8">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -216,15 +254,27 @@ const Settings = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="form-group">
                                         <label>Account SID</label>
-                                        <input type="password" value="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" readOnly className="form-control" />
+                                        <input
+                                            type="text"
+                                            value={twilioSid}
+                                            onChange={(e) => setTwilioSid(e.target.value)}
+                                            className="form-control"
+                                            placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        />
                                     </div>
                                     <div className="form-group">
                                         <label>Auth Token</label>
-                                        <input type="password" value="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" readOnly className="form-control" />
+                                        <input
+                                            type="password"
+                                            value={twilioToken}
+                                            onChange={(e) => setTwilioToken(e.target.value)}
+                                            className="form-control"
+                                            placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        />
                                     </div>
                                 </div>
                                 <div className="mt-4 flex gap-3">
-                                    <button className="btn btn-secondary text-sm">Update Credentials</button>
+                                    <button className="btn btn-secondary text-sm" onClick={handleSaveTwilio}>Update Credentials</button>
                                     <button className="btn text-danger text-sm hover:underline">Disconnect</button>
                                 </div>
                             </div>
