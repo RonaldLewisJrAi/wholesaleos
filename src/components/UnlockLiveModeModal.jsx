@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, CheckCircle, ShieldCheck, Lock, X, ChevronRight, Zap, Key } from 'lucide-react';
+import { CreditCard, CheckCircle, ShieldCheck, Lock, X, Zap, Key } from 'lucide-react';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import { useSubscription } from '../contexts/useSubscription';
 import { useNavigate } from 'react-router-dom';

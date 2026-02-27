@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Shield, Webhook, Key, Terminal, ToggleLeft, ToggleRight, MessageSquare, Mail, Zap, Phone, Database, CreditCard, Users as UsersIcon } from 'lucide-react';
+import { Settings as SettingsIcon, Shield, Webhook, Key, Terminal, ToggleLeft, ToggleRight, MessageSquare, Mail, Zap, Phone, CreditCard, Users as UsersIcon } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import './Settings.css';
 

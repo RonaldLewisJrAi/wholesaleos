@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock, PhoneCall, ListAction } from 'lucide-react';
+import { Building, MapPin, DollarSign, Percent, Save, Camera, ShieldCheck, Target, Home, Zap, CheckCircle, Lock, PhoneCall, ListAction } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import { supabase } from '../lib/supabase';
 import './Profile.css';
