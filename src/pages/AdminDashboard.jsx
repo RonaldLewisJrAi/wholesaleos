@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, ShieldAlert, Key, Activity, Database, Ban, Unlock, RefreshCw, MoreVertical, CreditCard, Terminal, Power, Clock } from 'lucide-react';
+import { Users, ShieldAlert, Key, Database, Ban, Unlock, RefreshCw, MoreVertical, CreditCard, Terminal, Power, Clock } from 'lucide-react';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
