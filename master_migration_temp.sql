@@ -410,9 +410,14 @@ ADD COLUMN IF NOT EXISTS seat_status seat_status_enum NOT NULL DEFAULT 'ACTIVE';
 -- PHASE 32
 -- =======================================================
 CREATE TABLE IF NOT EXISTS public.processed_stripe_events (
-    event_id TEXT PRIMARY KEY,
-    processed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    stripe_event_id TEXT UNIQUE NOT NULL,
+    type TEXT NOT NULL,
+    processed_at TIMESTAMPTZ DEFAULT NOW(),
+    metadata JSONB
 );
+ALTER TABLE public.processed_stripe_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Strict Backend Only Access" ON public.processed_stripe_events FOR ALL USING (false);
 CREATE TABLE IF NOT EXISTS public.stripe_event_failures (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_id TEXT NOT NULL,
