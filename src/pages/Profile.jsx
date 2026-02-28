@@ -207,17 +207,21 @@ const Profile = () => {
                     <div className="pt-2">
                         <h3 className="section-title mb-4 pb-2 border-b border-[var(--border-light)] font-bold">System Persona</h3>
                         <div className="role-toggle-group">
-                            {personaConfigs.map((persona) => (
-                                <button
-                                    key={persona.id}
-                                    className={`role-toggle-btn ${profile.primaryPersona === persona.id ? 'active' : ''}`}
-                                    onClick={() => setProfile(prev => ({ ...prev, primaryPersona: persona.id }))}
-                                >
-                                    <persona.icon size={24} />
-                                    <span>{persona.label}</span>
-                                </button>
-                            ))}
+                            {personaConfigs.map((persona) => {
+                                if (!isMasterAdmin && profile.primaryPersona !== persona.id) return null;
+                                return (
+                                    <button
+                                        key={persona.id}
+                                        className={`role-toggle-btn ${profile.primaryPersona === persona.id ? 'active' : ''} ${!isMasterAdmin ? 'cursor-default opacity-100 hover:bg-transparent' : ''}`}
+                                        onClick={() => isMasterAdmin && setProfile(prev => ({ ...prev, primaryPersona: persona.id }))}
+                                    >
+                                        <persona.icon size={24} />
+                                        <span>{persona.label}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
+                        {!isMasterAdmin && <p className="text-xs text-muted mt-2">Your System Persona is securely locked. Contact a Master Admin to request a role change.</p>}
 
                         <h3 className="section-title mb-4 mt-6 pb-2 border-b border-[var(--border-light)] font-bold">Theme Calibration</h3>
                         <div className="flex gap-4">
@@ -273,110 +277,8 @@ const Profile = () => {
                         <textarea className="fillable-input w-full h-24 resize-none" name="bio" value={profile.bio} onChange={handleProfileChange} placeholder="Describe your investing history..."></textarea>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-[var(--border-light)]">
-                        <button
-                            className="btn btn-primary w-full flex justify-center items-center gap-2 py-3 disabled:opacity-50"
-                            onClick={handleSave}
-                            disabled={isSaving}
-                        >
-                            <Save size={18} /> {isSaving ? 'Syncing to Database...' : 'Save Profile Identity'}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Algorithmic Buy Box */}
-                <div className="profile-card buy-box-card">
-                    <h3 className="section-title mb-1 font-bold text-warning flex items-center gap-2">
-                        <Target size={18} /> Algorithmic Buy Box
-                    </h3>
-                    <p className="text-xs text-muted mb-4 pb-3 border-b border-[var(--border-light)]">Configure the parameters the system uses to match you with off-market inventory.</p>
-
-                    <div className="form-group mb-4">
-                        <label className="flex items-center gap-2"><MapPin size={14} className="text-muted" /> Target Markets (Comma Separated)</label>
-                        <input type="text" className="fillable-input w-full" name="targetMarkets" value={buyBox.targetMarkets} onChange={handleBuyBoxChange} placeholder="e.g. Nashville TN, Atlanta GA" />
-                    </div>
-
-                    <div className="form-grid-2 mb-4">
-                        <div className="form-group">
-                            <label>Maximum Purchase Price</label>
-                            <div className="input-with-prefix">
-                                <span className="prefix"><DollarSign size={14} /></span>
-                                <input type="number" className="fillable-input w-full pl-8" name="maxPrice" value={buyBox.maxPrice} onChange={handleBuyBoxChange} />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label>Minimum Expected ROI</label>
-                            <div className="input-with-suffix">
-                                <input type="number" className="fillable-input w-full pr-8" name="minROI" value={buyBox.minROI} onChange={handleBuyBoxChange} />
-                                <span className="suffix"><Percent size={14} /></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="form-group mb-4">
-                        <label>Target Asset Classes</label>
-                        <select className="fillable-input w-full" name="propertyTypes" value={buyBox.propertyTypes} onChange={handleBuyBoxChange}>
-                            <option value="SFR Only">Single Family (SFR) Only</option>
-                            <option value="SFR, Small MFR">SFR & Small Multi-Family (2-4 Units)</option>
-                            <option value="Commercial MFR">Commercial Multi-Family (5+ Units)</option>
-                            <option value="Land">Vacant Land / Development</option>
-                            <option value="All Types">All Asset Classes</option>
-                        </select>
-                    </div>
-
-                    <div className="form-group mb-6">
-                        <label>Preferred Project Scope (Rehab Level)</label>
-                        <select className="fillable-input w-full" name="rehabLevel" value={buyBox.rehabLevel} onChange={handleBuyBoxChange}>
-                            <option value="Turnkey">Turnkey / Cosmetic Updates Only</option>
-                            <option value="Light Rehab">Light Rehab (Paint, Floors, Fixtures)</option>
-                            <option value="Moderate to Full Gut">Moderate to Full Gut (Major Systems)</option>
-                            <option value="Teardown">Teardown / New Build Opportunity</option>
-                        </select>
-                    </div>
-
-                    <button
-                        className="btn border border-warning text-warning hover:bg-warning/10 w-full flex justify-center items-center gap-2 py-3"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                    >
-                        <Save size={18} /> Update Buy Box Match Logic
-                    </button>
-                </div>
-
-                {/* Phase 29: Team Performance Tracker */}
-                {(subscriptionTier === 'SUPER' || isMasterAdmin) && (
-                    <div className="profile-card border-none bg-[rgba(16,185,129,0.05)] shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                        <h3 className="section-title mb-4 pb-2 border-b border-success/30 font-bold text-success flex items-center gap-2">
-                            <Activity size={18} /> Elite Performance Tracker
-                        </h3>
-                        <p className="text-xs text-muted mb-4">Outbound conversion telemetry locked to Elite/Super Admin tiers.</p>
-
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
-                                <span className="text-xs text-muted block mb-1 uppercase">Outbound Calls</span>
-                                <span className="text-2xl font-bold text-white">142</span>
-                            </div>
-                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
-                                <span className="text-xs text-muted block mb-1 uppercase">SMS Sent</span>
-                                <span className="text-2xl font-bold text-primary">845</span>
-                            </div>
-                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
-                                <span className="text-xs text-muted block mb-1 uppercase">Appointments</span>
-                                <span className="text-2xl font-bold text-success">12</span>
-                            </div>
-                        </div>
-                        <div className="mt-4 text-center text-xs text-muted font-mono">Telemetry synced from active Deals pipeline</div>
-                    </div>
-                )}
-
-                {/* Security & Access */}
-                <div className="profile-card border-none bg-[rgba(239,68,68,0.05)] shadow-[0_0_15px_rgba(239,68,68,0.1)]">
-                    <h3 className="section-title mb-4 pb-2 border-b border-danger/30 font-bold text-danger flex items-center gap-2">
-                        <ShieldCheck size={18} /> Security & Authentication
-                    </h3>
-
-                    <div className="form-group mb-4">
-                        <label>Update Password</label>
+                    <div className="form-group mt-6 pt-4 border-t border-danger/30">
+                        <label className="text-danger flex items-center gap-2 mb-2"><ShieldCheck size={16} /> Update Security Key (Password)</label>
                         <div className="flex gap-2">
                             <input
                                 type="password"
@@ -404,9 +306,182 @@ const Profile = () => {
                                 Update Key
                             </button>
                         </div>
-                        <p className="text-xs text-muted mt-2">Required after initializing an Emergency Override via the forgot password flow.</p>
+                        <p className="text-xs text-muted mt-2">Required after initializing an Emergency Override via the forgot password flow. This operates independently of the 'Save Profile Identity' action.</p>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-[var(--border-light)]">
+                        <button
+                            className="btn btn-primary w-full flex justify-center items-center gap-2 py-3 disabled:opacity-50"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            <Save size={18} /> {isSaving ? 'Syncing to Database...' : 'Save Profile Identity'}
+                        </button>
                     </div>
                 </div>
+
+                {/* Algorithmic Buy Box - INVESTOR PERSONA */}
+                {profile.primaryPersona === 'INVESTOR' && (
+                    <div className="profile-card buy-box-card animate-fade-in">
+                        <h3 className="section-title mb-1 font-bold text-warning flex items-center gap-2">
+                            <Target size={18} /> Algorithmic Buy Box (Investor)
+                        </h3>
+                        <p className="text-xs text-muted mb-4 pb-3 border-b border-[var(--border-light)]">Configure the parameters the system uses to match you with off-market inventory.</p>
+
+                        <div className="form-group mb-4">
+                            <label className="flex items-center gap-2"><MapPin size={14} className="text-muted" /> Target Markets (Comma Separated)</label>
+                            <input type="text" className="fillable-input w-full" name="targetMarkets" value={buyBox.targetMarkets} onChange={handleBuyBoxChange} placeholder="e.g. Nashville TN, Atlanta GA" />
+                        </div>
+
+                        <div className="form-grid-2 mb-4">
+                            <div className="form-group">
+                                <label>Maximum Purchase Price</label>
+                                <div className="input-with-prefix">
+                                    <span className="prefix"><DollarSign size={14} /></span>
+                                    <input type="number" className="fillable-input w-full pl-8" name="maxPrice" value={buyBox.maxPrice} onChange={handleBuyBoxChange} />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>Minimum Expected ROI</label>
+                                <div className="input-with-suffix">
+                                    <input type="number" className="fillable-input w-full pr-8" name="minROI" value={buyBox.minROI} onChange={handleBuyBoxChange} />
+                                    <span className="suffix"><Percent size={14} /></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-group mb-4">
+                            <label>Target Asset Classes</label>
+                            <select className="fillable-input w-full" name="propertyTypes" value={buyBox.propertyTypes} onChange={handleBuyBoxChange}>
+                                <option value="SFR Only">Single Family (SFR) Only</option>
+                                <option value="SFR, Small MFR">SFR & Small Multi-Family (2-4 Units)</option>
+                                <option value="Commercial MFR">Commercial Multi-Family (5+ Units)</option>
+                                <option value="Land">Vacant Land / Development</option>
+                                <option value="All Types">All Asset Classes</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group mb-6">
+                            <label>Preferred Project Scope (Rehab Level)</label>
+                            <select className="fillable-input w-full" name="rehabLevel" value={buyBox.rehabLevel} onChange={handleBuyBoxChange}>
+                                <option value="Turnkey">Turnkey / Cosmetic Updates Only</option>
+                                <option value="Light Rehab">Light Rehab (Paint, Floors, Fixtures)</option>
+                                <option value="Moderate to Full Gut">Moderate to Full Gut (Major Systems)</option>
+                                <option value="Teardown">Teardown / New Build Opportunity</option>
+                            </select>
+                        </div>
+
+                        <button
+                            className="btn border border-warning text-warning hover:bg-warning/10 w-full flex justify-center items-center gap-2 py-3"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            <Save size={18} /> Update Buy Box Match Logic
+                        </button>
+                    </div>
+                )}
+
+                {/* Disposition Filters - WHOLESALER PERSONA */}
+                {profile.primaryPersona === 'WHOLESALER' && (
+                    <div className="profile-card buy-box-card animate-fade-in">
+                        <h3 className="section-title mb-1 font-bold text-success flex items-center gap-2">
+                            <Building size={18} /> Wholesale Disposition Filters
+                        </h3>
+                        <p className="text-xs text-muted mb-4 pb-3 border-b border-[var(--border-light)]">Configure your pipeline's assignment targets and buyer matching criteria.</p>
+
+                        <div className="form-group mb-4">
+                            <label>Target Assignment Fee Structure</label>
+                            <select className="fillable-input w-full">
+                                <option value="flat">Standard Flat Fee ($10k+)</option>
+                                <option value="percentage">Percentage Based (3-5%)</option>
+                                <option value="micro">High Volume Micro-Fees (&lt;$5k)</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group mb-4">
+                            <label>Maximum Days on Market (DOM) Threshold</label>
+                            <input type="number" className="fillable-input w-full" placeholder="e.g. 14 Days" defaultValue="14" />
+                        </div>
+
+                        <div className="form-group mb-6">
+                            <label>Preferred Buyer Archetypes</label>
+                            <select className="fillable-input w-full">
+                                <option value="all">Any Cash Buyer</option>
+                                <option value="hedge">Institutional / Hedge Funds</option>
+                                <option value="flipper">Local Fix & Flip Operators</option>
+                                <option value="landlord">Buy & Hold Landlords</option>
+                            </select>
+                        </div>
+
+                        <button
+                            className="btn border border-success text-success hover:bg-success/10 w-full flex justify-center items-center gap-2 py-3"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            <Save size={18} /> Update Disposition Pipeline Logic
+                        </button>
+                    </div>
+                )}
+
+                {/* Listing Filters - REALTOR PERSONA */}
+                {profile.primaryPersona === 'REALTOR' && (
+                    <div className="profile-card buy-box-card animate-fade-in">
+                        <h3 className="section-title mb-1 font-bold text-indigo-400 flex items-center gap-2">
+                            <Calculator size={18} /> Realtor Listing & Comps Logic
+                        </h3>
+                        <p className="text-xs text-muted mb-4 pb-3 border-b border-[var(--border-light)]">Configure your MLS bounds and standard commission models.</p>
+
+                        <div className="form-group mb-4">
+                            <label>Target Commission Structure</label>
+                            <select className="fillable-input w-full">
+                                <option value="standard">Standard 3% Buyer / 3% Seller</option>
+                                <option value="flat">Flat-Fee Listing Models</option>
+                                <option value="commercial">Commercial Escalation Models</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group mb-4">
+                            <label>Active MLS Regions</label>
+                            <input type="text" className="fillable-input w-full" placeholder="e.g. RealTracs, FMLS" defaultValue="RealTracs Middle TN" />
+                        </div>
+
+                        <button
+                            className="btn border border-indigo-400 text-indigo-400 hover:bg-indigo-400/10 w-full flex justify-center items-center gap-2 py-3"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            <Save size={18} /> Update Market Feed Logic
+                        </button>
+                    </div>
+                )}
+
+                {/* Phase 29: Team Performance Tracker */}
+                {(subscriptionTier === 'SUPER' || isMasterAdmin) && (
+                    <div className="profile-card border-none bg-[rgba(16,185,129,0.05)] shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                        <h3 className="section-title mb-4 pb-2 border-b border-success/30 font-bold text-success flex items-center gap-2">
+                            <Activity size={18} /> Elite Performance Tracker
+                        </h3>
+                        <p className="text-xs text-muted mb-4">Outbound conversion telemetry locked to Elite/Super Admin tiers.</p>
+
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">Outbound Calls</span>
+                                <span className="text-2xl font-bold text-white">142</span>
+                            </div>
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">SMS Sent</span>
+                                <span className="text-2xl font-bold text-primary">845</span>
+                            </div>
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">Appointments</span>
+                                <span className="text-2xl font-bold text-success">12</span>
+                            </div>
+                        </div>
+                        <div className="mt-4 text-center text-xs text-muted font-mono">Telemetry synced from active Deals pipeline</div>
+                    </div>
+                )}
+
+
 
                 {/* Global Plan Governance */}
                 <div className="profile-card border-none bg-[rgba(99,102,241,0.05)] shadow-[0_0_15px_rgba(99,102,241,0.1)]">

@@ -12,7 +12,7 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
 
     // Steps: 1 = Payment Options, 2 = Processing, 3 = Account Creation
     const [step, setStep] = useState(1);
-    const [selectedTier, setSelectedTier] = useState('pro');
+    const [selectedTier, setSelectedTier] = useState('');
     const [selectedPersona, setSelectedPersona] = useState('WHOLESALER');
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [accountData, setAccountData] = useState({ password: '', confirmPassword: '' });
@@ -221,7 +221,7 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                         <button
                             className="btn btn-primary w-full text-lg py-3 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={handleCheckout}
-                            disabled={!termsAccepted}
+                            disabled={!termsAccepted || !selectedTier}
                         >
                             <Lock size={18} /> Process Secure Payment
                         </button>
