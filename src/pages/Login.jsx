@@ -11,6 +11,12 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+
+        if (!supabase) {
+            setError("Unable to connect: Supabase environment configuration is missing.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
