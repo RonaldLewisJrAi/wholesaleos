@@ -169,6 +169,18 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                                     <input type="text" className="fillable-input w-full" placeholder="MM/YY" defaultValue="12/28" />
                                     <input type="text" className="fillable-input w-full" placeholder="CVC" defaultValue="123" />
                                 </div>
+
+                                <label className="flex items-start gap-2 cursor-pointer mt-3 border-t border-[var(--border-light)] pt-3">
+                                    <input
+                                        type="checkbox"
+                                        className="mt-[2px] cursor-pointer accent-primary"
+                                        checked={termsAccepted}
+                                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                                    />
+                                    <span className="text-[10.5px] text-muted leading-tight">
+                                        I accept the <a href="#" className="text-primary hover:underline">Enterprise Terms of Service</a>, AI Liability Waiver, Data Purge policies, and Master Subscription Agreement.
+                                    </span>
+                                </label>
                             </div>
                         </div>
 
@@ -190,19 +202,6 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                             </div>
                         </div>
 
-                        <div className="terms-checkbox mb-6 bg-[rgba(239,68,68,0.05)] p-3 rounded border border-danger/20">
-                            <label className="flex items-start gap-3 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    className="mt-1 cursor-pointer accent-primary"
-                                    checked={termsAccepted}
-                                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                                />
-                                <span className="text-xs text-muted">
-                                    I agree to the Wholesale OS <a href="#" className="text-primary hover:underline">Enterprise Terms of Service</a>, including the AI Liability Waiver, Data Purge policies, and Master Subscription Agreement.
-                                </span>
-                            </label>
-                        </div>
 
                         <button
                             className="btn btn-primary w-full text-lg py-3 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"

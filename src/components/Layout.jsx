@@ -5,22 +5,12 @@ import Header from './Header';
 import ScrollChevron from './ScrollChevron';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import UnlockLiveModeModal from './UnlockLiveModeModal';
-import EnterpriseTermsModal from './EnterpriseTermsModal';
 import OrgHealthWidget from './OrgHealthWidget';
 import GlobalStatusBanner from './GlobalStatusBanner';
 
 const Layout = () => {
     const { isDemoMode } = useDemoMode();
     const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
-    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
-
-    // Phase 29: Enforce Legal Hardening on boot
-    React.useEffect(() => {
-        const hasAccepted = localStorage.getItem('wholesale_os_enterprise_terms_accepted');
-        if (hasAccepted !== 'true') {
-            setIsTermsModalOpen(true);
-        }
-    }, []);
 
     return (
         <div className={`layout-container ${isDemoMode ? 'demo-mode-active' : ''}`} style={isDemoMode ? { paddingTop: '35px' } : {}}>
@@ -117,11 +107,6 @@ const Layout = () => {
             <OrgHealthWidget />
             <UnlockLiveModeModal isOpen={isUnlockModalOpen} onClose={() => setIsUnlockModalOpen(false)} />
 
-            {/* Phase 29: Enterprise Legal Containment */}
-            <EnterpriseTermsModal
-                isOpen={isTermsModalOpen}
-                onAccept={() => setIsTermsModalOpen(false)}
-            />
         </div>
     );
 };
