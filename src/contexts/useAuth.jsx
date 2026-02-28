@@ -8,6 +8,12 @@ export const AuthProvider = ({ children }) => {
     const [loadingAuth, setLoadingAuth] = useState(true);
 
     useEffect(() => {
+        if (!supabase) {
+            console.warn("Supabase client is null. Missing environment variables. Running in Unauthenticated Mode.");
+            setLoadingAuth(false);
+            return;
+        }
+
         const getSession = async () => {
             const { data: { session }, error } = await supabase.auth.getSession();
             if (!error && session) {
@@ -25,7 +31,7 @@ export const AuthProvider = ({ children }) => {
         );
 
         return () => {
-            subscription.unsubscribe();
+            if (subscription) subscription.unsubscribe();
         };
     }, []);
 
