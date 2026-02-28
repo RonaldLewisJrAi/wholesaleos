@@ -49,13 +49,17 @@ const getBounds = (lat, lng, radiusMiles) => {
 
 // Apply rate limiter specifically to the expensive scraping endpoint
 app.post('/api/comps', apiLimiter, async (req, res) => {
-    const { lat, lng, radius, timeframeMonths = 6, isDemoMode = false } = req.body;
+    const {
+        lat, lng, radius, timeframeMonths = 6, isDemoMode = false,
+        sqftVariance = 15, exactBedBath = false,
+        subjectSqft = 1500, subjectBeds = 3, subjectBaths = 2
+    } = req.body;
 
     if (!lat || !lng || !radius) {
         return res.status(400).json({ error: 'Lat, Lng, and Radius are required.' });
     }
 
-    const cacheKey = `comps:${Math.floor(lat * 1000)}:${Math.floor(lng * 1000)}:${radius}:${timeframeMonths}:${isDemoMode}`;
+    const cacheKey = `comps:${Math.floor(lat * 1000)}:${Math.floor(lng * 1000)}:${radius}:${timeframeMonths}:${isDemoMode}:${sqftVariance}:${exactBedBath}`;
 
     // 1. Check Redis Cache
     try {
@@ -117,8 +121,14 @@ app.post('/api/comps', apiLimiter, async (req, res) => {
         const dLng = compLng - lng;
         const distance = Math.sqrt(dLat * dLat + dLng * dLng) * 69;
 
-        const sqft = Math.floor(Math.random() * 1000) + 1200;
-        const price = Math.floor(Math.random() * 300000) + 200000;
+        // Enforce precise constraints provided by intelligence engine
+        const varianceLimit = subjectSqft * (sqftVariance / 100);
+        const sqft = Math.floor(subjectSqft + (Math.random() * varianceLimit * 2 - Math.random() * varianceLimit));
+
+        const beds = exactBedBath ? subjectBeds : Math.max(1, Math.floor(subjectBeds + (Math.random() * 2 - 1)));
+        const baths = exactBedBath ? subjectBaths : Math.max(1, Math.floor(subjectBaths + (Math.random() * 1.5 - 0.5)));
+
+        const price = Math.floor(sqft * (Math.random() * 100 + 200));
         const ppsqft = price / sqft;
         const monthsAgo = Math.floor(Math.random() * timeframeMonths) + 1;
 
@@ -129,8 +139,8 @@ app.post('/api/comps', apiLimiter, async (req, res) => {
             monthsAgo: monthsAgo,
             sqft: sqft,
             yearBuilt: Math.floor(Math.random() * 50) + 1960,
-            beds: Math.floor(Math.random() * 2) + 2,
-            baths: Math.floor(Math.random() * 1.5) + 1,
+            beds: beds,
+            baths: baths,
             price: price,
             ppsqft: ppsqft,
             lat: compLat,

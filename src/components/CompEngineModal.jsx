@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, Search, Filter, Home, MapPin, Calculator, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { supabase } from '../lib/supabase';
 import './CompEngineModal.css';
 
 const CompEngineModal = ({ isOpen, onClose, property }) => {
@@ -11,7 +12,24 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
     const [timeframe, setTimeframe] = useState(6); // Months
     const [sqftVariance, setSqftVariance] = useState(15); // Percentage +/-
     const [exactBedBath, setExactBedBath] = useState(false);
-    const [renovationTier, setRenovationTier] = useState('moderate');
+    const [renovationTier, setRenovationTier] = useState(property?.renovation_tier || 'moderate');
+
+    useEffect(() => {
+        if (property && property.renovation_tier) {
+            setRenovationTier(property.renovation_tier);
+        }
+    }, [property]);
+
+    const handleRenovationTierChange = async (tier) => {
+        setRenovationTier(tier);
+        if (!isDemoMode && property?.id) {
+            try {
+                await supabase.from('properties').update({ renovation_tier: tier }).eq('id', property.id);
+            } catch (err) {
+                console.error("Failed to save renovation tier", err);
+            }
+        }
+    };
 
     const [isLoading, setIsLoading] = useState(false);
     const [rawComps, setRawComps] = useState([]);
@@ -71,7 +89,13 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                 const res = await fetch(`${baseUrl}/api/comps`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ lat, lng, radius, timeframeMonths: timeframe, isDemoMode })
+                    body: JSON.stringify({
+                        lat, lng, radius, timeframeMonths: timeframe, isDemoMode,
+                        sqftVariance, exactBedBath,
+                        subjectSqft: property.sqft || 1500,
+                        subjectBeds: property.beds || 3,
+                        subjectBaths: property.baths || 2
+                    })
                 });
 
                 if (!res.ok) throw new Error('Failed to fetch real comps from proxy');
@@ -90,7 +114,7 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
         fetchZillowComps();
 
         return () => { isStale = true; };
-    }, [isOpen, property, radius, timeframe, isDemoMode]); // Auto-refetch if radius/timeframe changes
+    }, [isOpen, property, radius, timeframe, isDemoMode, sqftVariance, exactBedBath]); // Auto-refetch if radius/timeframe/precise-filters changes
 
     // Active Comps Data Filtering (Phase 11 Logic)
     const { activeComps, avgPpsqft, calculatedArv, confidence } = useMemo(() => {
@@ -214,13 +238,13 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                         <div className="filter-group">
                             <span className="filter-label text-warning flex items-center gap-1"><Wrench size={14} /> Renovation Tier</span>
                             <div className="pill-group flex-col">
-                                <button className={`filter-pill text-left ${renovationTier === 'light' ? 'active' : ''}`} onClick={() => setRenovationTier('light')}>
+                                <button className={`filter-pill text-left ${renovationTier === 'light' ? 'active' : ''}`} onClick={() => handleRenovationTierChange('light')}>
                                     <strong>Light Cosmetic</strong> (Paint/Carpet)
                                 </button>
-                                <button className={`filter-pill text-left ${renovationTier === 'moderate' ? 'active' : ''}`} onClick={() => setRenovationTier('moderate')}>
+                                <button className={`filter-pill text-left ${renovationTier === 'moderate' ? 'active' : ''}`} onClick={() => handleRenovationTierChange('moderate')}>
                                     <strong>Moderate</strong> (Kitchen/Baths)
                                 </button>
-                                <button className={`filter-pill text-left ${renovationTier === 'gut' ? 'active' : ''}`} onClick={() => setRenovationTier('gut')}>
+                                <button className={`filter-pill text-left ${renovationTier === 'gut' ? 'active' : ''}`} onClick={() => handleRenovationTierChange('gut')}>
                                     <strong>Full Gut</strong> (Roofs/HVAC/Foundation)
                                 </button>
                             </div>
