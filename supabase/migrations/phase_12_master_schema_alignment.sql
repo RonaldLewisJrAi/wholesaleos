@@ -100,6 +100,18 @@ CREATE TABLE IF NOT EXISTS public.documents (
     -- e.g., 'Deal Packet', 'Contract', 'Disclosures'
     created_at timestamptz DEFAULT now()
 );
+-- Safely handle legacy 'sequence_order' column if it exists from older schema versions
+DO $handle_legacy$ BEGIN IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+        AND table_name = 'deal_stages'
+        AND column_name = 'sequence_order'
+) THEN
+ALTER TABLE public.deal_stages
+ALTER COLUMN sequence_order DROP NOT NULL;
+END IF;
+END $handle_legacy$;
 -- Seed Default Deal Stages
 INSERT INTO public.deal_stages (name, order_index, color_code)
 VALUES ('Lead', 1, '#94a3b8'),
