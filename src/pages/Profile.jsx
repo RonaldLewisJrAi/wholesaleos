@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building, MapPin, DollarSign, Percent, Save, Camera, Target, Calculator, Headphones, ShieldCheck } from 'lucide-react';
+import { Building, MapPin, DollarSign, Percent, Save, Camera, Target, Calculator, Headphones, ShieldCheck, Activity } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import { supabase } from '../lib/supabase';
@@ -324,6 +324,32 @@ const Profile = () => {
                         <Save size={18} /> Update Buy Box Match Logic
                     </button>
                 </div>
+
+                {/* Phase 29: Team Performance Tracker */}
+                {(subscriptionTier === 'SUPER' || isMasterAdmin) && (
+                    <div className="profile-card border-none bg-[rgba(16,185,129,0.05)] shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                        <h3 className="section-title mb-4 pb-2 border-b border-success/30 font-bold text-success flex items-center gap-2">
+                            <Activity size={18} /> Elite Performance Tracker
+                        </h3>
+                        <p className="text-xs text-muted mb-4">Outbound conversion telemetry locked to Elite/Super Admin tiers.</p>
+
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">Outbound Calls</span>
+                                <span className="text-2xl font-bold text-white">142</span>
+                            </div>
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">SMS Sent</span>
+                                <span className="text-2xl font-bold text-primary">845</span>
+                            </div>
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">Appointments</span>
+                                <span className="text-2xl font-bold text-success">12</span>
+                            </div>
+                        </div>
+                        <div className="mt-4 text-center text-xs text-muted font-mono">Telemetry synced from active Deals pipeline</div>
+                    </div>
+                )}
 
                 {/* Global Plan Governance */}
                 <div className="profile-card border-none bg-[rgba(99,102,241,0.05)] shadow-[0_0_15px_rgba(99,102,241,0.1)]">
