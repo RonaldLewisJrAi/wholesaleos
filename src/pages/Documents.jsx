@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useSubscription } from '../contexts/useSubscription';
+import { useAuth } from '../contexts/useAuth';
 import './Documents.css';
 
 const SignatureBlock = ({ label, printedNameValue, defaultNameValue, printedNameKey, onPrintedNameChange, sigRef }) => {
@@ -56,6 +57,7 @@ const templates = [
 
 const Documents = () => {
     const { subscriptionTier } = useSubscription();
+    const { user } = useAuth();
     // Block downloads and apply DRM if tier is missing, 'demo', or the default 'free'
     const isDemoMode = !subscriptionTier || subscriptionTier === 'demo' || subscriptionTier === 'free';
 
@@ -165,6 +167,23 @@ const Documents = () => {
         if (!pdfContainerRef.current) return;
         setIsGeneratingPDF(true);
         try {
+            // First hit the tracking endpoint to enforce Phase 19 Document Limits
+            const res = await fetch('http://localhost:3001/api/documents/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user?.id,
+                    isDemoMode: isDemoMode
+                })
+            });
+
+            const limitData = await res.json();
+            if (!limitData.allowed) {
+                alert(`🚨 Action Blocked: ${limitData.error}`);
+                setIsGeneratingPDF(false);
+                return;
+            }
+
             // Render actual PDF of the contract bounds
             const canvas = await html2canvas(pdfContainerRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
             const imgData = canvas.toDataURL('image/png');

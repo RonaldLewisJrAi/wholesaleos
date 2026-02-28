@@ -2,8 +2,8 @@
 -- WHOLESALE OS - PHASE 27: USER PROFILES & INVESTOR BUY BOX SCHEMA
 -- ========================================================================================
 -- 1. CREATE PROFILES TABLE LINKED TO AUTH.USERS
-CREATE TABLE IF NOT EXISTS profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID REFERENCES auth.users (id) ON DELETE CASCADE PRIMARY KEY,
     first_name TEXT DEFAULT '',
     last_name TEXT DEFAULT '',
     company TEXT DEFAULT '',

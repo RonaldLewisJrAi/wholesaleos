@@ -17,33 +17,38 @@ import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import { DemoModeProvider } from './contexts/DemoModeContext';
 import { SubscriptionProvider } from './contexts/useSubscription';
+import { AuthProvider } from './contexts/useAuth';
+import Login from './pages/Login';
 
 function App() {
   return (
-    <SubscriptionProvider>
-      <DemoModeProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="properties/*" element={<Properties />} />
-              <Route path="pipeline" element={<Pipeline />} />
-              <Route path="crm" element={<CRM />} />
-              <Route path="documents" element={<Documents />} />
-              <Route path="calculators" element={<Calculators />} />
-              <Route path="radar" element={<Radar />} />
-              <Route path="calendar" element={<CalendarView />} />
-              <Route path="compliance" element={<Compliance />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="integrations" element={<Settings />} />
-              <Route path="admin" element={<AdminDashboard />} />
-              <Route path="super-admin" element={<SuperAdminDashboard />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </DemoModeProvider>
-    </SubscriptionProvider>
+    <AuthProvider>
+      <SubscriptionProvider>
+        <DemoModeProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="properties/*" element={<Properties />} />
+                <Route path="pipeline" element={<Pipeline />} />
+                <Route path="crm" element={<CRM />} />
+                <Route path="documents" element={<Documents />} />
+                <Route path="calculators" element={<Calculators />} />
+                <Route path="radar" element={<Radar />} />
+                <Route path="calendar" element={<CalendarView />} />
+                <Route path="compliance" element={<Compliance />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="integrations" element={<Settings />} />
+                <Route path="admin" element={<AdminDashboard />} />
+                <Route path="super-admin" element={<SuperAdminDashboard />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </DemoModeProvider>
+      </SubscriptionProvider>
+    </AuthProvider>
   );
 }
 

@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const RedisStore = require('rate-limit-redis').default || require('rate-limit-redis');
 const Redis = require('ioredis');
 const stripeRoutes = require('./stripe_routes.cjs');
+const documentRoutes = require('./document_routes.cjs');
 
 // Initialize Redis for Comps Data Caching
 const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
@@ -14,9 +15,9 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
 const app = express();
 app.use(cors());
 
-// MUST be mounted BEFORE express.json() so Stripe Webhooks can parse the raw body cryptographically
 app.use('/api/stripe', stripeRoutes);
 app.use(express.json());
+app.use('/api/documents', documentRoutes);
 
 const PORT = 3001;
 
