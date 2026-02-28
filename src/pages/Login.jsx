@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { useDemoMode } from '../contexts/DemoModeContext';
 
 const Login = () => {
+    const { setIsDemoMode } = useDemoMode();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -21,7 +24,7 @@ const Login = () => {
         setError(null);
 
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { error } = await supabase.auth.signInWithPassword({
                 email,
                 password
             });
@@ -31,6 +34,9 @@ const Login = () => {
                 setLoading(false);
                 return;
             }
+
+            // Successfully authenticated, unlock the platform from Demo Mode
+            setIsDemoMode(false);
 
             navigate('/dashboard');
         } catch (err) {
@@ -78,6 +84,21 @@ const Login = () => {
                             placeholder="••••••••"
                             required
                         />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-400">
+                            <input
+                                type="checkbox"
+                                className="rounded border-gray-700 bg-[#0B0F19] accent-indigo-500 w-4 h-4 cursor-pointer"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                            />
+                            Keep me logged in
+                        </label>
+                        <a href="#" className="text-sm border-b border-transparent hover:border-indigo-400 text-indigo-400 transition-colors">
+                            Forgot password?
+                        </a>
                     </div>
 
                     <button

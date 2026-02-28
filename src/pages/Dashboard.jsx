@@ -14,6 +14,7 @@ import { useSubscription } from '../contexts/useSubscription';
 import InvestorDashboard from './Workstations/InvestorDashboard';
 import RealtorDashboard from './Workstations/RealtorDashboard';
 import VADashboard from './Workstations/VADashboard';
+import AdminDashboard from './Workstations/AdminDashboard';
 import './Dashboard.css';
 
 const StatCard = ({ title, value, change, icon: Icon, trend }) => (
@@ -43,6 +44,7 @@ const Dashboard = () => {
     if (currentViewPersona === 'INVESTOR') return <InvestorDashboard />;
     if (currentViewPersona === 'REALTOR') return <RealtorDashboard />;
     if (currentViewPersona === 'VIRTUAL_ASSISTANT') return <VADashboard />;
+    if (currentViewPersona === 'ADMIN') return <AdminDashboard />;
 
     return (
         <div className="dashboard-container animate-fade-in">

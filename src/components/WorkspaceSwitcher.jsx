@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Building, Target, Calculator, Headphones, ChevronDown, Lock } from 'lucide-react';
+import { Building, Target, Calculator, Headphones, ChevronDown, Lock, ShieldCheck } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 
 const WorkspaceSwitcher = () => {
@@ -30,7 +30,8 @@ const WorkspaceSwitcher = () => {
         'WHOLESALER': { icon: <Building size={16} />, label: 'Wholesaler Workspace', desc: 'Acquisition & Underwriting' },
         'INVESTOR': { icon: <Target size={16} />, label: 'Investor Workspace', desc: 'Deal Matching Feed' },
         'REALTOR': { icon: <Calculator size={16} />, label: 'Realtor Workspace', desc: 'CMA & Analytics' },
-        'VIRTUAL_ASSISTANT': { icon: <Headphones size={16} />, label: 'VA Workspace', desc: 'Dialer & Follow-Ups' }
+        'VIRTUAL_ASSISTANT': { icon: <Headphones size={16} />, label: 'VA Workspace', desc: 'Dialer & Follow-Ups' },
+        'ADMIN': { icon: <ShieldCheck size={16} />, label: 'God-Mode Terminal', desc: 'System Telemetry' }
     };
 
     const handleSwitch = (persona) => {
