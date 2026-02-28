@@ -40,7 +40,8 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                     priceId: priceId,
                     userEmail: 'Ronald_Lewis_Jr@live.com', // Mapped to Founder Email for initialization
                     userId: '00000000-0000-0000-0000-000000000000', // Placeholder auth ID until actual signup
-                    persona: selectedPersona
+                    persona: selectedPersona,
+                    tier: selectedTier === 'starter' ? 'BASIC' : (selectedTier === 'pro' ? 'ADVANCED' : 'SUPER')
                 })
             });
             const data = await response.json();

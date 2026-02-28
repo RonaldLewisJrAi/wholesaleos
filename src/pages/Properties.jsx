@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Database, Activity, Send, Filter, Plus, X, Search, Home } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { useAuth } from '../contexts/useAuth';
 import DealPacketModal from '../components/DealPacketModal';
 import CompEngineModal from '../components/CompEngineModal';
 import './Properties.css';
@@ -72,6 +73,7 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
 
 const Properties = () => {
     const { isDemoMode } = useDemoMode();
+    const { user } = useAuth();
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isImporting, setIsImporting] = useState(false);
@@ -159,6 +161,25 @@ const Properties = () => {
     };
 
     const handleZillowImport = async () => {
+        // Quota Check for Scrapes
+        if (!isDemoMode && user?.id) {
+            try {
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const res = await fetch(`${baseUrl}/api/quotas/track`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id, type: 'scrape', isDemoMode })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.allowed) {
+                    alert(data.error || "Monthly scrape limit exceeded.");
+                    return;
+                }
+            } catch (err) {
+                console.error("Quota check failed", err);
+            }
+        }
+
         const url = window.prompt("Enter Zillow Property URL:");
         if (!url) return;
 
@@ -195,6 +216,26 @@ const Properties = () => {
     const handleLiveFinder = async (e) => {
         e.preventDefault();
         if (!liveFinderInput) return;
+
+        // Quota Check for Scrapes
+        if (!isDemoMode && user?.id) {
+            try {
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const res = await fetch(`${baseUrl}/api/quotas/track`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id, type: 'scrape', isDemoMode })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.allowed) {
+                    alert(data.error || "Monthly scrape limit exceeded.");
+                    return;
+                }
+            } catch (err) {
+                console.error("Quota check failed", err);
+            }
+        }
+
         setIsScraping(true);
 
         try {

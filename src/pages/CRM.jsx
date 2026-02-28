@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, UserPlus, Mail, Phone, MapPin, X, UploadCloud, Target } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { useAuth } from '../contexts/useAuth';
 import { calculateDealProbability, calculateBuyerDemandIndex } from '../lib/DealIntelligence';
 import './CRM.css';
 
@@ -80,6 +81,7 @@ const calculateOffers = (arv) => {
 
 const CRM = () => {
     const { isDemoMode } = useDemoMode();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('All');
     const [contacts, setContacts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -153,9 +155,28 @@ const CRM = () => {
         setIsAddModalOpen(false);
     };
 
-    const submitManualContact = (e) => {
+    const submitManualContact = async (e) => {
         e.preventDefault();
         if (!newContact.name) return;
+
+        // Quota Check for CRM Leads
+        if (!isDemoMode && user?.id) {
+            try {
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const res = await fetch(`${baseUrl}/api/quotas/track`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id, type: 'lead', isDemoMode })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.allowed) {
+                    alert(data.error || "Monthly Lead limit exceeded.");
+                    return;
+                }
+            } catch (err) {
+                console.error("Quota check failed", err);
+            }
+        }
 
         const contactData = {
             id: Date.now(),
@@ -174,6 +195,26 @@ const CRM = () => {
 
     const simulateFileUpload = async () => {
         setIsUploading(true);
+
+        // Quota Check for CRM Leads (File Upload)
+        if (!isDemoMode && user?.id) {
+            try {
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const res = await fetch(`${baseUrl}/api/quotas/track`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id, type: 'lead', isDemoMode })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.allowed) {
+                    alert(data.error || "Monthly Lead limit exceeded.");
+                    setIsUploading(false);
+                    return;
+                }
+            } catch (err) {
+                console.error("Quota check failed", err);
+            }
+        }
         try {
             // Simulate reading a CSV file
             await new Promise(resolve => setTimeout(resolve, 2000));

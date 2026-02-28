@@ -16,7 +16,7 @@ const rawBodyParser = express.raw({ type: 'application/json' });
 // =========================================================================
 router.post('/create-checkout-session', express.json(), async (req, res) => {
     try {
-        const { priceId, userEmail, userId } = req.body;
+        const { priceId, userEmail, userId, tier } = req.body;
 
         if (!priceId || !userEmail || !userId) {
             return res.status(400).json({ error: 'Missing required parameters.' });
@@ -35,7 +35,8 @@ router.post('/create-checkout-session', express.json(), async (req, res) => {
             ],
             // Map the Supabase User ID to the Stripe Session metadata for webhook retrieval
             metadata: {
-                supabase_user_id: userId
+                supabase_user_id: userId,
+                subscription_tier: tier || 'SUPER'
             },
             success_url: `${process.env.VITE_SITE_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}&success=true`,
             cancel_url: `${process.env.VITE_SITE_URL}/profile?canceled=true`,
@@ -104,13 +105,14 @@ router.post('/webhook', rawBodyParser, async (req, res) => {
             case 'checkout.session.completed': {
                 const session = event.data.object;
                 const supabaseUserId = session.metadata?.supabase_user_id;
+                const subscriptionTier = session.metadata?.subscription_tier || 'SUPER';
 
                 if (supabaseUserId) {
-                    console.log(`[Webhook] Equipping User: ${supabaseUserId} with SUPER tier.`);
+                    console.log(`[Webhook] Equipping User: ${supabaseUserId} with ${subscriptionTier} tier.`);
                     const { error: updateError } = await supabaseAdmin
                         .from('profiles')
                         .update({
-                            subscription_tier: 'SUPER',
+                            subscription_tier: subscriptionTier,
                             account_status: 'Active'
                         })
                         .eq('id', supabaseUserId);

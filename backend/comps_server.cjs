@@ -7,6 +7,7 @@ const Redis = require('ioredis');
 const stripeRoutes = require('./stripe_routes.cjs');
 const documentRoutes = require('./document_routes.cjs');
 const dispositionRoutes = require('./disposition_routes.cjs');
+const quotaRoutes = require('./quota_routes.cjs');
 
 // Initialize Redis for Comps Data Caching
 const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
@@ -20,6 +21,7 @@ app.use('/api/stripe', stripeRoutes);
 app.use(express.json());
 app.use('/api/documents', documentRoutes);
 app.use('/api/disposition', dispositionRoutes);
+app.use('/api/quotas', quotaRoutes);
 
 const PORT = 3001;
 
