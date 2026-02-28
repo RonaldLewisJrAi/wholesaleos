@@ -1,5 +1,7 @@
 import React from 'react';
 import { Target, Search, FolderHeart, Briefcase } from 'lucide-react';
+import RiskMatrix from './Shared/RiskMatrix';
+import LiquidityIndex from './Shared/LiquidityIndex';
 
 const InvestorDashboard = () => {
     return (
@@ -36,6 +38,11 @@ const InvestorDashboard = () => {
                     </div>
                     <p className="text-sm text-muted">Saved deals you marked for deeper review.</p>
                 </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <RiskMatrix persona="INVESTOR" />
+                <LiquidityIndex persona="INVESTOR" velocityScore={68} />
             </div>
 
             <div className="mt-8 card glass-panel">

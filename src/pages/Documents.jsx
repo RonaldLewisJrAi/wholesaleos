@@ -105,6 +105,47 @@ const Documents = () => {
     const partyASigRef = useRef(null);
     const partyBSigRef = useRef(null);
 
+    // ==========================================
+    // PHASE 34: VIP DOCUMENT PROTECTION SYSTEM
+    // ==========================================
+    useEffect(() => {
+        // Prevent Right-Click Context Menu
+        const handleContextMenu = (e) => {
+            e.preventDefault();
+        };
+
+        // Prevent Text Highlighting/Selection
+        const handleSelectStart = (e) => {
+            // Allow selection ONLY inside input fields, textarea, etc.
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+            }
+        };
+
+        // Prevent Keyboard Shortcuts (Ctrl+S, Ctrl+P, Ctrl+C)
+        const handleKeyDown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P' || e.key === 'c' || e.key === 'C')) {
+                // Only block Ctrl+C if NOT in an input field
+                if (e.key === 'c' || e.key === 'C') {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                }
+
+                e.preventDefault();
+                alert(`🔒 Action Disabled: Content protection is active. Unauthorized saving, copying, or printing of proprietary templates is strictly prohibited.`);
+            }
+        };
+
+        document.addEventListener('contextmenu', handleContextMenu);
+        document.addEventListener('selectstart', handleSelectStart);
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('contextmenu', handleContextMenu);
+            document.removeEventListener('selectstart', handleSelectStart);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
     useEffect(() => {
         const fetchDeals = async () => {
             if (!supabase) return;
@@ -137,6 +178,11 @@ const Documents = () => {
     };
 
     const handleCloudSync = async () => {
+        if (isDemoMode) {
+            alert('Cloud Synchronization is strictly disabled in Demo Mode. Please log in to securely sync your documents to Supabase.');
+            return;
+        }
+
         setIsSyncing(true);
         try {
             // Simulated upload delay

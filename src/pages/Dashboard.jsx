@@ -15,6 +15,8 @@ import InvestorDashboard from './Workstations/InvestorDashboard';
 import RealtorDashboard from './Workstations/RealtorDashboard';
 import VADashboard from './Workstations/VADashboard';
 import AdminDashboard from './Workstations/AdminDashboard';
+import RiskMatrix from './Workstations/Shared/RiskMatrix';
+import LiquidityIndex from './Workstations/Shared/LiquidityIndex';
 import './Dashboard.css';
 
 const StatCard = ({ title, value, change, icon: Icon, trend }) => (
@@ -88,6 +90,11 @@ const Dashboard = () => {
                     icon={Users}
                     trend="up"
                 />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 mb-4">
+                <RiskMatrix persona="WHOLESALER" />
+                <LiquidityIndex persona="WHOLESALER" velocityScore={48} />
             </div>
 
             <div className="dashboard-content-grid">

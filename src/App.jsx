@@ -21,6 +21,7 @@ import { DemoModeProvider } from './contexts/DemoModeContext';
 import { SubscriptionProvider } from './contexts/useSubscription';
 import { AuthProvider } from './contexts/useAuth';
 import Login from './pages/Login';
+import ProxyComponent from './pages/Workstations/ProxyComponent';
 
 function App() {
   return (
@@ -42,6 +43,18 @@ function App() {
                 <Route path="calendar" element={<CalendarView />} />
                 <Route path="compliance" element={<Compliance />} />
                 <Route path="profile" element={<Profile />} />
+
+                {/* Phase 35: Inter-Persona Placeholder Routes */}
+                <Route path="match-feed" element={<ProxyComponent moduleName="Deal Match Feed" />} />
+                <Route path="criteria" element={<ProxyComponent moduleName="Investor Buy Box" />} />
+                <Route path="saved" element={<ProxyComponent moduleName="Saved Properties" />} />
+                <Route path="offers" element={<ProxyComponent moduleName="Offer Manager" />} />
+                <Route path="referrals" element={<ProxyComponent moduleName="Referral Inbox" />} />
+                <Route path="listings" element={<ProxyComponent moduleName="Active Listings" />} />
+                <Route path="cma" element={<ProxyComponent moduleName="CMA Generation Tool" />} />
+                <Route path="dialer" element={<ProxyComponent moduleName="Auto-Dialer & Scripts" />} />
+                <Route path="leads-queue" element={<ProxyComponent moduleName="Lead Action Queue" />} />
+                <Route path="appointments" element={<ProxyComponent moduleName="Appointment Bookings" />} />
                 <Route path="integrations" element={<Settings />} />
                 <Route path="admin" element={<AdminDashboard />} />
                 <Route path="super-admin" element={<SuperAdminDashboard />} />

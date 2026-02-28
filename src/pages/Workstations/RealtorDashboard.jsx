@@ -1,5 +1,7 @@
 import React from 'react';
 import { Home, Calculator, Users, Inbox } from 'lucide-react';
+import RiskMatrix from './Shared/RiskMatrix';
+import LiquidityIndex from './Shared/LiquidityIndex';
 
 const RealtorDashboard = () => {
     return (
@@ -36,6 +38,11 @@ const RealtorDashboard = () => {
                     <div className="text-3xl font-bold">24</div>
                     <div className="text-xs text-muted mt-2">Pre-approved: 18</div>
                 </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <RiskMatrix persona="REALTOR" />
+                <LiquidityIndex persona="REALTOR" velocityScore={82} />
             </div>
 
             <div className="mt-8 card glass-panel">

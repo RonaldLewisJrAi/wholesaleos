@@ -1,5 +1,7 @@
 import React from 'react';
 import { Headphones, PhoneCall, ListTodo, CheckSquare } from 'lucide-react';
+import RiskMatrix from './Shared/RiskMatrix';
+import LiquidityIndex from './Shared/LiquidityIndex';
 
 const VADashboard = () => {
     return (
@@ -36,6 +38,11 @@ const VADashboard = () => {
                         <span className="text-xs text-muted">Avg Dur: 1m 45s</span>
                     </div>
                 </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <RiskMatrix persona="VIRTUAL_ASSISTANT" />
+                <LiquidityIndex persona="VIRTUAL_ASSISTANT" velocityScore={32} />
             </div>
 
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
