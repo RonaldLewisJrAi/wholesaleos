@@ -8,10 +8,32 @@ DO $$ BEGIN RAISE NOTICE 'Starting Phase 12 Master Schema Alignment...';
 CREATE TABLE IF NOT EXISTS public.deal_stages (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     name text NOT NULL,
-    order_index integer NOT NULL,
+    order_index integer NOT NULL DEFAULT 0,
     color_code text DEFAULT '#6366f1',
     created_at timestamptz DEFAULT now()
 );
+-- Ensure order_index exists if the table was created previously without it
+DO $add_col$ BEGIN IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+        AND table_name = 'deal_stages'
+        AND column_name = 'order_index'
+) THEN
+ALTER TABLE public.deal_stages
+ADD COLUMN order_index integer NOT NULL DEFAULT 0;
+END IF;
+END $add_col$;
+-- Ensure 'name' is unique so we can safely seed data without duplicates
+DO $add_constraint$ BEGIN IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'deal_stages_name_unique'
+) THEN
+ALTER TABLE public.deal_stages
+ADD CONSTRAINT deal_stages_name_unique UNIQUE (name);
+END IF;
+END $add_constraint$;
 -- 2. Deals Table (Logical Separation from 'Properties')
 -- A single property could conceptually have multiple deal attempts.
 CREATE TABLE IF NOT EXISTS public.deals (
@@ -87,6 +109,6 @@ VALUES ('Lead', 1, '#94a3b8'),
     ('Dispo / Marketing', 5, '#8b5cf6'),
     ('Clear to Close', 6, '#10b981'),
     ('Closed/Won', 7, '#059669'),
-    ('Dead Deal', 8, '#ef4444') ON CONFLICT DO NOTHING;
+    ('Dead Deal', 8, '#ef4444') ON CONFLICT (name) DO NOTHING;
 RAISE NOTICE 'Phase 12 Master Schema Alignment Migration Complete.';
 END $$;
