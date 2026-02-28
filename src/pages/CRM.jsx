@@ -14,14 +14,25 @@ const mockContacts = [
 ];
 
 // Lead Intelligence Logic
-const calculateEquity = (arv, mortgage) => {
-    if (!arv) return 0;
-    return Math.max(0, ((arv - mortgage) / arv) * 100);
+const calculateEquity = (contact) => {
+    // Prefer the exact backend calculated value from the Supabase Trigger Engine
+    if (contact.equity_percent !== undefined && contact.equity_percent !== null) {
+        return Number(contact.equity_percent);
+    }
+    // Fallback for mocked or pre-migration data
+    if (!contact.arv) return 0;
+    return Math.max(0, ((contact.arv - contact.mortgage_balance) / contact.arv) * 100);
 };
 
 const calculateHeatScore = (contact) => {
     if (!contact.type?.includes('Lead')) return null;
 
+    // Prefer the exact backend calculated value from the Supabase Trigger Engine
+    if (contact.heat_score !== undefined && contact.heat_score !== null && contact.heat_score > 0) {
+        return Number(contact.heat_score);
+    }
+
+    // Fallback client-side algorithm for mocked data
     let score = 0;
 
     // Distress (0-40 points)
@@ -31,7 +42,7 @@ const calculateHeatScore = (contact) => {
     if (contact.motivation_level) score += (contact.motivation_level / 5) * 30;
 
     // Equity (0-20 points - sweet spot is 40-70%)
-    const equityPct = calculateEquity(contact.arv, contact.mortgage_balance);
+    const equityPct = calculateEquity(contact);
     if (equityPct >= 40 && equityPct <= 70) score += 20;
     else if (equityPct > 70) score += 15;
     else if (equityPct > 20) score += 5;
@@ -265,8 +276,8 @@ const CRM = () => {
                                                 {contact.type || 'Unknown'}
                                             </span>
                                             {contact.type?.includes('Lead') && (
-                                                <div className={`text-[10px] font-medium mt-1 ${calculateEquity(contact.arv, contact.mortgage_balance) >= 50 ? 'text-success' : 'text-danger'}`}>
-                                                    {calculateEquity(contact.arv, contact.mortgage_balance).toFixed(0)}% Est. Equity
+                                                <div className={`text-[10px] font-medium mt-1 ${calculateEquity(contact) >= 50 ? 'text-success' : 'text-danger'}`}>
+                                                    {calculateEquity(contact).toFixed(0)}% Est. Equity
                                                 </div>
                                             )}
                                         </td>
@@ -280,8 +291,8 @@ const CRM = () => {
                                             {contact.type?.includes('Lead') ? (
                                                 <div className="flex flex-col gap-1 text-xs">
                                                     <span className="font-semibold">Next Action:</span>
-                                                    <span className={`${getNextBestAction(calculateHeatScore(contact), calculateEquity(contact.arv, contact.mortgage_balance)).color} font-medium`}>
-                                                        {getNextBestAction(calculateHeatScore(contact), calculateEquity(contact.arv, contact.mortgage_balance)).action}
+                                                    <span className={`${getNextBestAction(calculateHeatScore(contact), calculateEquity(contact)).color} font-medium`}>
+                                                        {getNextBestAction(calculateHeatScore(contact), calculateEquity(contact)).action}
                                                     </span>
                                                 </div>
                                             ) : (
@@ -424,7 +435,7 @@ const CRM = () => {
                                         <div className="space-y-3">
                                             {/* Phase 28: Render Predictive Deal Probability */}
                                             {(() => {
-                                                const eqPct = calculateEquity(selectedLead.arv, selectedLead.mortgage_balance);
+                                                const eqPct = calculateEquity(selectedLead);
                                                 const probScore = calculateDealProbability(eqPct, selectedLead.motivation_level || 3, simulatedBdi ? simulatedBdi.matches : 0);
 
                                                 let probColor = "text-danger";
@@ -455,10 +466,10 @@ const CRM = () => {
                                             <div>
                                                 <div className="flex-between text-xs mb-1">
                                                     <span className="text-gray-400">Equity Position</span>
-                                                    <span className="text-success">{calculateEquity(selectedLead.arv, selectedLead.mortgage_balance).toFixed(0)}%</span>
+                                                    <span className="text-success">{calculateEquity(selectedLead).toFixed(0)}%</span>
                                                 </div>
                                                 <div className="w-full bg-[rgba(255,255,255,0.1)] rounded-full h-1.5">
-                                                    <div className="bg-success h-1.5 rounded-full" style={{ width: `${calculateEquity(selectedLead.arv, selectedLead.mortgage_balance)}%` }}></div>
+                                                    <div className="bg-success h-1.5 rounded-full" style={{ width: `${calculateEquity(selectedLead)}%` }}></div>
                                                 </div>
                                             </div>
                                         </div>
