@@ -9,7 +9,7 @@ export const SubscriptionProvider = ({ children }) => {
     // Default tier is 'BASIC', 'PRO', 'SUPER'
     const [subscriptionTier, setSubscriptionTier] = useState('PRO'); // Default fallback
     const [primaryPersona, setPrimaryPersona] = useState('WHOLESALER');
-    const [allowedPersonas, setAllowedPersonas] = useState(['WHOLESALER']);
+    const [allowedPersonas, setAllowedPersonas] = useState(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT']);
     const [currentViewPersona, setCurrentViewPersona] = useState('WHOLESALER'); // What the user is actively viewing as
     // Phase 31.5 Status: 'ACTIVE', 'GRACE_PERIOD', 'PAST_DUE', 'PAUSED', 'CANCELED', 'TERMINATED'
     const [subscriptionStatus, setSubscriptionStatus] = useState('ACTIVE');
