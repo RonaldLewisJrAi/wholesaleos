@@ -86,9 +86,15 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
 
                 // 2. Ping Local Playwright Proxy
                 const baseUrl = import.meta.env.VITE_API_URL || 'https://wholesale-os.onrender.com';
+                const { data: { session } } = await supabase.auth.getSession();
+                const token = session?.access_token;
+
                 const res = await fetch(`${baseUrl}/api/comps`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({
                         lat, lng, radius, timeframeMonths: timeframe, isDemoMode,
                         sqftVariance, exactBedBath,

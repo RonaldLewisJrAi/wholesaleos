@@ -8,7 +8,7 @@ const AdminDashboard = () => {
         {
             id: 'u-1',
             email: 'ronald_lewis_jr@live.com',
-            name: 'Ronald Lewis',
+            name: 'Platform Admin',
             tier: 'SUPER',
             status: 'Active',
             docCount: 142,

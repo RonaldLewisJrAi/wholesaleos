@@ -7,14 +7,10 @@ import { useDemoMode } from '../contexts/DemoModeContext';
 import UnlockLiveModeModal from './UnlockLiveModeModal';
 import OrgHealthWidget from './OrgHealthWidget';
 import GlobalStatusBanner from './GlobalStatusBanner';
-import EnterpriseTermsModal from './EnterpriseTermsModal';
 
 const Layout = () => {
     const { isDemoMode } = useDemoMode();
     const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
-    const [isTermsAccepted, setIsTermsAccepted] = useState(
-        localStorage.getItem('wholesale_os_enterprise_terms_accepted') === 'true'
-    );
 
     return (
         <div className={`layout-container ${isDemoMode ? 'demo-mode-active' : ''}`} style={isDemoMode ? { paddingTop: '35px' } : {}}>
@@ -110,7 +106,6 @@ const Layout = () => {
             <ScrollChevron />
             <OrgHealthWidget />
             <UnlockLiveModeModal isOpen={isUnlockModalOpen} onClose={() => setIsUnlockModalOpen(false)} />
-            <EnterpriseTermsModal isOpen={!isTermsAccepted} onAccept={() => setIsTermsAccepted(true)} />
 
         </div>
     );

@@ -145,7 +145,7 @@ const Compliance = () => {
                         <div className="audit-item">
                             <div className="audit-icon bg-secondary"><FileCheck size={14} /></div>
                             <div className="audit-details">
-                                <p className="audit-action">Signature Captured: Assignor (Ronald Lewis)</p>
+                                <p className="audit-action">Signature Captured: Assignor (Platform Admin)</p>
                                 <p className="audit-meta">Doc ID: JR-8821 • IP: 73.125.44.11 • Yesterday, 4:15 PM</p>
                             </div>
                         </div>

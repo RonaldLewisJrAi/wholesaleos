@@ -15,7 +15,11 @@ const blastLimiter = rateLimit({
 // In a real environment, you'd integrate the exact SDKs using process.env secrets.
 
 router.post('/blast/sms', blastLimiter, async (req, res) => {
-    const { propertyId, buyerIds, message, isDemoMode } = req.body;
+    const { propertyId, buyerIds, message } = req.body;
+
+    // Server-enforced Demo Check
+    const activeTier = req.organization?.subscription_tier;
+    const isDemoMode = !req.isSuperAdmin && (!activeTier || activeTier === 'DEMO');
 
     if (!propertyId || !buyerIds || !Array.isArray(buyerIds)) {
         return res.status(400).json({ error: 'Invalid payload. Property ID and an array of Buyer IDs are required.' });
@@ -47,7 +51,11 @@ router.post('/blast/sms', blastLimiter, async (req, res) => {
 });
 
 router.post('/blast/email', blastLimiter, async (req, res) => {
-    const { propertyId, buyerIds, subject, htmlContent, isDemoMode } = req.body;
+    const { propertyId, buyerIds, subject, htmlContent } = req.body;
+
+    // Server-enforced Demo Check
+    const activeTier = req.organization?.subscription_tier;
+    const isDemoMode = !req.isSuperAdmin && (!activeTier || activeTier === 'DEMO');
 
     if (!propertyId || !buyerIds || !Array.isArray(buyerIds)) {
         return res.status(400).json({ error: 'Invalid payload. Property ID and an array of Buyer IDs are required.' });

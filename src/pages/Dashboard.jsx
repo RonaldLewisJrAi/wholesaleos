@@ -53,7 +53,7 @@ const Dashboard = () => {
             <div className="page-header flex-between">
                 <div>
                     <h1 className="page-title">Dashboard Overview</h1>
-                    <p className="page-description">Welcome back, Ronald. Here's what's happening with your deals today.</p>
+                    <p className="page-description">Welcome back, Demo User. Here's what's happening with your deals today.</p>
                 </div>
                 <div className="header-actions">
                     <button className="btn btn-secondary" onClick={() => alert("Report generation started. A PDF will be downloaded shortly.")}>Download Report</button>

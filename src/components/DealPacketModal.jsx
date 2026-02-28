@@ -95,9 +95,15 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
             const endpoint = method === 'SMS' ? '/api/disposition/blast/sms' : '/api/disposition/blast/email';
 
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
             const res = await fetch(`${baseUrl}${endpoint}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     propertyId: property.id,
                     buyerIds: matchedBuyers.map(b => b.contact_id || b.id),

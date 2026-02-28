@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio } from 'lucide-react';
+import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio, Sun, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import './Header.css';
 
 const Header = () => {
     const { isDemoMode, setIsDemoMode } = useDemoMode();
+    const { theme, toggleTheme } = useTheme();
     const [showNotifications, setShowNotifications] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
 
@@ -78,6 +80,12 @@ const Header = () => {
                     </span>
                 </div>
 
+                <div className="theme-toggle-container">
+                    <button className="icon-btn" onClick={toggleTheme} title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                    </button>
+                </div>
+
                 <div className="dropdown-container">
                     <button className={`icon-btn ${showNotifications ? 'active' : ''}`} onClick={toggleNotifications}>
                         <Bell size={20} />
@@ -128,8 +136,8 @@ const Header = () => {
                     {showSettings && (
                         <div className="dropdown-menu settings-dropdown animate-fade-in">
                             <div className="dropdown-header">
-                                <h4>Ronald Lewis</h4>
-                                <span className="text-xs text-muted">ronal@example.com</span>
+                                <h4>Demo User</h4>
+                                <span className="text-xs text-muted">demo@wholesale-os.com</span>
                             </div>
                             <div className="dropdown-body">
                                 <Link to="/profile" className="dropdown-item" onClick={toggleSettings}>

@@ -17,10 +17,11 @@ if (supabaseUrl && supabaseKey) {
 // POST /api/keys/generate
 router.post('/generate', async (req, res) => {
     try {
-        const { organization_id, created_by } = req.body;
+        const organization_id = req.userOrg?.organization_id;
+        const created_by = req.user?.id;
 
         if (!organization_id) {
-            return res.status(400).json({ error: 'organization_id is required' });
+            return res.status(403).json({ error: 'Action Blocked: User not linked to an active organization.' });
         }
 
         if (!supabaseAdmin) {

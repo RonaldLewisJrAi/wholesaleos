@@ -16,10 +16,14 @@ const rawBodyParser = express.raw({ type: 'application/json' });
 // =========================================================================
 router.post('/create-checkout-session', express.json(), async (req, res) => {
     try {
-        const { priceId, userEmail, userId, tier } = req.body;
+        const { priceId, userEmail, userId, tier, tosAccepted } = req.body;
 
         if (!priceId || !userEmail || !userId) {
             return res.status(400).json({ error: 'Missing required parameters.' });
+        }
+
+        if (String(tosAccepted) !== 'true') {
+            return res.status(400).json({ error: 'Terms of Service must be explicitly accepted to proceed.' });
         }
 
         // Create the Stripe Checkout Session
@@ -36,7 +40,8 @@ router.post('/create-checkout-session', express.json(), async (req, res) => {
             // Map the Supabase User ID to the Stripe Session metadata for webhook retrieval
             metadata: {
                 supabase_user_id: userId,
-                subscription_tier: tier || 'SUPER'
+                subscription_tier: tier || 'SUPER',
+                tos_accepted: tosAccepted ? 'true' : 'false'
             },
             success_url: `${process.env.VITE_SITE_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}&success=true`,
             cancel_url: `${process.env.VITE_SITE_URL}/profile?canceled=true`,
@@ -106,14 +111,16 @@ router.post('/webhook', rawBodyParser, async (req, res) => {
                 const session = event.data.object;
                 const supabaseUserId = session.metadata?.supabase_user_id;
                 const subscriptionTier = session.metadata?.subscription_tier || 'SUPER';
+                const tosAccepted = session.metadata?.tos_accepted === 'true';
 
                 if (supabaseUserId) {
-                    console.log(`[Webhook] Equipping User: ${supabaseUserId} with ${subscriptionTier} tier.`);
+                    console.log(`[Webhook] Equipping User: ${supabaseUserId} with ${subscriptionTier} tier. TOS: ${tosAccepted}`);
                     const { error: updateError } = await supabaseAdmin
                         .from('profiles')
                         .update({
                             subscription_tier: subscriptionTier,
-                            account_status: 'Active'
+                            account_status: 'Active',
+                            tos_accepted: tosAccepted
                         })
                         .eq('id', supabaseUserId);
 
@@ -126,16 +133,70 @@ router.post('/webhook', rawBodyParser, async (req, res) => {
 
             case 'invoice.paid': {
                 console.log(`[Webhook] Invoice Paid for Customer ID: ${event.data.object.customer}. Quotas should reset.`);
+                // Phase 31.5: Enforce ACTIVE status on payment
+                await supabaseAdmin.from('organizations').update({
+                    subscription_status: 'ACTIVE',
+                    pending_subscription_change: false
+                }).eq('stripe_customer_id', event.data.object.customer);
                 break;
             }
 
             case 'invoice.payment_failed': {
                 console.log(`[Webhook] Payment Failed for Customer ID: ${event.data.object.customer}.`);
+                // Phase 31.5: Downgrade to GRACE_PERIOD immediately upon invoice failure
+                await supabaseAdmin.from('organizations').update({
+                    subscription_status: 'GRACE_PERIOD'
+                }).eq('stripe_customer_id', event.data.object.customer);
+                break;
+            }
+
+            case 'customer.subscription.updated': {
+                const sub = event.data.object;
+                let newStatus = null;
+
+                // Native Stripe status mapping
+                if (sub.status === 'past_due') newStatus = 'PAST_DUE';
+                if (sub.status === 'canceled') newStatus = 'CANCELED';
+                if (sub.status === 'unpaid') newStatus = 'TERMINATED';
+                if (sub.status === 'active') newStatus = 'ACTIVE';
+
+                const updatePayload = { pending_subscription_change: false };
+                if (newStatus) updatePayload.subscription_status = newStatus;
+
+                // Overtake active status if collection is paused globally
+                if (sub.pause_collection) {
+                    updatePayload.subscription_status = 'PAUSED';
+                }
+
+                console.log(`[Webhook] Subscription Updated for Customer ID: ${sub.customer}. Mapping to ${updatePayload.subscription_status || 'Unchanged'}.`);
+                await supabaseAdmin.from('organizations').update(updatePayload).eq('stripe_customer_id', sub.customer);
+
                 break;
             }
 
             case 'customer.subscription.deleted': {
-                console.log(`[Webhook] Subscription Cancelled for Customer ID: ${event.data.object.customer}.`);
+                const sub = event.data.object;
+                const customerId = sub.customer;
+
+                if (sub.cancel_at_period_end) {
+                    console.log(`[Webhook] Subscription CANCELED (End of Term). Customer: ${customerId}`);
+                    await supabaseAdmin.from('organizations').update({
+                        subscription_status: 'CANCELED',
+                        pending_subscription_change: false
+                    }).eq('stripe_customer_id', customerId);
+                } else {
+                    console.log(`[Webhook] Subscription TERMINATED Immediately. Customer: ${customerId}`);
+                    const retentionDate = new Date();
+                    retentionDate.setDate(retentionDate.getDate() + 90);
+
+                    await supabaseAdmin.from('organizations').update({
+                        subscription_status: 'TERMINATED',
+                        pending_subscription_change: false,
+                        data_retention_until: retentionDate
+                    }).eq('stripe_customer_id', customerId);
+
+                    // In Production: Trigger seat_status = 'LOCKED' RPC mapping here
+                }
                 break;
             }
 
@@ -156,6 +217,17 @@ router.post('/webhook', rawBodyParser, async (req, res) => {
 
     } catch (err) {
         console.error("[Webhook Database Error]:", err.message);
+
+        // Phase 34: Robust DLQ Error Logging
+        if (supabaseAdmin && event) {
+            await supabaseAdmin.from('stripe_event_failures').insert({
+                stripe_event_id: event.id || 'unknown',
+                error_message: err.message || 'Unknown error occurred',
+                metadata: event.data?.object || {}
+            });
+            console.log(`[DLQ Pipeline] System isolated the crash trace for ${event.id || 'unknown event'} into stripe_event_failures.`);
+        }
+
         return res.status(500).json({ error: "Failed to process webhook state." });
     }
 

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:verify": "node tests/phase_34_1_verify.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",

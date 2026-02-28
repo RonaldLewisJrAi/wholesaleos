@@ -78,14 +78,10 @@ const Sidebar = () => {
             </nav>
 
             <div className="sidebar-footer">
-                <div className="legal-links px-4 pb-3 flex flex-col gap-1">
-                    <Link to="/terms" className="text-[10px] text-muted hover:text-primary transition-colors">Terms of Service</Link>
-                    <Link to="/privacy" className="text-[10px] text-muted hover:text-primary transition-colors">Privacy Policy</Link>
-                </div>
                 <Link to="/profile" className="user-profile-mini hover:bg-white/5 transition-colors cursor-pointer rounded-md p-2">
-                    <div className="avatar">RL</div>
+                    <div className="avatar">U</div>
                     <div className="user-info">
-                        <span className="user-name">Ronald Lewis</span>
+                        <span className="user-name">Demo User</span>
                         <span className="user-role">Administrator</span>
                     </div>
                 </Link>

@@ -9,21 +9,124 @@ const documentRoutes = require('./document_routes.cjs');
 const dispositionRoutes = require('./disposition_routes.cjs');
 const quotaRoutes = require('./quota_routes.cjs');
 const apiKeysRoutes = require('./api_keys_routes.cjs');
+const subscriptionRoutes = require('./subscription_routes.cjs');
+const { createClient } = require('@supabase/supabase-js');
 
 // Initialize Redis for Comps Data Caching
 const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
     maxRetriesPerRequest: null,
 });
 
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseAdmin = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+
+// =========================================================================================
+// PHASE 33.1: GLOBAL WRITE-BLOCKING & SUPER_ADMIN ENFORCEMENT
+// =========================================================================================
+const requireSubscription = async (req, res, next) => {
+    if (req.method === 'GET' || req.method === 'OPTIONS') return next();
+
+    let userId = null;
+    let token = null;
+
+    // 1. Try to extract Bearer token from headers
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+    } else {
+        return res.status(401).json({ allowed: false, error: 'Unauthorized: Missing Bearer token in headers.' });
+    }
+
+    if (!supabaseAdmin) return next();
+
+    try {
+        // 2. Cryptographically verify the JWT to ensure it wasn't forged
+        const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+        if (authError || !user) {
+            console.error('[SECURITY] JWT Validation Failed:', authError?.message);
+            return res.status(401).json({ allowed: false, error: 'Unauthorized: Invalid or expired token.' });
+        }
+
+        userId = user.id;
+
+        // 3. Force the payload userId to match the verified token owner (prevents IDOR)
+        if (req.body && typeof req.body === 'object') {
+            req.body.userId = userId;
+        }
+        req.user = user;
+
+        const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('system_role')
+            .eq('id', userId)
+            .single();
+
+        if (profile && profile.system_role === 'SUPER_ADMIN') {
+            req.isSuperAdmin = true;
+            return next();
+        }
+
+        const { data: userOrg } = await supabaseAdmin
+            .from('user_organizations')
+            .select('organization_id')
+            .eq('user_id', userId)
+            .single();
+
+        if (userOrg) {
+            req.userOrg = userOrg;
+
+            const { data: org } = await supabaseAdmin
+                .from('organizations')
+                .select('subscription_status, subscription_tier')
+                .eq('id', userOrg.organization_id)
+                .single();
+
+            if (org) {
+                req.organization = org;
+                const restrictedStatuses = ['PAST_DUE', 'TERMINATED', 'CANCELED', 'PAUSED'];
+                if (restrictedStatuses.includes(org.subscription_status)) {
+                    // Telemetry
+                    try {
+                        await supabaseAdmin.from('system_logs').insert({
+                            organization_id: userOrg.organization_id,
+                            user_id: userId,
+                            log_type: 'SECURITY',
+                            source: 'API_GATEWAY',
+                            message: `BLOCKED 403 Action to ${req.originalUrl} - Subscription: ${org.subscription_status}`
+                        });
+                    } catch (e) {
+                        console.error('[SecTelemetry] Failed to record 403 block', e);
+                    }
+
+                    return res.status(403).json({
+                        allowed: false,
+                        error: `Action blocked. Account status is ${org.subscription_status}. Please update your billing information to restore write access.`
+                    });
+                }
+            }
+        }
+    } catch (err) {
+        console.error('[Auth Guard Error]', err);
+    }
+    next();
+};
+
 const app = express();
 app.use(cors());
 
-app.use('/api/stripe', stripeRoutes);
+app.use('/api/stripe', stripeRoutes); // Mounted before express.json() to capture raw webhooks safely
 app.use(express.json());
-app.use('/api/documents', documentRoutes);
-app.use('/api/disposition', dispositionRoutes);
+
+// Apply Write-Blocking Middleware
+app.use('/api/documents', requireSubscription, documentRoutes);
+app.use('/api/disposition', requireSubscription, dispositionRoutes);
+app.use('/api/keys', requireSubscription, apiKeysRoutes);
+app.use('/api/comps', requireSubscription); // Will cascade to the /api/comps POST route below
+
 app.use('/api/quotas', quotaRoutes);
-app.use('/api/keys', apiKeysRoutes);
+app.use('/api/subscription', subscriptionRoutes); // Allowed to pass without restriction so users can resume billing
 
 const PORT = 3001;
 

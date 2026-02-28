@@ -38,10 +38,11 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                 },
                 body: JSON.stringify({
                     priceId: priceId,
-                    userEmail: 'Ronald_Lewis_Jr@live.com', // Mapped to Founder Email for initialization
+                    userEmail: 'demo@wholesale-os.com', // Placeholder for initialization
                     userId: '00000000-0000-0000-0000-000000000000', // Placeholder auth ID until actual signup
                     persona: selectedPersona,
-                    tier: selectedTier === 'starter' ? 'BASIC' : (selectedTier === 'pro' ? 'ADVANCED' : 'SUPER')
+                    tier: selectedTier === 'starter' ? 'BASIC' : (selectedTier === 'pro' ? 'ADVANCED' : 'SUPER'),
+                    tosAccepted: termsAccepted
                 })
             });
             const data = await response.json();
@@ -117,48 +118,60 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                             <p className="text-muted text-sm mt-2">You are currently viewing simulated demo data. Upgrade to connect your live property feeds and CRM.</p>
                         </div>
 
-                        <div className="pricing-tiers grid grid-cols-3 gap-4 mb-6">
-                            <div
-                                className={`pricing-card ${selectedTier === 'starter' ? 'active' : ''}`}
-                                onClick={() => setSelectedTier('starter')}
-                            >
-                                <div className="text-left w-full">
-                                    <h3 className="font-bold text-lg mb-1">Starter</h3>
-                                    <div className="price font-bold text-2xl mb-3">$100<span className="text-sm font-normal text-muted">/mo</span></div>
-                                    <ul className="text-xs text-muted space-y-2">
-                                        <li><CheckCircle size={12} className="inline mr-1 text-success" /> 25 Live Scrape Leads</li>
-                                        <li><CheckCircle size={12} className="inline mr-1 text-success" /> Basic CRM Access</li>
-                                    </ul>
-                                </div>
+                        <div className="pricing-tiers flex flex-col gap-2 mb-6 bg-[rgba(0,0,0,0.1)] p-4 rounded-xl border border-[var(--border-light)]">
+                            <div className="grid grid-cols-4 gap-2 text-sm text-center font-bold pb-2 border-b border-[var(--border-light)] text-muted">
+                                <div className="text-left font-bold text-white uppercase tracking-wider text-xs pt-1">Features</div>
+                                <div className={`cursor-pointer pb-2 ${selectedTier === 'starter' ? 'text-primary border-b-2 border-primary' : 'hover:text-gray-300 transition-colors'}`} onClick={() => setSelectedTier('starter')}>Basic<div className="text-lg text-white">$100</div></div>
+                                <div className={`cursor-pointer pb-2 ${selectedTier === 'pro' ? 'text-accent border-b-2 border-accent' : 'hover:text-gray-300 transition-colors'}`} onClick={() => setSelectedTier('pro')}>Pro<div className="text-lg text-white">$500</div></div>
+                                <div className={`cursor-pointer pb-2 ${selectedTier === 'super' ? 'text-purple-400 border-b-2 border-purple-400' : 'hover:text-gray-300 transition-colors'}`} onClick={() => setSelectedTier('super')}>Super<div className="text-lg text-white">$1k</div></div>
                             </div>
 
-                            <div
-                                className={`pricing-card recommended ${selectedTier === 'pro' ? 'active' : ''}`}
-                                onClick={() => setSelectedTier('pro')}
-                            >
-                                <div className="recommend-badge">RECOMMENDED</div>
-                                <div className="text-left w-full">
-                                    <h3 className="font-bold text-lg mb-1 text-primary">Pro</h3>
-                                    <div className="price font-bold text-2xl mb-3">$500<span className="text-sm font-normal text-muted">/mo</span></div>
-                                    <ul className="text-xs text-muted space-y-2">
-                                        <li><CheckCircle size={12} className="inline mr-1 text-success" /> Unlimited Live CRM</li>
-                                        <li><CheckCircle size={12} className="inline mr-1 text-success" /> AI Document Extraction</li>
-                                    </ul>
-                                </div>
+                            {/* CRM Limits */}
+                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
+                                <div className="text-left font-medium text-gray-400">Live Scraping Leads</div>
+                                <div className="text-center font-mono">25 / mo</div>
+                                <div className="text-center text-accent font-bold">Unlimited</div>
+                                <div className="text-center text-purple-400 font-bold">Unlimited</div>
                             </div>
 
-                            <div
-                                className={`pricing-card ${selectedTier === 'super' ? 'active' : ''}`}
-                                onClick={() => setSelectedTier('super')}
-                            >
-                                <div className="text-left w-full">
-                                    <h3 className="font-bold text-lg mb-1 text-accent">Super</h3>
-                                    <div className="price font-bold text-2xl mb-3">$1,000<span className="text-sm font-normal text-muted">/mo</span></div>
-                                    <ul className="text-xs text-muted space-y-2">
-                                        <li><CheckCircle size={12} className="inline mr-1 text-success" /> Preforeclosure Radar</li>
-                                        <li><CheckCircle size={12} className="inline mr-1 text-success" /> Live Zillow Comps</li>
-                                    </ul>
-                                </div>
+                            {/* Seat Limits */}
+                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
+                                <div className="text-left font-medium text-gray-400">Team Seats</div>
+                                <div className="text-center font-mono">1 Seat</div>
+                                <div className="text-center text-accent font-bold">3 Seats</div>
+                                <div className="text-center text-purple-400 font-bold">10 Seats</div>
+                            </div>
+
+                            {/* Persona Access */}
+                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
+                                <div className="text-left font-medium text-gray-400">Persona Access</div>
+                                <div className="text-center">Wholesaler Only</div>
+                                <div className="text-center text-accent font-bold">+ Investor</div>
+                                <div className="text-center text-purple-400 font-bold">All Personas</div>
+                            </div>
+
+                            {/* API Access */}
+                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
+                                <div className="text-left font-medium text-gray-400">API Generation</div>
+                                <div className="text-center text-gray-600">-</div>
+                                <div className="text-center text-accent font-bold">Read-Only API</div>
+                                <div className="text-center text-purple-400 font-bold">Full Read/Write</div>
+                            </div>
+
+                            {/* Integrations */}
+                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
+                                <div className="text-left font-medium text-gray-400">Integrations (Webhooks)</div>
+                                <div className="text-center text-gray-600">-</div>
+                                <div className="text-center text-accent font-bold">Max 5 Targets</div>
+                                <div className="text-center text-purple-400 font-bold">Unlimited</div>
+                            </div>
+
+                            {/* Predictive Intelligence */}
+                            <div className="grid grid-cols-4 gap-2 text-xs py-3 hover:bg-[rgba(255,255,255,0.02)] items-center">
+                                <div className="text-left font-medium text-gray-400">Predictive Intelligence</div>
+                                <div className="text-center text-gray-600">-</div>
+                                <div className="text-center text-gray-600">-</div>
+                                <div className="text-center text-purple-400 font-bold">Risk Matrices + AI</div>
                             </div>
                         </div>
 
@@ -253,7 +266,7 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                         <form onSubmit={handleAccountCreation} className="text-left space-y-4">
                             <div>
                                 <label className="block text-xs uppercase text-muted mb-1 font-bold">Email Address</label>
-                                <input type="email" className="fillable-input w-full" value="ronal@example.com" disabled />
+                                <input type="email" className="fillable-input w-full" value="demo@wholesale-os.com" disabled />
                             </div>
                             <div>
                                 <label className="block text-xs uppercase text-muted mb-1 font-bold">Create Password</label>

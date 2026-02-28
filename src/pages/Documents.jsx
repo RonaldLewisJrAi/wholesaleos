@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Download, CheckCircle, Edit3, UploadCloud, Link as LinkIcon } from 'lucide-react';
 import SignatureCanvas from 'react-signature-canvas';
 import { supabase } from '../lib/supabase';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { useSubscription } from '../contexts/useSubscription';
 import { useAuth } from '../contexts/useAuth';
 import './Documents.css';
@@ -213,10 +211,17 @@ const Documents = () => {
         if (!pdfContainerRef.current) return;
         setIsGeneratingPDF(true);
         try {
+            // Securely retrieve JWT for the backend authorization check
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
             // First hit the tracking endpoint to enforce Phase 19 Document Limits
             const res = await fetch('http://localhost:3001/api/documents/track', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     userId: user?.id,
                     isDemoMode: isDemoMode
@@ -230,27 +235,8 @@ const Documents = () => {
                 return;
             }
 
-            // Render actual PDF of the contract bounds
-            const canvas = await html2canvas(pdfContainerRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-            const imgData = canvas.toDataURL('image/png');
-
-            // Apply standard 8.5x11 PDF size logic
-            const pdf = new jsPDF('p', 'mm', 'letter');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-
-            // Append E-Sign Audit Trail Page securely as a rasterized image (Prevents text highlighting/copying)
-            const auditDiv = document.createElement('div');
-            auditDiv.style.position = 'absolute';
-            auditDiv.style.left = '-9999px';
-            auditDiv.style.top = '0';
-            auditDiv.style.width = '800px';
-            auditDiv.style.backgroundColor = 'white';
-            auditDiv.style.padding = '40px';
-            auditDiv.style.color = 'black';
-            auditDiv.style.fontFamily = 'Helvetica, sans-serif';
+            // Server-Enforced PDF Generation 
+            // Phase 33.1: Moved vector rendering completely off the frontend.
 
             const timestamp = new Date().toISOString();
             const userAgent = navigator.userAgent;
@@ -282,31 +268,55 @@ const Documents = () => {
                 `;
             }
 
-            auditDiv.innerHTML = `
-                <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 30px; letter-spacing: -0.5px;">Electronic Signature Certificate of Completion</h1>
-                <div style="font-size: 14px; margin-bottom: 15px;">Document Reference: DOC-${Date.now()}</div>
-                <div style="font-size: 14px; margin-bottom: 15px;">Execution Timestamp: ${timestamp}</div>
-                <div style="font-size: 14px; margin-bottom: 15px;">Executing IP Address: ${ip}</div>
-                <div style="font-size: 14px; margin-bottom: 30px; color: #555;">Client User-Agent: ${userAgent}</div>
-                <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 20px;">Executed By:</h2>
-                <div style="font-size: 14px;">
-                    ${printedNamesHtml}
+            const auditHtml = `
+                <div style="padding: 40px; font-family: Helvetica, Arial, sans-serif; color: black; background: white;">
+                    <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 30px; letter-spacing: -0.5px;">Electronic Signature Certificate of Completion</h1>
+                    <div style="font-size: 14px; margin-bottom: 15px;">Document Reference: DOC-${Date.now()}</div>
+                    <div style="font-size: 14px; margin-bottom: 15px;">Execution Timestamp: ${timestamp}</div>
+                    <div style="font-size: 14px; margin-bottom: 15px;">Executing IP Address: ${ip}</div>
+                    <div style="font-size: 14px; margin-bottom: 30px; color: #555;">Client User-Agent: ${userAgent}</div>
+                    <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 20px;">Executed By:</h2>
+                    <div style="font-size: 14px;">
+                        ${printedNamesHtml}
+                    </div>
+                    <div style="margin-top: 30px; font-weight: bold; font-size: 14px;">Status: EXECUTED & SEALED</div>
                 </div>
-                <div style="margin-top: 30px; font-weight: bold; font-size: 14px;">Status: EXECUTED & SEALED</div>
             `;
 
-            document.body.appendChild(auditDiv);
+            const fullHtmlContent = `
+                <div style="page-break-after: always;">
+                    ${pdfContainerRef.current.innerHTML}
+                </div>
+                ${auditHtml}
+            `;
 
-            const auditCanvas = await html2canvas(auditDiv, { scale: 2 });
-            const auditImgData = auditCanvas.toDataURL('image/png');
+            const generateRes = await fetch('http://localhost:3001/api/documents/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    userId: user?.id,
+                    isDemoMode: isDemoMode,
+                    htmlContent: fullHtmlContent
+                })
+            });
 
-            pdf.addPage();
-            const auditImgHeight = (auditCanvas.height * pdfWidth) / auditCanvas.width;
-            pdf.addImage(auditImgData, 'PNG', 0, 0, pdfWidth, auditImgHeight);
+            if (!generateRes.ok) {
+                const errorData = await generateRes.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to generate secure PDF on the server.');
+            }
 
-            document.body.removeChild(auditDiv);
-
-            pdf.save(`Contract_${Date.now()}.pdf`);
+            const blob = await generateRes.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Contract_Secure_${Date.now()}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         } catch (error) {
             console.error('PDF Generation Error:', error);
             alert("Failed to generate PDF. Make sure all canvas resources have loaded.");
@@ -352,7 +362,7 @@ const Documents = () => {
                     </div>
                     <div className="templates-list">
                         {templates.map(template => (
-                            <div key={template.id} className={`template - item ${template.popular ? 'featured' : ''} `}>
+                            <div key={template.id} className={`template-item ${template.popular ? 'featured' : ''}`}>
                                 <div className="template-icon">
                                     <FileText size={20} className={template.popular ? 'text-primary' : 'text-muted'} />
                                 </div>
@@ -440,7 +450,7 @@ const Documents = () => {
 
                     <div className="mock-pdf-container">
                         <div
-                            className={`mock-pdf-page text-black ${isDemoMode ? 'select-none' : ''}`}
+                            className={`mock-pdf-page text-black relative ${isDemoMode ? 'select-none overflow-hidden' : ''}`}
                             ref={pdfContainerRef}
                             style={{
                                 background: '#ffffff',
@@ -454,6 +464,13 @@ const Documents = () => {
                                 if (isDemoMode) e.preventDefault();
                             }}
                         >
+                            {isDemoMode && (
+                                <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-50 overflow-hidden" style={{ opacity: 0.15 }}>
+                                    <h1 className="text-[6rem] font-black text-black transform -rotate-45 whitespace-nowrap tracking-widest uppercase">
+                                        VOID / DEMO ACCOUNT
+                                    </h1>
+                                </div>
+                            )}
                             {selectedTemplate === 't1' && (
                                 <div className="animate-fade-in">
                                     <h2 className="text-center font-bold mb-6">REAL ESTATE PURCHASE AND SALE AGREEMENT</h2>

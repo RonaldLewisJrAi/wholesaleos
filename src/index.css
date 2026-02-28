@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Core Colors - Modern Dark/Premium Aesthetic */
+  /* Core Colors - Modern Dark/Premium Aesthetic (Default) */
   --bg-primary: #0f1115;
   --bg-secondary: #16181d;
   --bg-tertiary: #1c1f26;
@@ -22,7 +22,30 @@
 
   --danger: #ef4444;
   --warning: #f59e0b;
+  --success: #10b981;
+  --info: #3b82f6;
 
+  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.5);
+  /* Accent Glow */
+}
+
+/* Light Mode Core Colors */
+:root.light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
+
+  --text-primary: #0f1115;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+
+  --border-color: #cbd5e1;
+  --border-light: rgba(0, 0, 0, 0.05);
+
+  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+:root {
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
   --font-size-xs: 0.75rem;
@@ -53,8 +76,6 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.5);
-  /* Accent Glow */
 
   /* Transitions */
   --transition-fast: 150ms ease-in-out;

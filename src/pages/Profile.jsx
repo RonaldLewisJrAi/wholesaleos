@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Building, MapPin, DollarSign, Percent, Save, Camera, Target, Calculator, Headphones, ShieldCheck, Activity } from 'lucide-react';
+import { Building, MapPin, DollarSign, Percent, Save, Camera, Target, Calculator, Headphones, ShieldCheck, Activity, Sun, Moon } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
 import './Profile.css';
 
 const Profile = () => {
     // Basic Profile State
     const [profile, setProfile] = useState({
-        firstName: 'Ronald',
-        lastName: 'Lewis',
-        email: 'ronal@example.com',
+        firstName: 'Demo',
+        lastName: 'User',
+        email: 'demo@wholesale-os.com',
         phone: '(615) 555-0198',
         company: 'Wholesale OS Strategies',
         bio: 'Real estate acquisition specialist focused on off-market distressed assets in the Greater Nashville area.',
@@ -19,6 +20,7 @@ const Profile = () => {
 
     const { subscriptionTier, allowedPersonas } = useSubscription();
     const { isDemoMode } = useDemoMode();
+    const { theme, toggleTheme } = useTheme();
 
     // Investor Buy Box State
     const [buyBox, setBuyBox] = useState({
@@ -160,7 +162,7 @@ const Profile = () => {
         personaConfigs.push({ id: 'ADMIN', label: 'Master Admin', icon: ShieldCheck });
     }
 
-    const isMasterAdmin = profile.email === 'ronald_lewis_jr@live.com' || allowedPersonas?.includes('ADMIN');
+    const isMasterAdmin = profile.email === 'admin@wholesale-os.com' || allowedPersonas?.includes('ADMIN');
 
     if (isDemoMode) {
         return (
@@ -215,6 +217,22 @@ const Profile = () => {
                                     <span>{persona.label}</span>
                                 </button>
                             ))}
+                        </div>
+
+                        <h3 className="section-title mb-4 mt-6 pb-2 border-b border-[var(--border-light)] font-bold">Theme Calibration</h3>
+                        <div className="flex gap-4">
+                            <button
+                                className={`flex items-center justify-center gap-2 py-2 px-4 rounded border transition-colors ${theme === 'dark' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-transparent border-[var(--border-color)] text-muted hover:text-white'}`}
+                                onClick={() => theme !== 'dark' && toggleTheme()}
+                            >
+                                <Moon size={16} /> Dark Mode
+                            </button>
+                            <button
+                                className={`flex items-center justify-center gap-2 py-2 px-4 rounded border transition-colors ${theme === 'light' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-transparent border-[var(--border-color)] text-muted hover:text-black'}`}
+                                onClick={() => theme !== 'light' && toggleTheme()}
+                            >
+                                <Sun size={16} /> Light Mode
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -350,6 +368,45 @@ const Profile = () => {
                         <div className="mt-4 text-center text-xs text-muted font-mono">Telemetry synced from active Deals pipeline</div>
                     </div>
                 )}
+
+                {/* Security & Access */}
+                <div className="profile-card border-none bg-[rgba(239,68,68,0.05)] shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                    <h3 className="section-title mb-4 pb-2 border-b border-danger/30 font-bold text-danger flex items-center gap-2">
+                        <ShieldCheck size={18} /> Security & Authentication
+                    </h3>
+
+                    <div className="form-group mb-4">
+                        <label>Update Password</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="password"
+                                className="fillable-input w-full"
+                                placeholder="Enter new password..."
+                                id="newPasswordInput"
+                            />
+                            <button
+                                className="btn btn-secondary border-danger text-danger hover:bg-danger/20 whitespace-nowrap"
+                                onClick={async () => {
+                                    const input = document.getElementById('newPasswordInput');
+                                    if (!input.value || input.value.length < 6) {
+                                        alert('Password must be at least 6 characters.');
+                                        return;
+                                    }
+                                    const { error } = await supabase.auth.updateUser({ password: input.value });
+                                    if (error) {
+                                        alert('Failed to update password: ' + error.message);
+                                    } else {
+                                        alert('Security key successfully updated.');
+                                        input.value = '';
+                                    }
+                                }}
+                            >
+                                Update Key
+                            </button>
+                        </div>
+                        <p className="text-xs text-muted mt-2">Required after initializing an Emergency Override via the forgot password flow.</p>
+                    </div>
+                </div>
 
                 {/* Global Plan Governance */}
                 <div className="profile-card border-none bg-[rgba(99,102,241,0.05)] shadow-[0_0_15px_rgba(99,102,241,0.1)]">

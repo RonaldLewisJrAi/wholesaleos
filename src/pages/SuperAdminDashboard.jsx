@@ -46,8 +46,8 @@ const SuperAdminDashboard = () => {
     const [users] = useState([
         {
             id: 'u-1',
-            email: 'ronald_lewis_jr@live.com',
-            name: 'Ronald Lewis',
+            email: 'admin@wholesale-os.com',
+            name: 'Platform Admin',
             org: 'Wholesale Mavericks LLC',
             primaryPersona: 'WHOLESALER',
             role: 'ADMIN',

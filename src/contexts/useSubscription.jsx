@@ -47,10 +47,10 @@ export const SubscriptionProvider = ({ children }) => {
                     if (orgData.subscription_status) setSubscriptionStatus(orgData.subscription_status);
                 }
 
-                // Phase 30: Fetch dynamic Personas from Profile
+                // Phase 30 & 33.1: Fetch dynamic Personas and Server-Enforced Roles from Profile
                 const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
-                    .select('primary_persona, allowed_personas')
+                    .select('primary_persona, allowed_personas, system_role')
                     .eq('id', user.id)
                     .single();
 
@@ -59,7 +59,12 @@ export const SubscriptionProvider = ({ children }) => {
                         setPrimaryPersona(profileData.primary_persona);
                         setCurrentViewPersona(profileData.primary_persona);
                     }
-                    if (profileData.allowed_personas) {
+                    if (profileData.system_role === 'SUPER_ADMIN') {
+                        // Backend-enforced absolute power
+                        setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ADMIN']);
+                        setSubscriptionTier('SUPER');
+                        setSubscriptionStatus('ACTIVE');
+                    } else if (profileData.allowed_personas) {
                         setAllowedPersonas(profileData.allowed_personas);
                     }
                 }
