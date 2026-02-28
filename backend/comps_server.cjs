@@ -59,13 +59,16 @@ const requireSubscription = async (req, res, next) => {
 
         const { data: profile } = await supabaseAdmin
             .from('profiles')
-            .select('system_role')
+            .select('system_role, primary_persona')
             .eq('id', userId)
             .single();
 
-        if (profile && profile.system_role === 'SUPER_ADMIN') {
-            req.isSuperAdmin = true;
-            return next();
+        if (profile) {
+            req.primaryPersona = profile.primary_persona;
+            if (profile.system_role === 'SUPER_ADMIN') {
+                req.isSuperAdmin = true;
+                return next();
+            }
         }
 
         const { data: userOrg } = await supabaseAdmin

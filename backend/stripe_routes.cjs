@@ -18,8 +18,8 @@ router.post('/create-checkout-session', express.json(), async (req, res) => {
     try {
         const { priceId, userEmail, userId, tier, tosAccepted } = req.body;
 
-        if (!priceId || !userEmail || !userId) {
-            return res.status(400).json({ error: 'Missing required parameters.' });
+        if (!priceId || !userEmail || !userId || !tier) {
+            return res.status(400).json({ error: 'Missing required parameters. Subscription tier must be explicitly selected.' });
         }
 
         if (String(tosAccepted) !== 'true') {
@@ -40,7 +40,7 @@ router.post('/create-checkout-session', express.json(), async (req, res) => {
             // Map the Supabase User ID to the Stripe Session metadata for webhook retrieval
             metadata: {
                 supabase_user_id: userId,
-                subscription_tier: tier || 'SUPER',
+                subscription_tier: tier,
                 tos_accepted: tosAccepted ? 'true' : 'false'
             },
             success_url: `${process.env.VITE_SITE_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}&success=true`,

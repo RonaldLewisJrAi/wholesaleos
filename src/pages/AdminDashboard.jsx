@@ -11,6 +11,7 @@ const AdminDashboard = () => {
             name: 'Platform Admin',
             tier: 'SUPER',
             status: 'Active',
+            persona: 'ADMIN',
             docCount: 142,
             revenue: '$3,000',
             signupDate: '2026-01-15',
@@ -22,8 +23,9 @@ const AdminDashboard = () => {
             id: 'u-2',
             email: 'investor_john@example.com',
             name: 'John Smith',
-            tier: 'ADVANCED',
+            tier: 'PRO',
             status: 'Active',
+            persona: 'INVESTOR',
             docCount: 18,
             revenue: '$1,500',
             signupDate: '2026-02-01',
@@ -37,6 +39,7 @@ const AdminDashboard = () => {
             name: 'Sarah Jenkins',
             tier: 'BASIC',
             status: 'Suspended',
+            persona: 'WHOLESALER',
             docCount: 5,
             revenue: '$100',
             signupDate: '2026-02-10',
@@ -65,8 +68,12 @@ const AdminDashboard = () => {
 
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const handleAction = (userId, action) => {
-        alert(`Admin Action: [${action}] executed on User ID: ${userId}. Normally this would fire an API call to bypass RLS.`);
+    const handleAction = (userId, action, value = null) => {
+        if (action === 'Assign Persona') {
+            alert(`Admin Action: [${action} -> ${value}] executed on User ID: ${userId}. Backend enforces DB IMMUTABILITY constraints.`);
+        } else {
+            alert(`Admin Action: [${action}] executed on User ID: ${userId}. Normally this would fire an API call to bypass RLS.`);
+        }
     };
 
     const toggleScraperStatus = (id) => {
@@ -109,8 +116,8 @@ const AdminDashboard = () => {
                         <thead>
                             <tr>
                                 <th>User / Email</th>
-                                <th>Tier</th>
-                                <th>Status</th>
+                                <th>Role</th>
+                                <th>Tier / Status</th>
                                 <th>Doc Usage</th>
                                 <th>Revenue</th>
                                 <th>Last Login / IP</th>
@@ -126,10 +133,13 @@ const AdminDashboard = () => {
                                         <div className="text-[10px] text-muted mt-1 font-mono">ID: {user.id}</div>
                                     </td>
                                     <td>
-                                        <span className={`tier-badge tier-${user.tier.toLowerCase()}`}>{user.tier}</span>
+                                        <div className="text-sm font-bold tracking-wide text-primary">{user.persona}</div>
                                     </td>
                                     <td>
-                                        <span className={`status-badge status-${user.status.toLowerCase()}`}>{user.status}</span>
+                                        <div className="flex flex-col gap-1 items-start">
+                                            <span className={`tier-badge tier-${user.tier.toLowerCase()}`}>{user.tier}</span>
+                                            <span className={`status-badge status-${user.status.toLowerCase()}`}>{user.status}</span>
+                                        </div>
                                     </td>
                                     <td>
                                         <div className="font-mono">{user.docCount} <span className="text-muted text-xs">generated</span></div>
@@ -158,6 +168,22 @@ const AdminDashboard = () => {
                                                     </button>
                                                     <button className="dropdown-item" onClick={() => handleAction(user.id, 'Manual Stripe Sync')}>
                                                         <CreditCard size={14} /> Force Stripe Sync
+                                                    </button>
+                                                    <div className="dropdown-divider"></div>
+                                                    <div className="dropdown-header text-left">
+                                                        <span className="text-xs font-bold text-muted uppercase tracking-wider">Identity Controls</span>
+                                                    </div>
+                                                    <button className="dropdown-item" onClick={() => handleAction(user.id, 'Assign Persona', 'INVESTOR')}>
+                                                        <Users size={14} /> Assign Persona: INVESTOR
+                                                    </button>
+                                                    <button className="dropdown-item" onClick={() => handleAction(user.id, 'Assign Persona', 'WHOLESALER')}>
+                                                        <Users size={14} /> Assign Persona: WHOLESALER
+                                                    </button>
+                                                    <button className="dropdown-item" onClick={() => handleAction(user.id, 'Assign Persona', 'REALTOR')}>
+                                                        <Users size={14} /> Assign Persona: REALTOR
+                                                    </button>
+                                                    <button className="dropdown-item text-danger" onClick={() => handleAction(user.id, 'Assign Persona', 'NONE')}>
+                                                        <Ban size={14} /> Strip Persona (NONE)
                                                     </button>
                                                     <div className="dropdown-divider"></div>
                                                     <div className="dropdown-header text-left">

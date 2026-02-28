@@ -21,6 +21,11 @@ router.post('/blast/sms', blastLimiter, async (req, res) => {
     const activeTier = req.organization?.subscription_tier;
     const isDemoMode = !req.isSuperAdmin && (!activeTier || activeTier === 'DEMO');
 
+    // Persona Enforcement: Only Wholesalers and Super Admins can execute Disposition Blasts
+    if (req.primaryPersona !== 'WHOLESALER' && !req.isSuperAdmin) {
+        return res.status(403).json({ error: 'Persona Violation: Only WHOLESALER profiles can execute Disposition Blasts.' });
+    }
+
     if (!propertyId || !buyerIds || !Array.isArray(buyerIds)) {
         return res.status(400).json({ error: 'Invalid payload. Property ID and an array of Buyer IDs are required.' });
     }
@@ -56,6 +61,11 @@ router.post('/blast/email', blastLimiter, async (req, res) => {
     // Server-enforced Demo Check
     const activeTier = req.organization?.subscription_tier;
     const isDemoMode = !req.isSuperAdmin && (!activeTier || activeTier === 'DEMO');
+
+    // Persona Enforcement: Only Wholesalers and Super Admins can execute Disposition Blasts
+    if (req.primaryPersona !== 'WHOLESALER' && !req.isSuperAdmin) {
+        return res.status(403).json({ error: 'Persona Violation: Only WHOLESALER profiles can execute Disposition Blasts.' });
+    }
 
     if (!propertyId || !buyerIds || !Array.isArray(buyerIds)) {
         return res.status(400).json({ error: 'Invalid payload. Property ID and an array of Buyer IDs are required.' });
