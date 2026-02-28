@@ -118,60 +118,61 @@ const UnlockLiveModeModal = ({ isOpen, onClose }) => {
                             <p className="text-muted text-sm mt-2">You are currently viewing simulated demo data. Upgrade to connect your live property feeds and CRM.</p>
                         </div>
 
-                        <div className="pricing-tiers flex flex-col gap-2 mb-6 bg-[rgba(0,0,0,0.1)] p-4 rounded-xl border border-[var(--border-light)]">
-                            <div className="grid grid-cols-4 gap-2 text-sm text-center font-bold pb-2 border-b border-[var(--border-light)] text-muted">
-                                <div className="text-left font-bold text-white uppercase tracking-wider text-xs pt-1">Features</div>
-                                <div className={`cursor-pointer pb-2 ${selectedTier === 'starter' ? 'text-primary border-b-2 border-primary' : 'hover:text-gray-300 transition-colors'}`} onClick={() => setSelectedTier('starter')}>Basic<div className="text-lg text-white">$100</div></div>
-                                <div className={`cursor-pointer pb-2 ${selectedTier === 'pro' ? 'text-accent border-b-2 border-accent' : 'hover:text-gray-300 transition-colors'}`} onClick={() => setSelectedTier('pro')}>Pro<div className="text-lg text-white">$500</div></div>
-                                <div className={`cursor-pointer pb-2 ${selectedTier === 'super' ? 'text-purple-400 border-b-2 border-purple-400' : 'hover:text-gray-300 transition-colors'}`} onClick={() => setSelectedTier('super')}>Super<div className="text-lg text-white">$1k</div></div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            {/* Starter Card */}
+                            <div
+                                className={`pricing-card flex flex-col p-6 rounded-xl border-2 transition-all cursor-pointer ${selectedTier === 'starter' ? 'border-primary bg-primary/10 scale-105 shadow-lg shadow-primary/20 z-10' : 'border-[var(--border-light)] bg-black/20 hover:border-gray-500 opacity-70 hover:opacity-100'}`}
+                                onClick={() => setSelectedTier('starter')}
+                            >
+                                <h3 className="text-xl font-bold mb-1">Starter</h3>
+                                <div className="text-3xl font-black text-white mb-2">$100<span className="text-sm font-normal text-muted">/mo</span></div>
+                                <p className="text-xs text-muted mb-6 min-h-[40px]">Perfect for solo wholesalers getting started with data acquisition.</p>
+                                <ul className="text-sm space-y-3 mb-6 flex-1">
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>25</strong> Live Scrape Leads</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>1</strong> Team Seat</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span>Wholesaler Persona</span></li>
+                                    <li className="flex gap-2 items-center text-muted"><X size={16} className="shrink-0" /> <span>No API Access</span></li>
+                                    <li className="flex gap-2 items-center text-muted"><X size={16} className="shrink-0" /> <span>No Webhooks</span></li>
+                                </ul>
+                                <div className={`mt-auto py-2.5 text-center rounded-lg text-sm font-bold transition-colors ${selectedTier === 'starter' ? 'bg-primary text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}>Select Starter</div>
                             </div>
 
-                            {/* CRM Limits */}
-                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
-                                <div className="text-left font-medium text-gray-400">Live Scraping Leads</div>
-                                <div className="text-center font-mono">25 / mo</div>
-                                <div className="text-center text-accent font-bold">Unlimited</div>
-                                <div className="text-center text-purple-400 font-bold">Unlimited</div>
+                            {/* Pro Card */}
+                            <div
+                                className={`pricing-card flex flex-col p-6 rounded-xl border-2 transition-all cursor-pointer relative ${selectedTier === 'pro' ? 'border-accent bg-accent/10 scale-105 shadow-lg shadow-accent/20 z-10' : 'border-[var(--border-light)] bg-black/20 hover:border-gray-500 opacity-70 hover:opacity-100'}`}
+                                onClick={() => setSelectedTier('pro')}
+                            >
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap shadow-sm">MOST POPULAR</div>
+                                <h3 className="text-xl font-bold mb-1">Pro</h3>
+                                <div className="text-3xl font-black text-white mb-2">$500<span className="text-sm font-normal text-muted">/mo</span></div>
+                                <p className="text-xs text-muted mb-6 min-h-[40px]">Scale your operation with multiple seats, CRM integration, and API access.</p>
+                                <ul className="text-sm space-y-3 mb-6 flex-1">
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>Unlimited</strong> Scraping</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>3</strong> Team Seats</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span>Wholesaler & Investor</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span>Read-Only API</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>5</strong> Webhook Targets</span></li>
+                                </ul>
+                                <div className={`mt-auto py-2.5 text-center rounded-lg text-sm font-bold transition-colors ${selectedTier === 'pro' ? 'bg-accent text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}>Select Pro</div>
                             </div>
 
-                            {/* Seat Limits */}
-                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
-                                <div className="text-left font-medium text-gray-400">Team Seats</div>
-                                <div className="text-center font-mono">1 Seat</div>
-                                <div className="text-center text-accent font-bold">3 Seats</div>
-                                <div className="text-center text-purple-400 font-bold">10 Seats</div>
-                            </div>
-
-                            {/* Persona Access */}
-                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
-                                <div className="text-left font-medium text-gray-400">Persona Access</div>
-                                <div className="text-center">Wholesaler Only</div>
-                                <div className="text-center text-accent font-bold">+ Investor</div>
-                                <div className="text-center text-purple-400 font-bold">All Personas</div>
-                            </div>
-
-                            {/* API Access */}
-                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
-                                <div className="text-left font-medium text-gray-400">API Generation</div>
-                                <div className="text-center text-gray-600">-</div>
-                                <div className="text-center text-accent font-bold">Read-Only API</div>
-                                <div className="text-center text-purple-400 font-bold">Full Read/Write</div>
-                            </div>
-
-                            {/* Integrations */}
-                            <div className="grid grid-cols-4 gap-2 text-xs py-2 border-b border-[var(--border-light)] hover:bg-[rgba(255,255,255,0.02)] items-center">
-                                <div className="text-left font-medium text-gray-400">Integrations (Webhooks)</div>
-                                <div className="text-center text-gray-600">-</div>
-                                <div className="text-center text-accent font-bold">Max 5 Targets</div>
-                                <div className="text-center text-purple-400 font-bold">Unlimited</div>
-                            </div>
-
-                            {/* Predictive Intelligence */}
-                            <div className="grid grid-cols-4 gap-2 text-xs py-3 hover:bg-[rgba(255,255,255,0.02)] items-center">
-                                <div className="text-left font-medium text-gray-400">Predictive Intelligence</div>
-                                <div className="text-center text-gray-600">-</div>
-                                <div className="text-center text-gray-600">-</div>
-                                <div className="text-center text-purple-400 font-bold">Risk Matrices + AI</div>
+                            {/* Super Card */}
+                            <div
+                                className={`pricing-card flex flex-col p-6 rounded-xl border-2 transition-all cursor-pointer ${selectedTier === 'super' ? 'border-purple-500 bg-purple-500/10 scale-105 shadow-lg shadow-purple-500/20 z-10' : 'border-[var(--border-light)] bg-black/20 hover:border-gray-500 opacity-70 hover:opacity-100'}`}
+                                onClick={() => setSelectedTier('super')}
+                            >
+                                <h3 className="text-xl font-bold mb-1 text-purple-400">Super</h3>
+                                <div className="text-3xl font-black text-white mb-2">$1k<span className="text-sm font-normal text-muted">/mo</span></div>
+                                <p className="text-xs text-muted mb-6 min-h-[40px]">Complete ecosystem access for enterprise teams needing raw power and AI.</p>
+                                <ul className="text-sm space-y-3 mb-6 flex-1">
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>Unlimited</strong> Scraping</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>10</strong> Team Seats</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>All</strong> Personas</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span>Full Read/Write API</span></li>
+                                    <li className="flex gap-2 items-center"><CheckCircle size={16} className="text-success shrink-0" /> <span><strong>Unlimited</strong> Webhooks</span></li>
+                                    <li className="flex gap-2 items-center font-semibold text-purple-300"><Zap size={16} className="text-warning fill-warning shrink-0" /> <span>Predictive Intelligence</span></li>
+                                </ul>
+                                <div className={`mt-auto py-2.5 text-center rounded-lg text-sm font-bold transition-colors ${selectedTier === 'super' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}>Select Super</div>
                             </div>
                         </div>
 
