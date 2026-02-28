@@ -3,13 +3,7 @@ import { Building, Target, Calculator, Headphones, ChevronDown, Lock } from 'luc
 import { useSubscription } from '../contexts/useSubscription';
 
 const WorkspaceSwitcher = () => {
-    const { subscriptionTier, activePersona, setActivePersona } = useSubscription();
-
-    // Mock User Profile Data - In reality, fetch from context or props
-    const [profile] = useState({
-        primaryPersona: 'WHOLESALER',
-        allowedPersonas: ['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT']
-    });
+    const { subscriptionTier, currentViewPersona, setCurrentViewPersona, allowedPersonas } = useSubscription();
 
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -28,7 +22,7 @@ const WorkspaceSwitcher = () => {
     }, []);
 
     // Hide the switcher completely if not allowed or if BASIC tier
-    if (isBasicTier || profile.allowedPersonas.length <= 1) {
+    if (isBasicTier || !allowedPersonas || allowedPersonas.length <= 1) {
         return null;
     }
 
@@ -40,18 +34,18 @@ const WorkspaceSwitcher = () => {
     };
 
     const handleSwitch = (persona) => {
-        if (!profile.allowedPersonas.includes(persona)) {
+        if (!allowedPersonas.includes(persona)) {
             alert('Your account is not authorized for this workspace.');
             return;
         }
 
-        setActivePersona(persona);
+        setCurrentViewPersona(persona);
         setIsOpen(false);
         // Dispatch custom event so the Sidebar layout can react to the persona swap
         window.dispatchEvent(new CustomEvent('personaChanged', { detail: { persona } }));
     };
 
-    const activeConfig = personas[activePersona];
+    const activeConfig = personas[currentViewPersona] || personas['WHOLESALER'];
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -75,8 +69,8 @@ const WorkspaceSwitcher = () => {
                     </div>
                     <div className="p-1">
                         {Object.entries(personas).map(([key, config]) => {
-                            const isAllowed = profile.allowedPersonas.includes(key);
-                            const isActive = key === activePersona;
+                            const isAllowed = allowedPersonas.includes(key);
+                            const isActive = key === currentViewPersona;
 
                             return (
                                 <button

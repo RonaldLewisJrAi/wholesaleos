@@ -38,11 +38,11 @@ const StatCard = ({ title, value, change, icon: Icon, trend }) => (
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const { activePersona } = useSubscription();
+    const { currentViewPersona } = useSubscription();
 
-    if (activePersona === 'INVESTOR') return <InvestorDashboard />;
-    if (activePersona === 'REALTOR') return <RealtorDashboard />;
-    if (activePersona === 'VIRTUAL_ASSISTANT') return <VADashboard />;
+    if (currentViewPersona === 'INVESTOR') return <InvestorDashboard />;
+    if (currentViewPersona === 'REALTOR') return <RealtorDashboard />;
+    if (currentViewPersona === 'VIRTUAL_ASSISTANT') return <VADashboard />;
 
     return (
         <div className="dashboard-container animate-fade-in">

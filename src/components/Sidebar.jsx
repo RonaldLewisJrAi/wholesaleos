@@ -10,7 +10,7 @@ import './Sidebar.css';
 import logoUrl from '../assets/logo.png';
 
 const Sidebar = () => {
-    const { activePersona } = useSubscription();
+    const { currentViewPersona } = useSubscription();
 
     const personaNavs = {
         'WHOLESALER': [
@@ -49,7 +49,7 @@ const Sidebar = () => {
         ]
     };
 
-    const navItems = personaNavs[activePersona] || personaNavs['WHOLESALER'];
+    const navItems = personaNavs[currentViewPersona] || personaNavs['WHOLESALER'];
 
     return (
         <aside className="sidebar glass-panel">

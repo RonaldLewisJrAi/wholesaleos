@@ -8,7 +8,9 @@ export const SubscriptionProvider = ({ children }) => {
     const { user } = useAuth();
     // Default tier is 'BASIC', 'PRO', 'SUPER'
     const [subscriptionTier, setSubscriptionTier] = useState('PRO'); // Default fallback
-    const [activePersona, setActivePersona] = useState('WHOLESALER');
+    const [primaryPersona, setPrimaryPersona] = useState('WHOLESALER');
+    const [allowedPersonas, setAllowedPersonas] = useState(['WHOLESALER']);
+    const [currentViewPersona, setCurrentViewPersona] = useState('WHOLESALER'); // What the user is actively viewing as
     // Phase 31.5 Status: 'ACTIVE', 'GRACE_PERIOD', 'PAST_DUE', 'PAUSED', 'CANCELED', 'TERMINATED'
     const [subscriptionStatus, setSubscriptionStatus] = useState('ACTIVE');
     const [loadingSub, setLoadingSub] = useState(true);
@@ -44,6 +46,23 @@ export const SubscriptionProvider = ({ children }) => {
                     if (orgData.subscription_tier) setSubscriptionTier(orgData.subscription_tier);
                     if (orgData.subscription_status) setSubscriptionStatus(orgData.subscription_status);
                 }
+
+                // Phase 30: Fetch dynamic Personas from Profile
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('primary_persona, allowed_personas')
+                    .eq('id', user.id)
+                    .single();
+
+                if (!profileError && profileData) {
+                    if (profileData.primary_persona) {
+                        setPrimaryPersona(profileData.primary_persona);
+                        setCurrentViewPersona(profileData.primary_persona);
+                    }
+                    if (profileData.allowed_personas) {
+                        setAllowedPersonas(profileData.allowed_personas);
+                    }
+                }
             } catch (err) {
                 console.error("Failed to fetch dynamic subscription data:", err);
             } finally {
@@ -57,7 +76,8 @@ export const SubscriptionProvider = ({ children }) => {
     return (
         <SubscriptionContext.Provider value={{
             subscriptionTier, setSubscriptionTier,
-            activePersona, setActivePersona,
+            primaryPersona, allowedPersonas,
+            currentViewPersona, setCurrentViewPersona,
             subscriptionStatus, setSubscriptionStatus,
             loadingSub
         }}>

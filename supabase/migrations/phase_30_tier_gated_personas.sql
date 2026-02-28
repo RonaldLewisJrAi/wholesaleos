@@ -23,9 +23,10 @@ ADD CONSTRAINT user_organizations_role_check CHECK (role IN ('ADMIN', 'MANAGER',
 -- =======================================================
 -- 2. PROFILES: PERSONA ASSIGNMENT
 -- =======================================================
--- Ensure the profiles table exists (it was implied in previous phases or used auth.users directly)
+-- Ensure the profiles table is fully updated to the massive Phase 30 schema
+DROP TABLE IF EXISTS public.profiles CASCADE;
 CREATE TABLE IF NOT EXISTS profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY REFERENCES auth.users (id) ON DELETE CASCADE,
     first_name TEXT,
     last_name TEXT,
     company TEXT,
@@ -58,7 +59,7 @@ CREATE TABLE IF NOT EXISTS call_tracking (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
-    caller_user_id UUID REFERENCES auth.users(id) ON DELETE
+    caller_user_id UUID REFERENCES auth.users (id) ON DELETE
     SET NULL,
         call_timestamp TIMESTAMPTZ DEFAULT NOW(),
         call_outcome TEXT CHECK (
@@ -79,7 +80,7 @@ CREATE TABLE IF NOT EXISTS deal_offers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     deal_id UUID REFERENCES deals(id) ON DELETE CASCADE,
-    investor_user_id UUID REFERENCES auth.users(id) ON DELETE
+    investor_user_id UUID REFERENCES auth.users (id) ON DELETE
     SET NULL,
         offer_amount NUMERIC(15, 2) NOT NULL,
         contingencies TEXT,
@@ -94,9 +95,9 @@ CREATE TABLE IF NOT EXISTS referrals (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
-    referred_by_user_id UUID REFERENCES auth.users(id) ON DELETE
+    referred_by_user_id UUID REFERENCES auth.users (id) ON DELETE
     SET NULL,
-        referred_to_realtor_id UUID REFERENCES auth.users(id) ON DELETE
+        referred_to_realtor_id UUID REFERENCES auth.users (id) ON DELETE
     SET NULL,
         referral_fee_pct NUMERIC(5, 2) DEFAULT 25.0,
         status TEXT DEFAULT 'pending' CHECK (
@@ -110,9 +111,9 @@ CREATE TABLE IF NOT EXISTS assignment_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     deal_id UUID REFERENCES deals(id) ON DELETE CASCADE,
-    wholesaler_id UUID REFERENCES auth.users(id) ON DELETE
+    wholesaler_id UUID REFERENCES auth.users (id) ON DELETE
     SET NULL,
-        end_buyer_id UUID REFERENCES auth.users(id) ON DELETE
+        end_buyer_id UUID REFERENCES auth.users (id) ON DELETE
     SET NULL,
         gross_assignment_fee NUMERIC(15, 2),
         closing_date DATE,
