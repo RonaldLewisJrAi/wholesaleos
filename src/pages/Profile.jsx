@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Building, MapPin, DollarSign, Percent, Save, Camera, Target, Calculator, Headphones, ShieldCheck } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
+import { useDemoMode } from '../contexts/DemoModeContext';
 import { supabase } from '../lib/supabase';
 import './Profile.css';
 
@@ -17,6 +18,7 @@ const Profile = () => {
     });
 
     const { subscriptionTier, allowedPersonas } = useSubscription();
+    const { isDemoMode } = useDemoMode();
 
     // Investor Buy Box State
     const [buyBox, setBuyBox] = useState({
@@ -156,6 +158,20 @@ const Profile = () => {
 
     if (allowedPersonas?.includes('ADMIN')) {
         personaConfigs.push({ id: 'ADMIN', label: 'Master Admin', icon: ShieldCheck });
+    }
+
+    const isMasterAdmin = profile.email === 'ronald_lewis_jr@live.com' || allowedPersonas?.includes('ADMIN');
+
+    if (isDemoMode) {
+        return (
+            <div className="profile-container animate-fade-in flex items-center justify-center min-h-[60vh]">
+                <div className="glass-panel p-8 text-center max-w-md bg-[var(--surface-dark)] border border-[var(--border-light)] rounded-xl">
+                    <ShieldCheck size={48} className="text-warning mx-auto mb-4" />
+                    <h2 className="text-2xl font-bold mb-2 text-white">Restricted Access</h2>
+                    <p className="text-muted mb-6">User Profiles are completely disabled in Demo Mode for security purposes. Please log in or upgrade to an active SaaS tier to access your personalized configuration.</p>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -320,38 +336,51 @@ const Profile = () => {
                         <p className="text-muted mt-1"><strong className="text-white">Active Plan:</strong> <span className="badge bg-primary/20 text-primary border border-primary/50 ml-2">{subscriptionTier}</span></p>
                     </div>
 
-                    <div className="pricing-tiers mt-6">
-                        <div className={`pricing-card ${subscriptionTier === 'BASIC' ? 'active border-primary bg-primary/10' : ''}`} style={{ padding: '16px' }}>
-                            <div className="text-left w-full">
-                                <h3 className="font-bold text-lg mb-1">Starter</h3>
-                                <div className="price font-bold text-2xl mb-2">$100<span className="text-xs font-normal text-muted">/mo</span></div>
-                            </div>
+                    {isMasterAdmin ? (
+                        <div className="mt-6 p-6 bg-[rgba(0,0,0,0.3)] border border-danger/50 rounded-xl relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-danger"></div>
+                            <h3 className="font-bold text-xl text-white mb-2 flex items-center gap-2">
+                                <ShieldCheck className="text-danger" /> System Architect (God-Mode)
+                            </h3>
+                            <p className="text-muted">You are recognized natively as the Creator and Author of the Wholesale OS platform.</p>
+                            <p className="text-muted mt-2">All billing constraints, persona limits, and payment walls in this ecosystem are permanently bypassed for your account via native SQL database elevation.</p>
                         </div>
+                    ) : (
+                        <>
+                            <div className="pricing-tiers mt-6">
+                                <div className={`pricing-card ${subscriptionTier === 'BASIC' ? 'active border-primary bg-primary/10' : ''}`} style={{ padding: '16px' }}>
+                                    <div className="text-left w-full">
+                                        <h3 className="font-bold text-lg mb-1">Starter</h3>
+                                        <div className="price font-bold text-2xl mb-2">$100<span className="text-xs font-normal text-muted">/mo</span></div>
+                                    </div>
+                                </div>
 
-                        <div className={`pricing-card recommended ${subscriptionTier === 'ADVANCED' ? 'active border-warning bg-warning/10' : ''}`} style={{ padding: '16px' }}>
-                            {subscriptionTier === 'ADVANCED' ? <div className="recommend-badge bg-success/20 text-success border border-success">ACTIVE SUBSCRIPTION</div> : <div className="recommend-badge">RECOMMENDED</div>}
-                            <div className="text-left w-full mt-2">
-                                <h3 className="font-bold text-lg mb-1 text-primary">Pro Team</h3>
-                                <div className="price font-bold text-2xl mb-2">$500<span className="text-xs font-normal text-muted">/mo</span></div>
+                                <div className={`pricing-card recommended ${subscriptionTier === 'ADVANCED' ? 'active border-warning bg-warning/10' : ''}`} style={{ padding: '16px' }}>
+                                    {subscriptionTier === 'ADVANCED' ? <div className="recommend-badge bg-success/20 text-success border border-success">ACTIVE SUBSCRIPTION</div> : <div className="recommend-badge">RECOMMENDED</div>}
+                                    <div className="text-left w-full mt-2">
+                                        <h3 className="font-bold text-lg mb-1 text-primary">Pro Team</h3>
+                                        <div className="price font-bold text-2xl mb-2">$500<span className="text-xs font-normal text-muted">/mo</span></div>
+                                    </div>
+                                </div>
+
+                                <div className={`pricing-card ${subscriptionTier === 'SUPER' ? 'active border-accent bg-accent/10' : ''}`} style={{ padding: '16px' }}>
+                                    {subscriptionTier === 'SUPER' && <div className="recommend-badge bg-success/20 text-success border border-success">MAXIMUM ACCESS</div>}
+                                    <div className="text-left w-full mt-2">
+                                        <h3 className="font-bold text-lg mb-1 text-accent">Super Admin</h3>
+                                        <div className="price font-bold text-2xl mb-2">$1,000<span className="text-xs font-normal text-muted">/mo</span></div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className={`pricing-card ${subscriptionTier === 'SUPER' ? 'active border-accent bg-accent/10' : ''}`} style={{ padding: '16px' }}>
-                            {subscriptionTier === 'SUPER' && <div className="recommend-badge bg-success/20 text-success border border-success">MAXIMUM ACCESS</div>}
-                            <div className="text-left w-full mt-2">
-                                <h3 className="font-bold text-lg mb-1 text-accent">Super Admin</h3>
-                                <div className="price font-bold text-2xl mb-2">$1,000<span className="text-xs font-normal text-muted">/mo</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button
-                        className="btn btn-secondary border-primary text-primary hover:bg-primary/20 w-full mt-6 py-3 disabled:opacity-50"
-                        onClick={handleCheckout}
-                        disabled={isSaving}
-                    >
-                        {isSaving ? 'Processing Secure Redirect...' : 'Manage Stripe Billing & Add-Ons'}
-                    </button>
+                            <button
+                                className="btn btn-secondary border-primary text-primary hover:bg-primary/20 w-full mt-6 py-3 disabled:opacity-50"
+                                onClick={handleCheckout}
+                                disabled={isSaving}
+                            >
+                                {isSaving ? 'Processing Secure Redirect...' : 'Manage Stripe Billing & Add-Ons'}
+                            </button>
+                        </>
+                    )}
                 </div>
 
             </div>
