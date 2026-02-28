@@ -6,6 +6,7 @@ const RedisStore = require('rate-limit-redis').default || require('rate-limit-re
 const Redis = require('ioredis');
 const stripeRoutes = require('./stripe_routes.cjs');
 const documentRoutes = require('./document_routes.cjs');
+const dispositionRoutes = require('./disposition_routes.cjs');
 
 // Initialize Redis for Comps Data Caching
 const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
@@ -18,6 +19,7 @@ app.use(cors());
 app.use('/api/stripe', stripeRoutes);
 app.use(express.json());
 app.use('/api/documents', documentRoutes);
+app.use('/api/disposition', dispositionRoutes);
 
 const PORT = 3001;
 

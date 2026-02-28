@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { X, FileText, Users, Wrench, Send, Link, Zap, Activity } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useDemoMode } from '../contexts/DemoModeContext';
 import RehabEstimator from './RehabEstimator';
 import './DealPacketModal.css';
 
@@ -12,22 +14,54 @@ const mockCashBuyers = [
 ];
 
 const DealPacketModal = ({ isOpen, onClose, property }) => {
+    const { isDemoMode } = useDemoMode();
     const [activeTab, setActiveTab] = useState('overview');
     const [isGenerating, setIsGenerating] = useState(false);
     const [rehabTotal, setRehabTotal] = useState(null);
     const [isPreviewing, setIsPreviewing] = useState(false);
 
-    // Simulated Buyer Matching Engine (Phase 10)
-    const matchedBuyers = React.useMemo(() => {
-        if (!property || !isOpen) return [];
+    const [matchedBuyers, setMatchedBuyers] = useState([]);
+    const [isLoadingBuyers, setIsLoadingBuyers] = useState(false);
 
-        // In a real app, this queries the backend buyer_criteria table via Supabase RPC
-        // Using property.id and buyer.id to generate deterministic mock scores (fixes impure function lint)
-        return mockCashBuyers.map(buyer => {
-            const score = 70 + ((property.id * buyer.id * 17) % 30); // Pseudo-random 70-99
-            return { ...buyer, matchScore: score };
-        }).sort((a, b) => b.matchScore - a.matchScore);
-    }, [property, isOpen]);
+    // Live Supabase Buyer Matching Engine (Phase 10)
+    React.useEffect(() => {
+        if (!property || !isOpen) return;
+
+        let isMounted = true;
+        const fetchBuyers = async () => {
+            setIsLoadingBuyers(true);
+            try {
+                if (isDemoMode) {
+                    const mockMatches = mockCashBuyers.map(buyer => {
+                        const score = 70 + (((property.id || 1) * buyer.id * 17) % 30);
+                        return { ...buyer, matchScore: score };
+                    }).sort((a, b) => b.matchScore - a.matchScore);
+                    if (isMounted) setMatchedBuyers(mockMatches);
+                } else {
+                    const extractedZip = property.address?.match(/\b\d{5}\b/) ? property.address.match(/\b\d{5}\b/)[0] : '37206';
+                    const propEquity = property.arv > 0 ? ((property.arv - (property.mao || 0)) / property.arv) * 100 : 0;
+
+                    const { data, error } = await supabase.rpc('get_matching_buyers', {
+                        p_zip_code: extractedZip,
+                        p_equity: propEquity,
+                        p_property_type: 'SFR', // Defaulting to SFR since not explicitly captured
+                        p_asking_price: property.mao || 0
+                    });
+
+                    if (error) throw error;
+                    if (isMounted) setMatchedBuyers(data || []);
+                }
+            } catch (err) {
+                console.error("Match Engine Error", err);
+                if (isMounted) setMatchedBuyers([]);
+            } finally {
+                if (isMounted) setIsLoadingBuyers(false);
+            }
+        };
+
+        fetchBuyers();
+        return () => { isMounted = false; };
+    }, [property, isOpen, isDemoMode]);
 
     if (!property) return null;
 
@@ -49,8 +83,37 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
         setIsPreviewing(false);
     };
 
-    const handleBlast = (method) => {
-        alert(`${method} Blast Initiated.\nSending packet to ${matchedBuyers.length} VIP matched buyers...`);
+    const handleBlast = async (method) => {
+        if (matchedBuyers.length === 0) {
+            return alert('No matched buyers found for this property.');
+        }
+
+        const confirmBlast = window.confirm(`Initiate ${method} Blast to ${matchedBuyers.length} VIP buyers?`);
+        if (!confirmBlast) return;
+
+        try {
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const endpoint = method === 'SMS' ? '/api/disposition/blast/sms' : '/api/disposition/blast/email';
+
+            const res = await fetch(`${baseUrl}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    propertyId: property.id,
+                    buyerIds: matchedBuyers.map(b => b.contact_id || b.id),
+                    message: method === 'SMS' ? `Hot off-market deal in ${property.address}. Call us now.` : undefined,
+                    subject: method === 'Email' ? `Exclusive Deal Packet: ${property.address}` : undefined,
+                    htmlContent: method === 'Email' ? `<p>Please review the enclosed Deal Packet for ${property.address}.</p>` : undefined,
+                    isDemoMode
+                })
+            });
+
+            const data = await res.json();
+            alert(data.message || `${method} Blast Successful!`);
+        } catch (err) {
+            console.error('Blast Error', err);
+            alert(`Failed to dispatch ${method} blast payload to proxy relay.`);
+        }
     };
 
     const handleRehabSave = (total) => {
@@ -186,17 +249,27 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
                     {activeTab === 'buyers' && (
                         <div className="tab-pane animate-fade-in">
                             <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 flex-between">
-                                VIP Matches <span className="badge bg-primary text-xs">{matchedBuyers.length} Found</span>
+                                VIP Matches
+                                {isLoadingBuyers ? (
+                                    <span className="badge bg-[rgba(255,255,255,0.1)] text-xs text-muted animate-pulse">Calculating...</span>
+                                ) : (
+                                    <span className="badge bg-primary text-xs">{matchedBuyers.length} Found</span>
+                                )}
                             </h3>
                             <div className="buyer-match-list">
                                 {matchedBuyers.map(buyer => (
-                                    <div key={buyer.id} className="buyer-match-card">
+                                    <div key={buyer.id || buyer.contact_id} className="buyer-match-card">
                                         <div className="buyer-info">
                                             <div className="name">{buyer.name}</div>
-                                            <div className="criteria">Min Equity: {buyer.minEquity}% • Prefers: {buyer.zipCodes[0]}</div>
+                                            <div className="criteria flex flex-wrap gap-x-2">
+                                                <span>Min Equity: {buyer.min_equity || buyer.minEquity || 0}%</span>
+                                                <span className="text-muted">•</span>
+                                                <span>{buyer.phone}</span>
+                                                {buyer.email && <> <span className="text-muted">•</span> <span>{buyer.email}</span> </>}
+                                            </div>
                                         </div>
                                         <div className="match-score-badge">
-                                            <Activity size={14} /> {buyer.matchScore}% Match
+                                            <Activity size={14} /> {buyer.matchScore || buyer.match_score}% Match
                                         </div>
                                     </div>
                                 ))}
