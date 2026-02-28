@@ -83,6 +83,12 @@ const Properties = () => {
     const [isLiveFinderModalOpen, setIsLiveFinderModalOpen] = useState(false);
     const [liveFinderInput, setLiveFinderInput] = useState('');
     const [isScraping, setIsScraping] = useState(false);
+    const [acceptedTermsApify, setAcceptedTermsApify] = useState(false);
+
+    // Zillow Import Modal State
+    const [isZillowModalOpen, setIsZillowModalOpen] = useState(false);
+    const [zillowUrlInput, setZillowUrlInput] = useState('');
+    const [acceptedTermsZillow, setAcceptedTermsZillow] = useState(false);
 
     // Action Modal States
     const [selectedPropertyForPacket, setSelectedPropertyForPacket] = useState(null);
@@ -160,7 +166,16 @@ const Properties = () => {
         }
     };
 
-    const handleZillowImport = async () => {
+    const handleOpenZillowModal = () => {
+        setIsZillowModalOpen(true);
+        setZillowUrlInput('');
+        setAcceptedTermsZillow(false);
+    };
+
+    const handleZillowImport = async (e) => {
+        e.preventDefault();
+        if (!zillowUrlInput || !acceptedTermsZillow) return;
+
         // Quota Check for Scrapes
         if (!isDemoMode && user?.id) {
             try {
@@ -173,6 +188,7 @@ const Properties = () => {
                 const data = await res.json();
                 if (!res.ok || !data.allowed) {
                     alert(data.error || "Monthly scrape limit exceeded.");
+                    setIsZillowModalOpen(false);
                     return;
                 }
             } catch (err) {
@@ -180,10 +196,8 @@ const Properties = () => {
             }
         }
 
-        const url = window.prompt("Enter Zillow Property URL:");
-        if (!url) return;
-
         setIsImporting(true);
+        setIsZillowModalOpen(false);
         try {
             await new Promise(resolve => setTimeout(resolve, 1500));
             const scrapedAddress = 'Scraped Property: ' + Math.floor(Math.random() * 9999) + ' Zillow Ln';
@@ -215,7 +229,7 @@ const Properties = () => {
 
     const handleLiveFinder = async (e) => {
         e.preventDefault();
-        if (!liveFinderInput) return;
+        if (!liveFinderInput || !acceptedTermsApify) return;
 
         // Quota Check for Scrapes
         if (!isDemoMode && user?.id) {
@@ -271,34 +285,89 @@ const Properties = () => {
                         <Database size={16} /> Live Finder
                     </button>
                     <button className="btn btn-secondary" onClick={() => alert("Opening Advanced Property Filters...")}><Filter size={16} /> Filter</button>
-                    <button className="btn btn-primary" onClick={handleZillowImport} disabled={isImporting}>
+                    <button className="btn btn-primary" onClick={handleOpenZillowModal} disabled={isImporting}>
                         <Plus size={16} /> {isImporting ? 'Importing...' : 'Import from Zillow'}
                     </button>
                 </div>
             </div>
+
+            {isZillowModalOpen && (
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '600px', width: '90%', padding: '24px', position: 'relative' }}>
+                        <div className="flex-between mb-4 pb-4 border-b border-[var(--border-light)]">
+                            <h2 className="text-xl font-bold flex items-center gap-2"><Database size={24} className="text-primary" /> Zillow Direct Import</h2>
+                            <button className="icon-btn-small" onClick={() => setIsZillowModalOpen(false)}><X size={20} /></button>
+                        </div>
+
+                        <p className="text-sm text-muted mb-6">Instantly extract public property records, tax histories, and high-resolution media directly from Zillow into your Wholesale OS CRM.</p>
+
+                        <form onSubmit={handleZillowImport}>
+                            <input
+                                type="url"
+                                className="fillable-input w-full mb-4"
+                                placeholder="Paste Zillow URL (e.g. https://www.zillow.com/homedetails/...)"
+                                value={zillowUrlInput}
+                                onChange={(e) => setZillowUrlInput(e.target.value)}
+                                required
+                            />
+
+                            <label className="flex items-start gap-3 cursor-pointer mb-6 p-4 bg-[rgba(255,100,100,0.05)] border border-[rgba(255,100,100,0.2)] rounded-lg">
+                                <input
+                                    type="checkbox"
+                                    className="mt-1 flex-shrink-0 cursor-pointer accent-primary"
+                                    checked={acceptedTermsZillow}
+                                    onChange={(e) => setAcceptedTermsZillow(e.target.checked)}
+                                />
+                                <span className="text-xs text-muted leading-tight">
+                                    I verify that I am authorized to query this data for personal business use and assume all liability for data usage. I have read and accept the Wholesale OS <a href="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</a> and Data Scraping Liability Waiver.
+                                </span>
+                            </label>
+
+                            <button type="submit" className="btn btn-primary w-full" disabled={!zillowUrlInput || !acceptedTermsZillow}>
+                                Extract Property Data
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {isLiveFinderModalOpen && (
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '600px', width: '90%', padding: '24px', position: 'relative' }}>
                         <div className="flex-between mb-4 pb-4 border-b border-[var(--border-light)]">
                             <h2 className="text-xl font-bold flex items-center gap-2"><Database size={24} className="text-primary" /> Live Finder Engine</h2>
-                            <button className="icon-btn-small" onClick={() => { setIsLiveFinderModalOpen(false); setLiveFinderInput(''); }}><X size={20} /></button>
+                            <button className="icon-btn-small" onClick={() => { setIsLiveFinderModalOpen(false); setLiveFinderInput(''); setAcceptedTermsApify(false); }}><X size={20} /></button>
                         </div>
 
                         <p className="text-sm text-muted mb-4">Initialize a headless browser on Apify's residential proxy network to scrape live For Sale By Owner leads for a target area.</p>
 
-                        <form onSubmit={handleLiveFinder} className="flex gap-2 mb-6">
-                            <input
-                                type="text"
-                                className="fillable-input flex-1"
-                                placeholder="Enter Target City or Zip Code (e.g. Nashville, TN or 37206)"
-                                value={liveFinderInput}
-                                onChange={(e) => setLiveFinderInput(e.target.value)}
-                                disabled={isScraping}
-                            />
-                            <button type="submit" className="btn btn-primary" disabled={isScraping || !liveFinderInput}>
-                                {isScraping ? 'Searching...' : 'Initiate Radar'}
-                            </button>
+                        <form onSubmit={handleLiveFinder}>
+                            <div className="flex gap-2 mb-4">
+                                <input
+                                    type="text"
+                                    className="fillable-input flex-1"
+                                    placeholder="Enter Target City or Zip Code (e.g. Nashville, TN or 37206)"
+                                    value={liveFinderInput}
+                                    onChange={(e) => setLiveFinderInput(e.target.value)}
+                                    disabled={isScraping}
+                                />
+                                <button type="submit" className="btn btn-primary" disabled={isScraping || !liveFinderInput || !acceptedTermsApify}>
+                                    {isScraping ? 'Searching...' : 'Initiate Radar'}
+                                </button>
+                            </div>
+
+                            <label className="flex items-start gap-3 cursor-pointer p-3 bg-[rgba(255,100,100,0.05)] border border-[rgba(255,100,100,0.2)] rounded-lg">
+                                <input
+                                    type="checkbox"
+                                    className="mt-1 flex-shrink-0 cursor-pointer accent-primary"
+                                    checked={acceptedTermsApify}
+                                    onChange={(e) => setAcceptedTermsApify(e.target.checked)}
+                                    disabled={isScraping}
+                                />
+                                <span className="text-xs text-muted leading-tight">
+                                    I verify that I am authorized to query this data for personal business use and assume all liability for data usage. I have read and accept the Wholesale OS <a href="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</a> and Data Scraping Liability Waiver.
+                                </span>
+                            </label>
                         </form>
 
                         {isScraping && (

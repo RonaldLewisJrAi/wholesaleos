@@ -15,6 +15,8 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import { DemoModeProvider } from './contexts/DemoModeContext';
 import { SubscriptionProvider } from './contexts/useSubscription';
 import { AuthProvider } from './contexts/useAuth';
@@ -43,6 +45,8 @@ function App() {
                 <Route path="integrations" element={<Settings />} />
                 <Route path="admin" element={<AdminDashboard />} />
                 <Route path="super-admin" element={<SuperAdminDashboard />} />
+                <Route path="terms" element={<TermsOfService />} />
+                <Route path="privacy" element={<PrivacyPolicy />} />
               </Route>
             </Routes>
           </BrowserRouter>
