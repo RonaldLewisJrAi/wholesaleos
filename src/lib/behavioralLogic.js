@@ -14,7 +14,12 @@ export const getAcquisitionPrimaryAction = (leads) => {
             actionType: 'GENERATE_OFFER',
             urgency: 'critical',
             targetId: hotLeads[0].id,
-            description: `Lead motivation score indicates immediate action required. Heat: ${hotLeads[0].heat_score}`
+            description: `Lead motivation score indicates immediate action required. Heat: ${hotLeads[0].heat_score}`,
+            reasoning: [
+                { category: 'Data Input', detail: `Heat Score = ${hotLeads[0].heat_score} (Threshold > 75)` },
+                { category: 'Trigger Source', detail: 'Market Velocity Algorithm' },
+                { category: 'Risk Weight', detail: 'Opportunity Loss (High)' }
+            ]
         };
     }
 
@@ -31,7 +36,12 @@ export const getAcquisitionPrimaryAction = (leads) => {
             actionType: 'FOLLOW_UP',
             urgency: 'high',
             targetId: dueFollowUps[0].id,
-            description: `Lead requires contact. Overdue by schedule.`
+            description: `Lead requires contact. Overdue by schedule.`,
+            reasoning: [
+                { category: 'Data Input', detail: `Last Contact: ${dueFollowUps[0].last_contact_date || 'Never'}` },
+                { category: 'Trigger Source', detail: 'Follow-Up SLA' },
+                { category: 'Risk Weight', detail: 'Relationship Decay (Medium)' }
+            ]
         };
     }
 
@@ -40,12 +50,34 @@ export const getAcquisitionPrimaryAction = (leads) => {
         label: 'Prospect New Leads',
         actionType: 'PROSPECT',
         urgency: 'normal',
-        description: 'No immediate critical actions. Focus on outbound pipeline generation.'
+        description: 'No immediate critical actions. Focus on outbound pipeline generation.',
+        reasoning: [
+            { category: 'Trigger Source', detail: 'System Default' },
+            { category: 'Risk Weight', detail: 'None' }
+        ]
     };
 };
 
 // Disposition Persona Logic
 export const getDispositionPrimaryAction = (activeDeals) => {
+    // NEW LOGIC: Priority 1 is Deal Discipline Score (DDS)
+    const indisciplinedDeals = activeDeals?.filter(d => d.deal_discipline_score !== null && d.deal_discipline_score !== undefined && d.deal_discipline_score < 60);
+
+    if (indisciplinedDeals && indisciplinedDeals.length > 0) {
+        return {
+            label: `Fix Operational Discipline: ${indisciplinedDeals[0].property_address || 'Deal'}`,
+            actionType: 'FIX_DISCIPLINE',
+            urgency: 'critical',
+            targetId: indisciplinedDeals[0].id,
+            description: `DDS is critically low (${indisciplinedDeals[0].deal_discipline_score}/100).`,
+            reasoning: [
+                { category: 'Data Input', detail: `Deal Discipline Score = ${indisciplinedDeals[0].deal_discipline_score}` },
+                { category: 'Trigger Source', detail: 'Operational Guardrails Engine' },
+                { category: 'Risk Weight', detail: 'Legal/Compliance (Critical)' }
+            ]
+        };
+    }
+
     // 1. Check for aging under-contract deals that need buyers
     const agingDeals = activeDeals?.filter(d => {
         if (d.current_stage !== 'Under Contract') return false;
@@ -59,17 +91,24 @@ export const getDispositionPrimaryAction = (activeDeals) => {
             actionType: 'BLAST',
             urgency: 'critical',
             targetId: agingDeals[0].id,
-            description: `Deal aging > 14 days. Immediate disposition required.`
+            description: `Deal aging > 14 days. Immediate disposition required.`,
+            reasoning: [
+                { category: 'Data Input', detail: `Stage: Under Contract. Updated: ${new Date(agingDeals[0].updated_at).toLocaleDateString()}` },
+                { category: 'Trigger Source', detail: 'Asset Liquidity Timer' },
+                { category: 'Risk Weight', detail: 'Contract Expiration (High)' }
+            ]
         };
     }
 
     // 2. Check for high liquidity matches
-    // (Simulated logic: in reality, would cross-reference deal specs with buyer criteria)
     return {
         label: 'Review Buyer Matches',
         actionType: 'MATCHMAKING',
         urgency: 'normal',
-        description: 'Review system-suggested connections for active inventory.'
+        description: 'Review system-suggested connections for active inventory.',
+        reasoning: [
+            { category: 'Trigger Source', detail: 'Pattern Matching Engine' }
+        ]
     };
 };
 
@@ -83,8 +122,13 @@ export const getCompliancePrimaryAction = (flags) => {
             label: `Resolve Blockers (${criticalFlags.length})`,
             actionType: 'RESOLVE_FLAGS',
             urgency: 'critical',
-            targetId: criticalFlags[0].id,
-            description: `High legal risk detected. EMD missing or unsigned disclosures.`
+            targetId: criticalFlags[0].deal_id,
+            description: `High legal risk detected. ${criticalFlags[0].description}`,
+            reasoning: [
+                { category: 'Data Input', detail: `Unresolved Flag: ${criticalFlags[0].flag_type}` },
+                { category: 'Trigger Source', detail: 'Risk Evaluation Engine' },
+                { category: 'Risk Weight', detail: 'Legal Hazard (Critical)' }
+            ]
         };
     }
 
@@ -92,6 +136,9 @@ export const getCompliancePrimaryAction = (flags) => {
         label: 'Run System Audit',
         actionType: 'AUDIT',
         urgency: 'normal',
-        description: 'All clear. Maintain escrow timelines.'
+        description: 'All clear. Maintain escrow timelines.',
+        reasoning: [
+            { category: 'Trigger Source', detail: 'System Default' }
+        ]
     };
 };

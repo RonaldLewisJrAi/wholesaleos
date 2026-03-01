@@ -1,0 +1,24 @@
+--- STARTING INGESTION STRESS TEST ---
+Generating 5000 mocked pipeline rows...
+Starting Chunked Inserts (Batch size: 500)
+[+] Chunk 1 Success in 267ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 2 Success in 154ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 3 Success in 129ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 4 Success in 110ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 5 Success in 121ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 6 Success in 117ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 7 Success in 126ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 8 Success in 106ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 9 Success in 129ms for 500 rows. (Triggers executed efficiently)
+[+] Chunk 10 Success in 112ms for 500 rows. (Triggers executed efficiently)
+
+--- INGESTION TEST RESULTS ---
+Total Execution Time: 1.38 seconds
+Total Rows Processed: 5000
+Total Successful:     5000
+Total Failed:         0
+
+VERDICT: STABLE - Postgres handled the concurrent trigger pipeline smoothly.
+
+Sweeping test data from the leads table...
+Cleanup complete.

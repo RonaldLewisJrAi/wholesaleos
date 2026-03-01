@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import WorkstationWireframe from '../../components/WorkstationWireframe';
 import { supabase } from '../../lib/supabase';
 import { Users, Server, ShieldCheck, Zap } from 'lucide-react';
@@ -12,11 +12,14 @@ const AdminDashboard = () => {
         const fetchTelemetry = async () => {
             if (!supabase) return;
             try {
-                // Mock robust data for God-Mode
+                // Mock robust data for God-Mode & Integrity
                 setMetrics({
                     totalUsers: 1420,
                     activeOrgs: 85,
-                    totalDeals: 3450
+                    totalDeals: 3450,
+                    avgDealDisciplineScore: 84,
+                    dealsMissingEMD: 12,
+                    totalOverridesLogged: 47
                 });
             } catch (err) {
                 console.error("Telemetry failed:", err);
@@ -38,9 +41,9 @@ const AdminDashboard = () => {
 
     // 2. Define Top 3 KPIs
     const kpis = [
-        { title: 'Total Profiles', value: metrics.totalUsers.toLocaleString() },
-        { title: 'Active Organizations', value: metrics.activeOrgs.toLocaleString() },
-        { title: 'Total Deal Volume', value: metrics.totalDeals.toLocaleString() }
+        { title: 'Avg Discipline Score', value: `${metrics.avgDealDisciplineScore}/100` },
+        { title: 'Deals Lacking EMD', value: metrics.dealsMissingEMD.toString() },
+        { title: 'Overrides Logged', value: metrics.totalOverridesLogged.toString() }
     ];
 
     // 3. Define Automation/Routing rules
@@ -101,6 +104,17 @@ const AdminDashboard = () => {
                         <div>
                             <h5 className="font-bold text-white group-hover:text-success transition-colors">Audit Organization Roles</h5>
                             <p className="text-xs text-muted mt-1">Scan for orphaned accounts and invalid persona allocations.</p>
+                        </div>
+                    </button>
+
+                    {/* Phase 15: Operational Integrity Dashboard Node */}
+                    <button className="glass-panel p-4 border border-warning/30 rounded-lg flex flex-col items-start gap-4 hover:border-warning/70 transition-colors text-left group">
+                        <div className="p-2 rounded bg-warning/10 text-warning">
+                            <ShieldCheck size={20} />
+                        </div>
+                        <div>
+                            <h5 className="font-bold text-white group-hover:text-warning transition-colors">Operational Integrity Logs</h5>
+                            <p className="text-xs text-muted mt-1">Review ledger of all skipped validations, forced deletions, and MAO violations.</p>
                         </div>
                     </button>
                 </div>

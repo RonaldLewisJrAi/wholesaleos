@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import {
     LayoutDashboard, Map, KanbanSquare, Users, FileText, Calculator,
     ShieldCheck, Activity, Calendar as CalendarIcon, Target, Search, FolderHeart,
-    List, Briefcase, Inbox, PhoneCall, ListTodo, CheckSquare, Settings
+    List, Briefcase, Inbox, PhoneCall, ListTodo, CheckSquare, Settings, Table
 } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import './Sidebar.css';
@@ -21,6 +21,7 @@ const Sidebar = () => {
             { name: 'Pipeline', path: '/pipeline', icon: <KanbanSquare size={20} /> },
             { name: 'CRM (Leads & Buyers)', path: '/crm', icon: <Users size={20} /> },
             { name: 'Documents', path: '/documents', icon: <FileText size={20} /> },
+            { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
             { name: 'Calculators', path: '/calculators', icon: <Calculator size={20} /> },
             { name: 'Compliance', path: '/compliance', icon: <ShieldCheck size={20} /> },
             { name: 'Integration & API', path: '/integrations', icon: <Settings size={20} /> },
@@ -30,6 +31,7 @@ const Sidebar = () => {
             { name: 'Match Feed', path: '/match-feed', icon: <Target size={20} /> },
             { name: 'My Criteria', path: '/criteria', icon: <Search size={20} /> },
             { name: 'Saved Deals', path: '/saved', icon: <FolderHeart size={20} /> },
+            { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
             { name: 'Offers Submitted', path: '/offers', icon: <Briefcase size={20} /> },
             { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
         ],
@@ -72,6 +74,7 @@ const Sidebar = () => {
         ],
         'ADMIN': [
             { name: 'Admin Command', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+            { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
             { name: 'API & Webhooks', path: '/settings', icon: <Settings size={20} /> },
             { name: 'Team Roster', path: '/crm', icon: <Users size={20} /> },
             { name: 'System Logs', path: '/logs', icon: <List size={20} /> }

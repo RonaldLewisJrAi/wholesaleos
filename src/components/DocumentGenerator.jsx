@@ -5,9 +5,11 @@ import SignatureCanvas from 'react-signature-canvas';
 import { supabase } from '../lib/supabase';
 import { X, Download, PenTool, CheckCircle, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
+import { useSubscription } from '../contexts/useSubscription';
 
 const DocumentGenerator = ({ dealData, onClose }) => {
     const { user } = useAuth();
+    const { subscriptionTier } = useSubscription();
     const [isGenerating, setIsGenerating] = useState(false);
     const [signatureData, setSignatureData] = useState(null);
     const [ipAddress, setIpAddress] = useState('Fetching...');
@@ -89,10 +91,10 @@ const DocumentGenerator = ({ dealData, onClose }) => {
                 await supabase.from('activity_logs').insert([{
                     organization_id: dealData.organization_id,
                     user_id: user.id,
-                    action_type: 'document_generated',
+                    action: 'document_generated',
                     entity_type: 'deals',
                     entity_id: dealData.id,
-                    metadata: {
+                    details: {
                         document_type: documentType,
                         ip_address: ipAddress,
                         timestamp: new Date().toISOString(),
@@ -233,13 +235,21 @@ const DocumentGenerator = ({ dealData, onClose }) => {
                     </button>
                 </div>
 
-                {/* Right Panel: Document Preview (This is what gets converted to PDF) */}
                 <div className="w-full md:w-2/3 p-4 md:p-8 bg-gray-100 overflow-y-auto" style={{ maxHeight: '90vh' }}>
                     <div
                         ref={documentRef}
-                        className="bg-white mx-auto shadow-sm p-12 text-black"
+                        className="bg-white mx-auto shadow-sm p-12 text-black relative"
                         style={{ width: '816px', minHeight: '1056px', fontFamily: '"Times New Roman", Times, serif' }} // Standard Letter Size 8.5x11 @ 96dpi
                     >
+                        {/* Subscription Gated Watermark */}
+                        {subscriptionTier === 'BASIC' && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0" style={{ opacity: 0.08 }}>
+                                <span className="font-sans text-[120px] font-black tracking-widest uppercase text-gray-500" style={{ transform: 'rotate(-45deg)', whiteSpace: 'nowrap' }}>
+                                    WHOLESALE OS BASIC
+                                </span>
+                            </div>
+                        )}
+
                         {/* Header */}
                         <div className="text-center mb-10 border-b-2 border-black pb-4">
                             <h1 className="text-3xl font-bold uppercase tracking-widest">{documentType}</h1>

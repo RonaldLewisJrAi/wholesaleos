@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Settings, MoreHorizontal, Edit2, Trash2, Zap, Clock, DollarSign, Target, CheckCircle } from 'lucide-react';
+import { Plus, Settings, MoreHorizontal, Edit2, Trash2, Zap, Clock, DollarSign, Target, CheckCircle, Shield, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { calculateAssignmentFeeRange, calculateBuyerDemandIndex, estimateTimeToClose, calculateDealProbability } from '../lib/DealIntelligence';
 import { useSubscription } from '../contexts/useSubscription';
@@ -264,16 +264,68 @@ const Pipeline = () => {
         }
     };
 
-    const handleDeleteDeal = (stageId, dealId, currentAddress) => {
-        const confirmDelete = window.confirm(`Are you sure you want to delete ${currentAddress}?`);
-        if (confirmDelete) {
-            setStages(prevStages => prevStages.map(stage => {
-                if (stage.id === stageId) {
-                    return { ...stage, deals: stage.deals.filter(d => d.id !== dealId) };
-                }
-                return stage;
-            }));
+    const handleDeleteDeal = async (stageId, dealId, currentAddress) => {
+        const confirmPrimary = window.confirm(`Initiating deletion of Deal: ${currentAddress}. Are you sure?`);
+        if (!confirmPrimary) return;
+
+        const confirmSecondary = window.prompt(`[OPERATIONAL GUARDRAILS]\nTo explicitly bypass security and delete ${currentAddress}, type "DELETE":`);
+        if (confirmSecondary !== "DELETE") {
+            alert("Deletion aborted. Operational guardrails kept deal intact.");
+            return;
         }
+
+        if (supabase) {
+            try {
+                await supabase.from('activity_logs').insert([{
+                    organization_id: 'placeholder-org',
+                    user_id: 'system', // or auth context
+                    action_type: 'deal_deleted_override',
+                    entity_type: 'deals',
+                    entity_id: dealId,
+                    metadata: { reason: "Manual 2-step override", address: currentAddress }
+                }]);
+            } catch (e) { console.error("Could not write delete log.", e); }
+        }
+
+        setStages(prevStages => prevStages.map(stage => {
+            if (stage.id === stageId) {
+                return { ...stage, deals: stage.deals.filter(d => d.id !== dealId) };
+            }
+            return stage;
+        }));
+    };
+
+    const handleMoveDeal = (currentStageId, deal) => {
+        const targetStageName = window.prompt(`Move Deal: ${deal.address}\n\nAvailable stages: Underwriting, Under Contract, Disposition\nEnter target stage name:`);
+        if (!targetStageName) return;
+
+        const normalizedInput = targetStageName.trim().toLowerCase();
+
+        // Guardrail 1: Cannot assign/dispose without EMD
+        if (normalizedInput === 'disposition' || normalizedInput === 'assigned') {
+            if (!deal.tags?.includes('EMD Cleared') && !deal.emd_amount) {
+                alert(`🛑 OPERATIONAL BLOCK: Cannot move ${deal.address} to Disposition. Earnest Money Deposit (EMD) is legally required beforehand.`);
+                return;
+            }
+        }
+
+        const targetStage = stages.find(s => s.title.toLowerCase() === normalizedInput);
+        if (!targetStage) {
+            alert(`Stage "${targetStageName}" not found.`);
+            return;
+        }
+
+        if (targetStage.id === currentStageId) return;
+
+        setStages(prevStages => prevStages.map(stage => {
+            if (stage.id === currentStageId) {
+                return { ...stage, deals: stage.deals.filter(d => d.id !== deal.id) };
+            }
+            if (stage.id === targetStage.id) {
+                return { ...stage, deals: [deal, ...stage.deals] };
+            }
+            return stage;
+        }));
     };
 
     return (
@@ -308,9 +360,10 @@ const Pipeline = () => {
                                     <div key={deal.id} className="deal-card">
                                         <div className="deal-card-header flex-between">
                                             <span className="deal-address">{deal.address}</span>
-                                            <div className="deal-actions">
+                                            <div className="deal-actions flex items-center gap-1">
+                                                <button className="icon-btn-small text-blue-400" onClick={() => handleMoveDeal(stage.id, deal)} title="Move Stage"><ArrowRight size={14} /></button>
                                                 <button className="icon-btn-small text-success" onClick={() => handleCloseDeal(stage.id, deal)} title="Close Deal & Log Analytics"><CheckCircle size={14} /></button>
-                                                <button className="icon-btn-small" onClick={() => handleEditDeal(stage.id, deal.id, deal.address, deal.value)} title="Edit Deal"><Edit2 size={14} /></button>
+                                                <button className="icon-btn-small text-gray-400" onClick={() => handleEditDeal(stage.id, deal.id, deal.address, deal.value)} title="Edit Deal"><Edit2 size={14} /></button>
                                                 <button className="icon-btn-small text-danger" onClick={() => handleDeleteDeal(stage.id, deal.id, deal.address)} title="Delete Deal"><Trash2 size={14} /></button>
                                             </div>
                                         </div>
@@ -346,14 +399,35 @@ const Pipeline = () => {
                                                             <span className="flex items-center gap-1"><Target size={12} /> DPS:</span>
                                                             <span className={`font-bold ${probColor}`}>{probScore}%</span>
                                                         </div>
-                                                        <div className="flex-between text-xs text-muted">
+                                                // Deal Discipline Score
+                                                const dds = deal.deal_discipline_score ?? 100;
+                                                const ddsColor = dds >= 80 ? 'text-green-400 bg-green-500/10 border-green-500/30' : 
+                                                                 dds >= 60 ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' : 
+                                                                 'text-red-400 bg-red-500/10 border-red-500/30';
+
+                                                return (
+                                                    <>
+                                                        <div className="flex-between text-xs font-semibold mb-1">
+                                                            <span className="flex items-center gap-1"><DollarSign size={12} /> AFR:</span>
+                                                            <span className="text-success">{feePrediction.formatted}</span>
+                                                        </div>
+                                                        <div className="flex-between text-xs text-muted mb-1">
+                                                            <span className="flex items-center gap-1"><Clock size={12} /> ETTC:</span>
+                                                            <span>{ettc} Days</span>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-2 mt-2">
+                                                            <div className="flex items-center justify-between text-[10px] bg-black/40 border border-white/10 p-1.5 rounded">
+                                                                <span className="flex items-center gap-1 text-gray-400"><Target size={10} /> DPS</span>
+                                                                <span className={`font-bold ${probColor}`}>{probScore}%</span>
+                                                            </div>
+                                                            <div className={`flex items-center justify-between text-[10px] border p-1.5 rounded ${ddsColor}`}>
+                                                                <span className="flex items-center gap-1"><Shield size={10} /> DDS</span>
+                                                                <span className="font-bold">{dds}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-between text-xs text-muted mt-2">
                                                             <span className="flex items-center gap-1"><Zap size={12} /> Heat:</span>
                                                             <span className={`badge ${heatBg} ${heatColor} px-1 rounded-sm text-[10px]`}>{deal.bdiScore || "Calculating..."}</span>
-                                                        </div>
-                                                        <div className="mt-2 text-center">
-                                                            <span className="inline-block bg-warning/10 text-warning text-[9px] px-1.5 py-0.5 rounded border border-warning/20 font-mono tracking-tighter">
-                                                                ⚠️ BETA AI: &lt;50 DEALS LOGGED
-                                                            </span>
                                                         </div>
                                                     </>
                                                 )
@@ -376,11 +450,11 @@ const Pipeline = () => {
                             </div>
                             <button className="add-deal-btn" onClick={() => handleAddDeal(stage.id)}>+ New Deal</button>
                         </div>
-                    ))
+                            ))
                 )}
-            </div>
+                        </div>
         </div>
-    );
+            );
 };
 
-export default Pipeline;
+            export default Pipeline;

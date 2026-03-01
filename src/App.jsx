@@ -26,6 +26,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ProxyComponent from './pages/Workstations/ProxyComponent';
+import Spreadsheets from './pages/Workstations/Spreadsheets';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
                     <Route path="calendar" element={<CalendarView />} />
                     <Route path="compliance" element={<Compliance />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="spreadsheets" element={<Spreadsheets />} />
 
                     {/* Phase 35: Inter-Persona Placeholder Routes */}
                     <Route path="match-feed" element={<ProxyComponent moduleName="Deal Match Feed" />} />

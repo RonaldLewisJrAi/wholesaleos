@@ -1,0 +1,21 @@
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    color: #9ca3af;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-tab:hover {
+    color: #e5e7eb;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-tab.active {
+    color: #fff;
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}

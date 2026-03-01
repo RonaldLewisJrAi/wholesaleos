@@ -2,6 +2,8 @@ import React from 'react';
 import { Lightbulb, Target, TrendingDown, AlertTriangle } from 'lucide-react';
 
 const IntelligentOfferSuggestions = ({ leadData, intelligentData }) => {
+    const [customOffer, setCustomOffer] = React.useState('');
+
     if (!leadData || !intelligentData) return null;
 
     // intelligentData maps to the `vw_intelligent_offer_suggestions` postgres view
@@ -12,6 +14,15 @@ const IntelligentOfferSuggestions = ({ leadData, intelligentData }) => {
         heat_score,
         negotiation_strategy
     } = intelligentData;
+
+    const handleGenerateContract = (amount) => {
+        if (amount > mao) {
+            alert(`🛑 OPERATIONAL BLOCK: Cannot generate an offer of $${amount.toLocaleString()} because it exceeds the Maximum Allowable Offer (MAO) ceiling of $${mao.toLocaleString()}. Intelligence guardrails engaged.`);
+            // Phase 43: Optionally log event to intelligence logs here
+            return;
+        }
+        alert(`Contract generated for $${amount.toLocaleString()}!`);
+    };
 
     return (
         <div className="card glass-panel bg-gradient-to-br from-primary/10 to-transparent border-primary/30 p-5 mt-6">
@@ -61,11 +72,33 @@ const IntelligentOfferSuggestions = ({ leadData, intelligentData }) => {
                 </div>
             </div>
 
-            <div className="mt-6 flex gap-3">
-                <button className="btn btn-primary text-xs py-1.5 flex-1">Generate Contract at Low Anchor</button>
-                <button className="btn btn-secondary text-xs py-1.5 flex-1">Generate Contract at Standard</button>
+            <div className="mt-6 flex flex-col gap-3">
+                <div className="flex gap-3">
+                    <button onClick={() => handleGenerateContract(conservative_offer)} className="btn btn-primary text-xs py-1.5 flex-1 hover:bg-white hover:text-black">Generate at Low Anchor</button>
+                    <button onClick={() => handleGenerateContract(aggressive_offer)} className="btn btn-secondary text-xs py-1.5 flex-1">Generate at Standard</button>
+                </div>
+
+                <div className="flex gap-2 items-center bg-black/40 p-2 rounded border border-white/10 mt-2">
+                    <span className="text-xs text-muted font-bold ml-2">CUSTOM OFFER:</span>
+                    <input
+                        type="number"
+                        placeholder="Enter amount..."
+                        className="bg-transparent border-b border-white/20 text-white text-sm px-2 py-1 outline-none w-32 focus:border-primary transition-colors"
+                        value={customOffer}
+                        onChange={(e) => setCustomOffer(e.target.value)}
+                    />
+                    <button
+                        onClick={() => {
+                            if (!customOffer) return;
+                            handleGenerateContract(Number(customOffer));
+                        }}
+                        className="btn btn-secondary text-xs py-1 ml-auto"
+                    >
+                        Generate custom
+                    </button>
+                </div>
             </div>
-        </div>
+        </div >
     );
 };
 
