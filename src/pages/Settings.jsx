@@ -44,11 +44,15 @@ const Settings = () => {
     // Sync external DB configuration into local controlled inputs when it loads
     useEffect(() => {
         if (twilioInt?.config) {
-            setTwilioSid(prev => prev || twilioInt.config.account_sid || '');
-            setTwilioToken(prev => prev || twilioInt.config.auth_token || '');
+            setTimeout(() => {
+                setTwilioSid(prev => prev || twilioInt.config.account_sid || '');
+                setTwilioToken(prev => prev || twilioInt.config.auth_token || '');
+            }, 0);
         }
         if (sendgridInt?.config) {
-            setSendgridApiKey(prev => prev || sendgridInt.config.api_key || '');
+            setTimeout(() => {
+                setSendgridApiKey(prev => prev || sendgridInt.config.api_key || '');
+            }, 0);
         }
     }, [twilioInt, sendgridInt]);
 

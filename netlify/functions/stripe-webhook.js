@@ -31,7 +31,7 @@ export default async (req) => {
         auth: { autoRefreshToken: false, persistSession: false }
     });
 
-    const { data: existingEvent, error: checkError } = await supabaseAdmin
+    const { data: existingEvent } = await supabaseAdmin
         .from('processed_stripe_events')
         .select('event_id')
         .eq('event_id', event.id)

@@ -1,5 +1,4 @@
 /* eslint-env node */
-/* global process */
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -18,12 +17,12 @@ if (!supabaseUrl || !supabaseKey) {
     process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const _supabase = createClient(supabaseUrl, supabaseKey);
 
 async function applyMigrations() {
     try {
         console.log("Reading Phase 31 SQL Migration...");
-        const phase31Sql = fs.readFileSync(path.resolve(__dirname, '../supabase/migrations/phase_31_integrations_infrastructure.sql'), 'utf-8');
+        const _phase31Sql = fs.readFileSync(path.resolve(__dirname, '../supabase/migrations/phase_31_integrations_infrastructure.sql'), 'utf-8');
 
         console.log("Executing Phase 31 against Supabase...");
         // Since Supabase JS doesn't have a direct 'exec' for raw SQL strings easily, 

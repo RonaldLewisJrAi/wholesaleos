@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         if (!supabase) {
             console.warn("Supabase client is null. Missing environment variables. Running in Unauthenticated Mode.");
-            setLoadingAuth(false);
+            setTimeout(() => setLoadingAuth(false), 0);
             return;
         }
 

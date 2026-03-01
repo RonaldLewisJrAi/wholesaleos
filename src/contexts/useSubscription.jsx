@@ -9,7 +9,7 @@ export const SubscriptionProvider = ({ children }) => {
     // Default tier is 'BASIC', 'PRO', 'SUPER'
     const [subscriptionTier, setSubscriptionTier] = useState('PRO'); // Default fallback
     const [primaryPersona, setPrimaryPersona] = useState('WHOLESALER');
-    const [allowedPersonas, setAllowedPersonas] = useState(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT']);
+    const [allowedPersonas, setAllowedPersonas] = useState(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST']);
     const [currentViewPersona, setCurrentViewPersona] = useState('WHOLESALER'); // What the user is actively viewing as
     // Phase 31.5 Status: 'ACTIVE', 'GRACE_PERIOD', 'PAST_DUE', 'PAUSED', 'CANCELED', 'TERMINATED'
     const [subscriptionStatus, setSubscriptionStatus] = useState('ACTIVE');
@@ -61,7 +61,7 @@ export const SubscriptionProvider = ({ children }) => {
                     }
                     if (profileData.system_role === 'SUPER_ADMIN') {
                         // Backend-enforced absolute power
-                        setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ADMIN']);
+                        setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
                         setSubscriptionTier('SUPER');
                         setSubscriptionStatus('ACTIVE');
                     } else if (profileData.allowed_personas) {

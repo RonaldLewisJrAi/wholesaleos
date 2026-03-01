@@ -42,7 +42,7 @@ const Signup = () => {
 
         try {
             // First: Create auth identity
-            const { error: signUpError } = await supabase.auth.signUp({
+            const { data: authData, error: signUpError } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
                 options: {
@@ -56,6 +56,32 @@ const Signup = () => {
             });
 
             if (signUpError) throw signUpError;
+
+            const userId = authData.user.id;
+
+            // Second: Create the Organization
+            const { data: orgData, error: orgError } = await supabase
+                .from('organizations')
+                .insert({
+                    name: formData.company,
+                    subscription_tier: 'BASIC', // Default tier
+                    team_seat_limit: 1
+                })
+                .select()
+                .single();
+
+            if (orgError) throw orgError;
+
+            // Third: Link the Profile to the Organization and assign 'Owner' role
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update({
+                    organization_id: orgData.id,
+                    role: 'Owner'
+                })
+                .eq('id', userId);
+
+            if (profileError) throw profileError;
 
             // Wait, the public.profiles trigger usually creates the db row.
             // On successful creation, send them to login.

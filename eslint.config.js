@@ -26,4 +26,12 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    files: ['api/**/*.{js,jsx}', 'netlify/**/*.{js,jsx}', 'scripts/**/*.{js,jsx}', 'supabase/**/*.{js,ts}', '**/*.cjs'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 ])

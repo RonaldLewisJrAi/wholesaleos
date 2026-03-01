@@ -15,8 +15,12 @@ import InvestorDashboard from './Workstations/InvestorDashboard';
 import RealtorDashboard from './Workstations/RealtorDashboard';
 import VADashboard from './Workstations/VADashboard';
 import AdminDashboard from './Workstations/AdminDashboard';
+import ComplianceDashboard from './Workstations/ComplianceDashboard';
+import AnalystDashboard from './Workstations/AnalystDashboard';
 import RiskMatrix from './Workstations/Shared/RiskMatrix';
 import LiquidityIndex from './Workstations/Shared/LiquidityIndex';
+import AcquisitionDashboard from './Workstations/AcquisitionDashboard';
+import DispositionDashboard from './Workstations/DispositionDashboard';
 import './Dashboard.css';
 
 const StatCard = ({ title, value, change, icon: Icon, trend }) => (
@@ -47,6 +51,10 @@ const Dashboard = () => {
     if (currentViewPersona === 'REALTOR') return <RealtorDashboard />;
     if (currentViewPersona === 'VIRTUAL_ASSISTANT') return <VADashboard />;
     if (currentViewPersona === 'ADMIN') return <AdminDashboard />;
+    if (currentViewPersona === 'COMPLIANCE') return <ComplianceDashboard />;
+    if (currentViewPersona === 'ANALYST') return <AnalystDashboard />;
+    if (currentViewPersona === 'ACQUISITION') return <AcquisitionDashboard />;
+    if (currentViewPersona === 'DISPOSITION') return <DispositionDashboard />;
 
     return (
         <div className="dashboard-container animate-fade-in">

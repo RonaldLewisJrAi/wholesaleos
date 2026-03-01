@@ -40,12 +40,41 @@ const Sidebar = () => {
             { name: 'CMA Tool', path: '/cma', icon: <Calculator size={20} /> },
             { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
         ],
+        'COMPLIANCE': [
+            { name: 'Compliance Console', path: '/dashboard', icon: <ShieldCheck size={20} /> },
+            { name: 'Flagged Deals', path: '/flags', icon: <Activity size={20} /> },
+            { name: 'Document Audit', path: '/documents', icon: <FileText size={20} /> }
+        ],
+        'ANALYST': [
+            { name: 'Analyst Lab', path: '/dashboard', icon: <Activity size={20} /> },
+            { name: 'Comp Engine', path: '/comps', icon: <Target size={20} /> },
+            { name: 'Buyer Trends', path: '/buyers', icon: <Users size={20} /> },
+            { name: 'Market Heatmap', path: '/heatmap', icon: <Map size={20} /> }
+        ],
         'VIRTUAL_ASSISTANT': [
             { name: 'VA Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
             { name: 'Dialer & Scripts', path: '/dialer', icon: <PhoneCall size={20} /> },
             { name: 'Leads Queue', path: '/leads-queue', icon: <ListTodo size={20} /> },
             { name: 'Appointments Set', path: '/appointments', icon: <CheckSquare size={20} /> },
             { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
+        ],
+        'ACQUISITION': [
+            { name: 'Acquisition Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+            { name: 'Lead Pipeline', path: '/pipeline', icon: <Users size={20} /> },
+            { name: 'Deal Analyzer', path: '/analyzer', icon: <Calculator size={20} /> },
+            { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
+        ],
+        'DISPOSITION': [
+            { name: 'Disposition Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+            { name: 'Active Inventory', path: '/properties', icon: <Map size={20} /> },
+            { name: 'Buyer Matches', path: '/buyers', icon: <Users size={20} /> },
+            { name: 'Buyer Blasts', path: '/blasts', icon: <Activity size={20} /> }
+        ],
+        'ADMIN': [
+            { name: 'Admin Command', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+            { name: 'API & Webhooks', path: '/settings', icon: <Settings size={20} /> },
+            { name: 'Team Roster', path: '/crm', icon: <Users size={20} /> },
+            { name: 'System Logs', path: '/logs', icon: <List size={20} /> }
         ]
     };
 

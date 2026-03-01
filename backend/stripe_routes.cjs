@@ -43,7 +43,7 @@ router.post('/create-checkout-session', express.json(), async (req, res) => {
                 subscription_tier: tier,
                 tos_accepted: tosAccepted ? 'true' : 'false'
             },
-            success_url: `${process.env.VITE_SITE_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}&success=true`,
+            success_url: `${process.env.VITE_SITE_URL}/profile?session_id={CHECKOUT_SESSION_ID}&success=true&onboarding=true`,
             cancel_url: `${process.env.VITE_SITE_URL}/profile?canceled=true`,
         });
 

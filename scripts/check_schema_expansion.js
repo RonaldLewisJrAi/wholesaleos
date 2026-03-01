@@ -19,7 +19,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function checkSchema() {
     try {
-        const { data, error } = await supabase
+        const { data: _data, error } = await supabase
             .from('organizations')
             .select('id')
             .limit(1);

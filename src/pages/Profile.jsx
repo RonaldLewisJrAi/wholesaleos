@@ -33,8 +33,14 @@ const Profile = () => {
 
     const [isSaving, setIsSaving] = useState(false);
     const [userId, setUserId] = useState(null);
+    const [isOnboarding, setIsOnboarding] = useState(false);
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('onboarding') === 'true') {
+            setIsOnboarding(true);
+        }
+
         const fetchProfile = async () => {
             if (!supabase) return;
             const { data: { user } } = await supabase.auth.getUser();
@@ -110,6 +116,10 @@ const Profile = () => {
             }).eq('id', userId);
 
             if (error) throw error;
+            setIsOnboarding(false);
+            if (isOnboarding) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
             alert("Profile preferences successfully updated and synced via Supabase!");
         } catch (error) {
             console.error("Save Error:", error);
@@ -152,10 +162,14 @@ const Profile = () => {
 
     // Persona Options
     const personaConfigs = [
-        { id: 'WHOLESALER', label: 'Wholesaler', icon: Building },
+        { id: 'WHOLESALER', label: 'Wholesaler (Classic)', icon: Building },
         { id: 'INVESTOR', label: 'VIP Investor', icon: Target },
         { id: 'REALTOR', label: 'Realtor', icon: Calculator },
-        { id: 'VIRTUAL_ASSISTANT', label: 'Assistant', icon: Headphones }
+        { id: 'VIRTUAL_ASSISTANT', label: 'Assistant', icon: Headphones },
+        { id: 'ACQUISITION', label: 'Acquisition', icon: Target },
+        { id: 'DISPOSITION', label: 'Disposition', icon: DollarSign },
+        { id: 'COMPLIANCE', label: 'Compliance Module', icon: ShieldCheck },
+        { id: 'ANALYST', label: 'Analyst Data Lab', icon: Activity }
     ];
 
     if (allowedPersonas?.includes('ADMIN')) {
@@ -183,6 +197,16 @@ const Profile = () => {
                 <p className="page-description m-0">Manage your system persona, contact bindings, and platform configuration.</p>
             </div>
 
+            {isOnboarding && (
+                <div className="bg-success/20 border border-success text-success p-4 rounded-xl mb-6 flex items-start gap-3 animate-fade-in">
+                    <ShieldCheck className="shrink-0 mt-1" size={20} />
+                    <div>
+                        <h3 className="font-bold">Live Mode Unlocked!</h3>
+                        <p className="text-sm">Welcome to Wholesale OS Live. Please complete your system persona and core identity details below, then click "Save Profile Identity" to initialize your matching algorithms.</p>
+                    </div>
+                </div>
+            )}
+
             <div className="profile-grid">
 
                 {/* Visual Identity Module */}
@@ -206,22 +230,17 @@ const Profile = () => {
 
                     <div className="pt-2">
                         <h3 className="section-title mb-4 pb-2 border-b border-[var(--border-light)] font-bold">System Persona</h3>
-                        <div className="role-toggle-group">
-                            {personaConfigs.map((persona) => {
-                                if (!isMasterAdmin && profile.primaryPersona !== persona.id) return null;
-                                return (
-                                    <button
-                                        key={persona.id}
-                                        className={`role-toggle-btn ${profile.primaryPersona === persona.id ? 'active' : ''} ${!isMasterAdmin ? 'cursor-default opacity-100 hover:bg-transparent' : ''}`}
-                                        onClick={() => isMasterAdmin && setProfile(prev => ({ ...prev, primaryPersona: persona.id }))}
-                                    >
-                                        <persona.icon size={24} />
-                                        <span>{persona.label}</span>
-                                    </button>
-                                );
-                            })}
+                        <div className="form-group">
+                            <select
+                                className="fillable-input w-full"
+                                value={profile.primaryPersona}
+                                onChange={(e) => setProfile(prev => ({ ...prev, primaryPersona: e.target.value }))}
+                            >
+                                {personaConfigs.map(persona => (
+                                    <option key={persona.id} value={persona.id}>{persona.label}</option>
+                                ))}
+                            </select>
                         </div>
-                        {!isMasterAdmin && <p className="text-xs text-muted mt-2">Your System Persona is securely locked. Contact a Master Admin to request a role change.</p>}
 
                         <h3 className="section-title mb-4 mt-6 pb-2 border-b border-[var(--border-light)] font-bold">Theme Calibration</h3>
                         <div className="flex gap-4">
@@ -277,9 +296,9 @@ const Profile = () => {
                         <textarea className="fillable-input w-full h-24 resize-none" name="bio" value={profile.bio} onChange={handleProfileChange} placeholder="Describe your investing history..."></textarea>
                     </div>
 
-                    <div className="form-group mt-6 pt-4 border-t border-danger/30">
-                        <label className="text-danger flex items-center gap-2 mb-2"><ShieldCheck size={16} /> Update Security Key (Password)</label>
-                        <div className="flex gap-2">
+                    <div className="form-group mt-6 pt-4 border-t border-[var(--border-light)]">
+                        <label>Update Password</label>
+                        <div className="flex gap-2 mt-2">
                             <input
                                 type="password"
                                 className="fillable-input w-full"
@@ -287,7 +306,7 @@ const Profile = () => {
                                 id="newPasswordInput"
                             />
                             <button
-                                className="btn btn-secondary border-danger text-danger hover:bg-danger/20 whitespace-nowrap"
+                                className="btn btn-secondary whitespace-nowrap"
                                 onClick={async () => {
                                     const input = document.getElementById('newPasswordInput');
                                     if (!input.value || input.value.length < 6) {
@@ -298,15 +317,14 @@ const Profile = () => {
                                     if (error) {
                                         alert('Failed to update password: ' + error.message);
                                     } else {
-                                        alert('Security key successfully updated.');
+                                        alert('Password successfully updated.');
                                         input.value = '';
                                     }
                                 }}
                             >
-                                Update Key
+                                Update Password
                             </button>
                         </div>
-                        <p className="text-xs text-muted mt-2">Required after initializing an Emergency Override via the forgot password flow. This operates independently of the 'Save Profile Identity' action.</p>
                     </div>
 
                     <div className="mt-6 pt-4 border-t border-[var(--border-light)]">
@@ -494,50 +512,14 @@ const Profile = () => {
                         <p className="text-muted mt-1"><strong className="text-white">Active Plan:</strong> <span className="badge bg-primary/20 text-primary border border-primary/50 ml-2">{subscriptionTier}</span></p>
                     </div>
 
-                    {isMasterAdmin ? (
-                        <div className="mt-6 p-6 bg-[rgba(0,0,0,0.3)] border border-danger/50 rounded-xl relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-danger"></div>
-                            <h3 className="font-bold text-xl text-white mb-2 flex items-center gap-2">
-                                <ShieldCheck className="text-danger" /> System Architect (God-Mode)
-                            </h3>
-                            <p className="text-muted">You are recognized natively as the Creator and Author of the Wholesale OS platform.</p>
-                            <p className="text-muted mt-2">All billing constraints, persona limits, and payment walls in this ecosystem are permanently bypassed for your account via native SQL database elevation.</p>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="pricing-tiers mt-6">
-                                <div className={`pricing-card ${subscriptionTier === 'BASIC' ? 'active border-primary bg-primary/10' : ''}`} style={{ padding: '16px' }}>
-                                    <div className="text-left w-full">
-                                        <h3 className="font-bold text-lg mb-1">Starter</h3>
-                                        <div className="price font-bold text-2xl mb-2">$100<span className="text-xs font-normal text-muted">/mo</span></div>
-                                    </div>
-                                </div>
-
-                                <div className={`pricing-card recommended ${subscriptionTier === 'ADVANCED' ? 'active border-warning bg-warning/10' : ''}`} style={{ padding: '16px' }}>
-                                    {subscriptionTier === 'ADVANCED' ? <div className="recommend-badge bg-success/20 text-success border border-success">ACTIVE SUBSCRIPTION</div> : <div className="recommend-badge">RECOMMENDED</div>}
-                                    <div className="text-left w-full mt-2">
-                                        <h3 className="font-bold text-lg mb-1 text-primary">Pro Team</h3>
-                                        <div className="price font-bold text-2xl mb-2">$500<span className="text-xs font-normal text-muted">/mo</span></div>
-                                    </div>
-                                </div>
-
-                                <div className={`pricing-card ${subscriptionTier === 'SUPER' ? 'active border-accent bg-accent/10' : ''}`} style={{ padding: '16px' }}>
-                                    {subscriptionTier === 'SUPER' && <div className="recommend-badge bg-success/20 text-success border border-success">MAXIMUM ACCESS</div>}
-                                    <div className="text-left w-full mt-2">
-                                        <h3 className="font-bold text-lg mb-1 text-accent">Super Admin</h3>
-                                        <div className="price font-bold text-2xl mb-2">$1,000<span className="text-xs font-normal text-muted">/mo</span></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button
-                                className="btn btn-secondary border-primary text-primary hover:bg-primary/20 w-full mt-6 py-3 disabled:opacity-50"
-                                onClick={handleCheckout}
-                                disabled={isSaving}
-                            >
-                                {isSaving ? 'Processing Secure Redirect...' : 'Manage Stripe Billing & Add-Ons'}
-                            </button>
-                        </>
+                    {['BASIC', 'PRO', 'ADVANCED'].includes(subscriptionTier) && (
+                        <button
+                            className="btn btn-secondary border-primary text-primary hover:bg-primary/20 w-full mt-6 py-3 disabled:opacity-50"
+                            onClick={handleCheckout}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? 'Processing Secure Redirect...' : 'Upgrade Subscription'}
+                        </button>
                     )}
                 </div>
 

@@ -54,7 +54,7 @@ export default async function handler(req, res) {
             metadata: {
                 supabase_user_id: userId
             },
-            success_url: `${siteUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}&success=true`,
+            success_url: `${siteUrl}/profile?session_id={CHECKOUT_SESSION_ID}&success=true&onboarding=true`,
             cancel_url: `${siteUrl}/profile?canceled=true`,
         });
 

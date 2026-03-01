@@ -30,7 +30,7 @@ export default async (req) => {
             data: properties
         }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
-    } catch (error) {
+    } catch {
         return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
     }
 }
