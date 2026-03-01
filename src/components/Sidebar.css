@@ -50,6 +50,11 @@
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 
+:root.light .app-logo {
+    mix-blend-mode: multiply;
+    filter: invert(1);
+}
+
 .sidebar-nav {
     flex: 1;
     padding: var(--spacing-4) 0;
@@ -79,7 +84,7 @@
 }
 
 .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--hover-bg);
     color: var(--text-primary);
     transform: translateX(4px);
 }
@@ -113,7 +118,7 @@
 }
 
 .user-profile-mini:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--hover-bg);
 }
 
 .avatar {
