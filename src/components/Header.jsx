@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio, Sun, Moon } from 'lucide-react';
+import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio, Sun, Moon, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useGuidance } from '../contexts/GuidanceContext';
 import './Header.css';
 
 const Header = () => {
     const { isDemoMode, setIsDemoMode } = useDemoMode();
     const { theme, toggleTheme } = useTheme();
+    const { guidanceMode, toggleInsightMode, toggleTourMode } = useGuidance();
     const [showNotifications, setShowNotifications] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
 
@@ -80,7 +82,14 @@ const Header = () => {
                     </span>
                 </div>
 
-                <div className="theme-toggle-container">
+                <div className="theme-toggle-container flex gap-2">
+                    <button
+                        className={`icon-btn ${guidanceMode !== 'off' ? 'text-primary animate-pulse shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]' : ''}`}
+                        onClick={() => guidanceMode === 'tour' ? toggleTourMode() : toggleInsightMode()}
+                        title="Guided Mode: Toggle holographic insights"
+                    >
+                        <Info size={20} />
+                    </button>
                     <button className="icon-btn" onClick={toggleTheme} title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
                         {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                     </button>

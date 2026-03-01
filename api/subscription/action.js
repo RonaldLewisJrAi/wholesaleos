@@ -35,7 +35,7 @@ export default async function handler(req, res) {
             .eq('organization_id', organization_id)
             .single();
 
-        if (profile?.role !== 'ADMIN' && profile?.role !== 'SUPER_ADMIN') {
+        if (profile?.role !== 'ADMIN' && profile?.role !== 'GLOBAL_SUPER_ADMIN') {
             return res.status(403).json({ error: 'Only Administrators can manage subscriptions.' });
         }
 

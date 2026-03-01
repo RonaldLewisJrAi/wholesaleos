@@ -1,5 +1,7 @@
 import React from 'react';
 import { AlertCircle, Zap, ArrowRight, Settings } from 'lucide-react';
+import { useGuidance } from '../contexts/GuidanceContext';
+import InsightOverlay from './InsightOverlay';
 
 /**
  * Intelligent Wireframe Layout Engine
@@ -17,6 +19,7 @@ const WorkstationWireframe = ({
     automationLinks,
     onPrimaryActionClick
 }) => {
+    const { guidanceMode } = useGuidance();
 
     // Determine highlight color based on urgency of primary action
     const getUrgencyColor = (urgency) => {
@@ -32,7 +35,16 @@ const WorkstationWireframe = ({
 
             {/* ZONE 1: IMMEDIATE ACTION ZONE (Top) */}
             {/* Prescriptive constraint: System detects the most important path forward. */}
-            <section className={`glass-panel rounded-xl p-6 border flex flex-col md:flex-row items-center justify-between ${getUrgencyColor(immediateAction?.urgency)} transition-all duration-500`}>
+            <section className={`relative glass-panel rounded-xl p-6 border flex flex-col md:flex-row items-center justify-between ${getUrgencyColor(immediateAction?.urgency)} transition-all duration-500`}>
+
+                {guidanceMode === 'insight' && (
+                    <InsightOverlay
+                        title="Immediate Action Zone"
+                        description="AI-driven engine surfaces the single most critical task to execute next, preventing pipeline stalling."
+                        position="top-right"
+                    />
+                )}
+
                 <div className="flex items-start gap-4 mb-4 md:mb-0">
                     <div className="p-3 bg-black/40 rounded-full border border-white/10 mt-1">
                         {immediateAction?.urgency === 'critical' ? <AlertCircle size={24} /> : <Zap size={24} />}
@@ -63,9 +75,18 @@ const WorkstationWireframe = ({
             </section>
 
             {/* ZONE 2: DECISION ZONE (Middle - Max 3 KPIs) */}
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+
+                {guidanceMode === 'insight' && (
+                    <InsightOverlay
+                        title="Decision KPIs"
+                        description="Strictly limited to 3 high-impact metrics to ensure cognitive focus and rapid binary decision-making."
+                        position="top-left"
+                    />
+                )}
+
                 {kpis?.slice(0, 3).map((kpi, idx) => (
-                    <div key={idx} className="glass-panel p-5 border border-[var(--border-light)] rounded-xl flex justify-between items-center group hover:border-[var(--primary-color)] transition-colors cursor-default">
+                    <div key={idx} className="relative glass-panel p-5 border border-[var(--border-light)] rounded-xl flex justify-between items-center group hover:border-[var(--primary-color)] transition-colors cursor-default">
                         <div>
                             <p className="text-xs text-muted font-bold uppercase tracking-wider mb-1">{kpi.title}</p>
                             <h3 className="text-3xl font-bold text-white tracking-tight">{kpi.value}</h3>
@@ -80,7 +101,16 @@ const WorkstationWireframe = ({
             </section>
 
             {/* ZONE 3: EXECUTION ZONE (Main Body) */}
-            <section className="flex-1 glass-panel border border-[var(--border-light)] rounded-xl p-0 overflow-hidden relative min-h-[400px]">
+            <section className="flex-1 relative glass-panel border border-[var(--border-light)] rounded-xl p-0 overflow-hidden min-h-[400px]">
+
+                {guidanceMode === 'insight' && (
+                    <InsightOverlay
+                        title="Execution Environment"
+                        description="The core workspace allocated for carrying out the immediate action and reviewing foundational data."
+                        position="top-right"
+                    />
+                )}
+
                 {/* Visual architectural indicator */}
                 <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-transparent opacity-50"></div>
 
@@ -95,7 +125,16 @@ const WorkstationWireframe = ({
             </section>
 
             {/* ZONE 4: AUTOMATION / NEXT STEP ZONE (Bottom) */}
-            <section className="glass-panel border border-[var(--border-light)] rounded-xl p-4 flex gap-4 overflow-x-auto custom-scrollbar">
+            <section className="relative glass-panel border border-[var(--border-light)] rounded-xl p-4 flex gap-4 overflow-x-auto custom-scrollbar">
+
+                {guidanceMode === 'insight' && (
+                    <InsightOverlay
+                        title="Workflow Routing"
+                        description="Persistent utility links enabling smooth handoffs, external automations, or progression to the next persona stage."
+                        position="bottom-right"
+                    />
+                )}
+
                 <div className="flex items-center text-xs font-bold text-muted uppercase tracking-wider px-2 border-r border-[var(--border-light)] whitespace-nowrap">
                     Workflow Routing
                 </div>

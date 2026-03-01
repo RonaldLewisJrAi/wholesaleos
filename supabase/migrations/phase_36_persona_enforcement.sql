@@ -38,7 +38,7 @@ SELECT EXISTS (
             LEFT JOIN public.user_organizations uo ON u.id = uo.user_id
         WHERE u.id = auth.uid()
             AND (
-                u.email = 'admin@wholesale-os.com'
+                p.system_role = 'GLOBAL_SUPER_ADMIN'
                 OR uo.role = 'ADMIN'
             )
     ) INTO is_admin;

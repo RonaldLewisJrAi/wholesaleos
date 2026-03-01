@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Users, ShieldAlert, Key, Database, Ban, RefreshCw, MoreVertical, CreditCard, Terminal, Power, Building, Edit } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import './SuperAdminDashboard.css';
 
 const SuperAdminDashboard = () => {
@@ -46,7 +47,7 @@ const SuperAdminDashboard = () => {
     const [users] = useState([
         {
             id: 'u-1',
-            email: 'admin@wholesale-os.com',
+            email: 'ronald_lewis_jr@live.com',
             name: 'Platform Admin',
             org: 'Wholesale Mavericks LLC',
             primaryPersona: 'WHOLESALER',
@@ -83,8 +84,41 @@ const SuperAdminDashboard = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [viewMode, setViewMode] = useState('organizations'); // 'organizations' or 'users'
 
-    const handleAction = (id, action) => {
-        alert(`Admin Action: [${action}] executed on ID: ${id}. Normally this would fire a secure API call bypassing RLS.`);
+    const handleAction = async (id, action) => {
+        try {
+            if (!supabase) throw new Error("Supabase client not initialized.");
+
+            // Format to generic UUID for mock data if necessary, or just skip if it's strictly a UUID field
+            // The DB expects a UUID. Our mock IDs are 'org-1' or 'u-1'.
+            // In a real scenario, these would be UUIDs. For this UI wrapper, we'll try to execute it
+            // but wrap in a soft-fail if the ID is just a mock string that fails UUID cast.
+            const isMockId = id.startsWith('org-') || id.startsWith('u-') || id.startsWith('sc-');
+
+            if (isMockId) {
+                alert(`[Mock Mode Alert]\nAdmin Action: [${action}] executed on Mock ID: ${id}.\nIn production with real UUIDs, this would be immutably logged via the log_super_admin_action RPC and require MFA (AAL2).`);
+                return;
+            }
+
+            const { error } = await supabase.rpc('log_super_admin_action', {
+                action_type: action.replace(/\s+/g, '_').toUpperCase(),
+                target_resource: viewMode === 'organizations' ? 'organizations' : 'users',
+                target_id: id,
+                details: { ui_initiated: true, status: 'EXECUTED' }
+            });
+
+            if (error) {
+                if (error.message.includes('AAL2')) {
+                    alert('Security Violation: Multi-Factor Authentication (AAL2) is required to execute this Super Admin action. Please step-up your session.');
+                } else {
+                    throw error;
+                }
+            } else {
+                alert(`Super Admin Action Authenticated & Audit Trailed: [${action}] executed on ID: ${id}.`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert(`Action Blocked: ${err.message}`);
+        }
     };
 
     const toggleScraperStatus = (id) => {

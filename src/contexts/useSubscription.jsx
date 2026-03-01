@@ -59,7 +59,7 @@ export const SubscriptionProvider = ({ children }) => {
                         setPrimaryPersona(profileData.primary_persona);
                         setCurrentViewPersona(profileData.primary_persona);
                     }
-                    if (profileData.system_role === 'SUPER_ADMIN') {
+                    if (profileData.system_role === 'GLOBAL_SUPER_ADMIN') {
                         // Backend-enforced absolute power
                         setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
                         setSubscriptionTier('SUPER');

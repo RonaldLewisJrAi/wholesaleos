@@ -7,6 +7,7 @@ import { useDemoMode } from '../contexts/DemoModeContext';
 import UnlockLiveModeModal from './UnlockLiveModeModal';
 import OrgHealthWidget from './OrgHealthWidget';
 import GlobalStatusBanner from './GlobalStatusBanner';
+import GuidedTour from './GuidedTour';
 
 const Layout = () => {
     const { isDemoMode } = useDemoMode();
@@ -106,7 +107,7 @@ const Layout = () => {
             <ScrollChevron />
             <OrgHealthWidget />
             <UnlockLiveModeModal isOpen={isUnlockModalOpen} onClose={() => setIsUnlockModalOpen(false)} />
-
+            <GuidedTour />
         </div>
     );
 };

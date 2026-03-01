@@ -15,7 +15,8 @@ const Profile = () => {
         phone: '(615) 555-0198',
         company: 'Wholesale OS Strategies',
         bio: 'Real estate acquisition specialist focused on off-market distressed assets in the Greater Nashville area.',
-        primaryPersona: 'WHOLESALER'
+        primaryPersona: 'WHOLESALER',
+        systemRole: 'USER'
     });
 
     const { subscriptionTier, allowedPersonas } = useSubscription();
@@ -62,7 +63,8 @@ const Profile = () => {
                         phone: data.phone || '',
                         company: data.company || '',
                         bio: data.bio || '',
-                        primaryPersona: data.primary_persona || 'WHOLESALER'
+                        primaryPersona: data.primary_persona || 'WHOLESALER',
+                        systemRole: data.system_role || 'USER'
                     });
                     setBuyBox({
                         targetMarkets: data.target_markets || '',
@@ -176,7 +178,7 @@ const Profile = () => {
         personaConfigs.push({ id: 'ADMIN', label: 'Master Admin', icon: ShieldCheck });
     }
 
-    const isMasterAdmin = profile.email === 'admin@wholesale-os.com' || allowedPersonas?.includes('ADMIN');
+    const isMasterAdmin = profile.systemRole === 'GLOBAL_SUPER_ADMIN';
 
     if (isDemoMode) {
         return (

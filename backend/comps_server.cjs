@@ -22,7 +22,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabaseAdmin = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 // =========================================================================================
-// PHASE 33.1: GLOBAL WRITE-BLOCKING & SUPER_ADMIN ENFORCEMENT
+// PHASE 33.1: GLOBAL WRITE-BLOCKING & GLOBAL_SUPER_ADMIN ENFORCEMENT
 // =========================================================================================
 const requireSubscription = async (req, res, next) => {
     if (req.method === 'GET' || req.method === 'OPTIONS') return next();
@@ -64,9 +64,10 @@ const requireSubscription = async (req, res, next) => {
             .single();
 
         if (profile) {
-            req.primaryPersona = profile.primary_persona;
-            if (profile.system_role === 'SUPER_ADMIN') {
-                req.isSuperAdmin = true;
+            req.primaryPersona = profile.primary_persona; // Retained for consistency, assuming instruction snippet was incomplete
+            // 2. Global Super Admin Bypass
+            if (profile.system_role === 'GLOBAL_SUPER_ADMIN') {
+                req.user = { id: userId, role: 'GLOBAL_SUPER_ADMIN', bypassAll: true }; // Changed 'uid' to 'userId'
                 return next();
             }
         }

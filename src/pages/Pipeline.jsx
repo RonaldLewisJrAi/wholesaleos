@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Settings, MoreHorizontal, Edit2, Trash2, Zap, Clock, DollarSign, Target, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { calculateAssignmentFeeRange, calculateBuyerDemandIndex, estimateTimeToClose, calculateDealProbability } from '../lib/DealIntelligence';
+import { useSubscription } from '../contexts/useSubscription';
 import './Pipeline.css';
 
 const initialStages = [
@@ -37,6 +38,7 @@ const initialStages = [
 ];
 
 const Pipeline = () => {
+    const { currentViewPersona } = useSubscription();
     const [stages, setStages] = useState(initialStages);
     const [loading, setLoading] = useState(true);
 
@@ -357,10 +359,17 @@ const Pipeline = () => {
                                                 )
                                             })()}
                                         </div>
-                                        <div className="deal-tags">
+                                        <div className="deal-tags mt-2">
                                             {deal.tags && deal.tags.map(tag => (
                                                 <span key={tag} className="tag">{tag}</span>
                                             ))}
+
+                                            {/* Phase 12 Hologram: Wholesaler Live Risk Badge */}
+                                            {currentViewPersona === 'WHOLESALER' && (() => {
+                                                if (deal.days < 5) return <span className="tag text-[10px] bg-[rgba(239,68,68,0.1)] border border-danger/30 text-danger" title="Accelerated Close - Compliance Warning">Critical Risk: Close &lt; 5d</span>;
+                                                if (!deal.tags?.includes('EMD Cleared') && deal.days > 5) return <span className="tag text-[10px] bg-[rgba(245,158,11,0.1)] border border-warning/30 text-warning" title="Missing EMD">Advisory: No EMD</span>;
+                                                return null;
+                                            })()}
                                         </div>
                                     </div>
                                 ))}
