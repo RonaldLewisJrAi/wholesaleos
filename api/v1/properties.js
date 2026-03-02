@@ -9,7 +9,7 @@ import withApiAuth from '../middleware/auth.js';
  */
 
 const supabaseAdmin = createClient(
-    process.env.VITE_SUPABASE_URL,
+    process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { autoRefreshToken: false, persistSession: false } }
 );

@@ -385,25 +385,11 @@ const Pipeline = () => {
                                                 else if (deal.bdiMatches >= 3) { heatColor = "text-warning"; heatBg = "bg-warning/20 border border-warning/50"; }
                                                 else if (deal.bdiMatches >= 1) { heatColor = "text-primary"; heatBg = "bg-primary/20 border border-primary/50"; }
 
-                                                return (
-                                                    <>
-                                                        <div className="flex-between text-xs font-semibold mb-1">
-                                                            <span className="flex items-center gap-1"><DollarSign size={12} /> AFR:</span>
-                                                            <span className="text-success">{feePrediction.formatted}</span>
-                                                        </div>
-                                                        <div className="flex-between text-xs text-muted mb-1">
-                                                            <span className="flex items-center gap-1"><Clock size={12} /> ETTC:</span>
-                                                            <span>{ettc} Days</span>
-                                                        </div>
-                                                        <div className="flex-between text-xs text-muted mb-1">
-                                                            <span className="flex items-center gap-1"><Target size={12} /> DPS:</span>
-                                                            <span className={`font-bold ${probColor}`}>{probScore}%</span>
-                                                        </div>
                                                 // Deal Discipline Score
                                                 const dds = deal.deal_discipline_score ?? 100;
-                                                const ddsColor = dds >= 80 ? 'text-green-400 bg-green-500/10 border-green-500/30' : 
-                                                                 dds >= 60 ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' : 
-                                                                 'text-red-400 bg-red-500/10 border-red-500/30';
+                                                const ddsColor = dds >= 80 ? 'text-green-400 bg-green-500/10 border-green-500/30' :
+                                                    dds >= 60 ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' :
+                                                        'text-red-400 bg-red-500/10 border-red-500/30';
 
                                                 return (
                                                     <>
@@ -450,11 +436,11 @@ const Pipeline = () => {
                             </div>
                             <button className="add-deal-btn" onClick={() => handleAddDeal(stage.id)}>+ New Deal</button>
                         </div>
-                            ))
+                    ))
                 )}
-                        </div>
+            </div>
         </div>
-            );
+    );
 };
 
-            export default Pipeline;
+export default Pipeline;

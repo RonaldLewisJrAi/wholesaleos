@@ -1,0 +1,14 @@
+gemini/antigravity/playground/frozen-halo/src/components/WorkstationWireframe.jsx:68:18: ERROR: Unexpected closing "div" tag does not match opening "section" tag
+C:/Users/ronal/.gemini/antigravity/playground/frozen-halo/src/components/WorkstationWireframe.jsx:89:14: ERROR: Unexpected closing "section" tag does not match opening "div" tag
+C:/Users/ronal/.gemini/antigravity/playground/frozen-halo/src/components/WorkstationWireframe.jsx:91:4: ERROR: Expected ")" but found "{"[31m
+file: [36mC:/Users/ronal/.gemini/antigravity/playground/frozen-halo/src/components/WorkstationWireframe.jsx:68:18[31m
+[33m
+[33mUnexpected closing "div" tag does not match opening "section" tag[33m
+66 |                  </div>
+67 |  
+68 |                  </div>
+   |                    ^
+69 |  
+70 |                  <div className="flex flex-col gap-2 mt-4 md:mt-0">
+
+[33mUnexpected closing "secti

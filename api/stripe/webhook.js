@@ -1,5 +1,5 @@
 /* eslint-env node */
-/* global Buffer, process */
+
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     }
 
     // Phase 30: Initialize Supabase Admin Client using service_role key to bypass RLS
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseServiceKey) {

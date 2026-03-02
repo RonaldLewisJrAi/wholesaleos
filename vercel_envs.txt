@@ -1,0 +1,10 @@
+
+ name                                       value               environments                        created    
+ NODE_ENV                                   Encrypted           Development, Preview, Production    27m ago    
+ SUPABASE_SERVICE_ROLE_KEY                  Encrypted           Development, Preview, Production    27m ago    
+ SUPABASE_ANON_KEY                          Encrypted           Development, Preview, Production    27m ago    
+ SUPABASE_URL                               Encrypted           Development, Preview, Production    27m ago    
+ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY         Encrypted           Production, Preview, Development    27m ago    
+ STRIPE_WEBHOOK_SECRET                      Encrypted           Development, Preview, Production    27m ago    
+ STRIPE_SECRET_KEY                          Encrypted           Development, Preview, Production    27m ago    
+

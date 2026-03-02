@@ -3,7 +3,7 @@ import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft } fr
 import FileDropzone from '../../components/UploadStage/FileDropzone';
 import ColumnMapper from '../../components/UploadStage/ColumnMapper';
 import DataPreviewGrid from '../../components/UploadStage/DataPreviewGrid';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/useAuth';
 import { useSubscription } from '../../contexts/useSubscription';
 import './Spreadsheets.css';

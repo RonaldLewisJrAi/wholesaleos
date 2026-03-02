@@ -1,0 +1,4 @@
+\n\nVercel CLI 44.6.4
+WARN! Build not running on Vercel. System environment variables will not be available.
+Error: Found invalid Node.js Version: "24.x". Please set Node.js Version to 22.x in your Project Settings to use Node.js 22.
+Learn More: http://vercel.link/node-version
