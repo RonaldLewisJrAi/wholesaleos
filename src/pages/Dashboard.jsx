@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     DollarSign,
@@ -45,7 +45,15 @@ const StatCard = ({ title, value, change, icon: Icon, trend }) => (
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const { currentViewPersona } = useSubscription();
+    const { currentViewPersona, systemRole } = useSubscription();
+
+    useEffect(() => {
+        if (systemRole === 'GLOBAL_SUPER_ADMIN') {
+            navigate('/super-admin', { replace: true });
+        }
+    }, [systemRole, navigate]);
+
+    if (systemRole === 'GLOBAL_SUPER_ADMIN') return null; // Prevent flicker before redirect
 
     if (currentViewPersona === 'INVESTOR') return <InvestorDashboard />;
     if (currentViewPersona === 'REALTOR') return <RealtorDashboard />;

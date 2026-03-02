@@ -1,43 +1,27 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useSubscription } from './useSubscription';
+import React, { createContext, useState, useContext } from 'react';
+import { useAuth } from './useAuth';
 
 const DemoModeContext = createContext();
 
 export const useDemoMode = () => useContext(DemoModeContext);
 
 export const DemoModeProvider = ({ children }) => {
-    const { subscriptionStatus, allowedPersonas } = useSubscription();
+    const { user } = useAuth();
 
-    // Default to true so users see the rich mock data first
-    const [isDemoMode, setIsDemoMode] = useState(true);
+    // Internal toggle state (only relevant when unauthenticated)
+    const [manualDemoState, setManualDemoState] = useState(true);
 
-    // Watch for subscription changes
-    useEffect(() => {
-        // Maintain manual override capability if active or if Super Admin,
-        // but lock out completely if actively restricted.
-        if (allowedPersonas?.includes('ADMIN')) return;
+    // Derived State: Unconditionally block demo mode for authenticated users
+    const isDemoMode = user ? false : manualDemoState;
 
-        const restrictedStatuses = ['GRACE_PERIOD', 'PAST_DUE', 'PAUSED', 'CANCELED', 'TERMINATED'];
-        if (restrictedStatuses.includes(subscriptionStatus)) {
-            setIsDemoMode(prev => prev !== true ? true : prev);
-        }
-    }, [subscriptionStatus, allowedPersonas]);
-
-    // Intercept manual toggles if past due
+    // Intercept manual toggles
     const handleSetDemoMode = (val) => {
-        if (!val) { // User is trying to disable Demo Mode
-            if (allowedPersonas?.includes('ADMIN')) {
-                setIsDemoMode(false);
-                return;
-            }
-            const restrictedStatuses = ['GRACE_PERIOD', 'PAST_DUE', 'PAUSED', 'CANCELED', 'TERMINATED'];
-            if (restrictedStatuses.includes(subscriptionStatus)) {
-                alert("Your account is currently restricted (Grace Period or Past Due). Access to Live Pipeline data is locked. Please update your billing info.");
-                return;
-            }
+        if (user) {
+            console.warn("Demo mode toggle blocked: Authenticated users cannot enter Demo Mode.");
+            return;
         }
-        setIsDemoMode(val);
+        setManualDemoState(val);
     }
 
     return (

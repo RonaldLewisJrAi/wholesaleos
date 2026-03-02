@@ -13,6 +13,7 @@ export const SubscriptionProvider = ({ children }) => {
     const [currentViewPersona, setCurrentViewPersona] = useState('WHOLESALER'); // What the user is actively viewing as
     // Phase 31.5 Status: 'ACTIVE', 'GRACE_PERIOD', 'PAST_DUE', 'PAUSED', 'CANCELED', 'TERMINATED'
     const [subscriptionStatus, setSubscriptionStatus] = useState('ACTIVE');
+    const [systemRole, setSystemRole] = useState('USER');
     const [loadingSub, setLoadingSub] = useState(true);
 
     useEffect(() => {
@@ -54,19 +55,26 @@ export const SubscriptionProvider = ({ children }) => {
                     .eq('id', user.id)
                     .single();
 
-                if (!profileError && profileData) {
-                    if (profileData.primary_persona) {
-                        setPrimaryPersona(profileData.primary_persona);
-                        setCurrentViewPersona(profileData.primary_persona);
-                    }
-                    if (profileData.system_role === 'GLOBAL_SUPER_ADMIN') {
-                        // Backend-enforced absolute power
-                        setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
-                        setSubscriptionTier('SUPER');
-                        setSubscriptionStatus('ACTIVE');
-                    } else if (profileData.allowed_personas) {
-                        setAllowedPersonas(profileData.allowed_personas);
-                    }
+                if (profileError || !profileData) {
+                    throw new Error("Profile not initialized. Authentication session exists but profile backend mapping failed.");
+                }
+
+                if (profileData.primary_persona) {
+                    setPrimaryPersona(profileData.primary_persona);
+                    setCurrentViewPersona(profileData.primary_persona);
+                }
+
+                if (profileData.system_role) {
+                    setSystemRole(profileData.system_role);
+                }
+
+                if (profileData.system_role === 'GLOBAL_SUPER_ADMIN') {
+                    // Backend-enforced absolute power
+                    setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
+                    setSubscriptionTier('SUPER');
+                    setSubscriptionStatus('ACTIVE');
+                } else if (profileData.allowed_personas) {
+                    setAllowedPersonas(profileData.allowed_personas);
                 }
             } catch (err) {
                 console.error("Failed to fetch dynamic subscription data:", err);
@@ -84,6 +92,7 @@ export const SubscriptionProvider = ({ children }) => {
             primaryPersona, allowedPersonas,
             currentViewPersona, setCurrentViewPersona,
             subscriptionStatus, setSubscriptionStatus,
+            systemRole,
             loadingSub
         }}>
             {children}
