@@ -65,6 +65,7 @@ const Signup = () => {
                 .insert({
                     name: formData.company,
                     subscription_tier: 'BASIC', // Default tier
+                    subscription_status: 'DEMO', // New users start in Demo restriction
                     team_seat_limit: 1
                 })
                 .select()
@@ -77,7 +78,8 @@ const Signup = () => {
                 .from('profiles')
                 .update({
                     organization_id: orgData.id,
-                    role: 'Owner'
+                    role: 'Owner',
+                    system_role: 'ADMIN' // They are an admin of their own default setup
                 })
                 .eq('id', userId);
 

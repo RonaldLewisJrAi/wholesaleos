@@ -105,12 +105,9 @@ const Login = () => {
                     </button>
 
                     <div className="mt-6 text-center pt-4 border-t border-gray-800">
-                        <p className="text-sm text-gray-400 mb-4 pb-4 border-b border-gray-800/50">
+                        <p className="text-sm text-gray-400 mb-2">
                             Need a deployment clearance? <Link to="/signup" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">Initialize Identity</Link>
                         </p>
-                        <p className="text-xs text-gray-500 mb-1">Demo Credentials for Audit:</p>
-                        <p className="text-xs font-mono text-gray-400">demo@wholesale-os.com</p>
-                        <p className="text-xs font-mono text-gray-400">paidproperties2026!</p>
                     </div>
                 </form>
             </div>

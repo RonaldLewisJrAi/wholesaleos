@@ -31,57 +31,76 @@ export const SubscriptionProvider = ({ children }) => {
                     .eq('id', user.id)
                     .single();
 
-                if (profileError || !profileData) {
-                    console.error("Profile not initialized. Authentication session exists but profile mapped failed.", profileError);
-                    // Critical failure layer: Do not crash, grant minimal defaults
-                    setSystemRole('USER');
-                    setSubscriptionTier('BASIC');
-                    setLoadingSub(false);
-                    return;
+                let profileDataToUse = profileData;
+
+                if (profileError || !profileDataToUse) {
+                    console.warn("Bootstrap Protocol: Profile missing. Attempting auto-creation...");
+                    const { data: newProfile, error: createProfileErr } = await supabase
+                        .from('profiles')
+                        .insert({ id: user.id, system_role: 'ADMIN' })
+                        .select('organization_id, primary_persona, allowed_personas, system_role')
+                        .single();
+
+                    if (createProfileErr || !newProfile) {
+                        setLoadingSub(false);
+                        throw new Error("CRITICAL IDENTITY FAILURE: Failed to bootstrap identity profile. Diagnostics: " + (createProfileErr?.message || "Database rejected profile insertion."));
+                    }
+                    profileDataToUse = newProfile;
                 }
 
                 // 2. Global Super Admin Override (Absolute Bypass)
-                if (profileData.system_role === 'GLOBAL_SUPER_ADMIN') {
+                if (profileDataToUse.system_role === 'GLOBAL_SUPER_ADMIN') {
                     setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
                     setSubscriptionTier('SUPER');
                     setSubscriptionStatus('ACTIVE');
                     setSystemRole('GLOBAL_SUPER_ADMIN');
-                    if (profileData.primary_persona) {
-                        setPrimaryPersona(profileData.primary_persona);
-                        setCurrentViewPersona(profileData.primary_persona);
+                    if (profileDataToUse.primary_persona) {
+                        setPrimaryPersona(profileDataToUse.primary_persona);
+                        setCurrentViewPersona(profileDataToUse.primary_persona);
                     }
                     setLoadingSub(false);
                     return; // Fast-path exit
                 }
 
                 // Normal User Flow
-                let orgId = profileData.organization_id;
+                let orgId = profileDataToUse.organization_id;
 
                 // 3. Organization Bootstrap Guarantee
                 if (!orgId) {
                     console.warn("Bootstrap Protocol: No organization found for user, initializing Personal Workspace...");
                     const { data: newOrg, error: insertError } = await supabase
                         .from('organizations')
-                        .insert({ name: 'Personal Workspace', subscription_tier: 'BASIC', team_seat_limit: 1 })
+                        .insert({
+                            name: 'Personal Workspace',
+                            subscription_tier: 'BASIC',
+                            subscription_status: 'DEMO',
+                            team_seat_limit: 1
+                        })
                         .select('id')
                         .single();
 
-                    if (!insertError && newOrg) {
-                        orgId = newOrg.id;
-                        await supabase.from('profiles').update({ organization_id: orgId }).eq('id', user.id);
+                    if (insertError || !newOrg) {
+                        setLoadingSub(false);
+                        throw new Error("CRITICAL WORKSPACE FAILURE: Failed to bootstrap organization. Diagnostics: " + (insertError?.message || "Unknown db constraint."));
                     }
+
+                    orgId = newOrg.id;
+                    await supabase.from('profiles').update({
+                        organization_id: orgId,
+                        system_role: 'ADMIN'
+                    }).eq('id', user.id);
                 }
 
                 // Load User Personas
-                if (profileData.primary_persona) {
-                    setPrimaryPersona(profileData.primary_persona);
-                    setCurrentViewPersona(profileData.primary_persona);
+                if (profileDataToUse.primary_persona) {
+                    setPrimaryPersona(profileDataToUse.primary_persona);
+                    setCurrentViewPersona(profileDataToUse.primary_persona);
                 }
-                if (profileData.system_role) {
-                    setSystemRole(profileData.system_role);
+                if (profileDataToUse.system_role) {
+                    setSystemRole(profileDataToUse.system_role);
                 }
-                if (profileData.allowed_personas) {
-                    setAllowedPersonas(profileData.allowed_personas);
+                if (profileDataToUse.allowed_personas) {
+                    setAllowedPersonas(profileDataToUse.allowed_personas);
                 }
 
                 // 4. Fetch real subscription tier and status from organizations table

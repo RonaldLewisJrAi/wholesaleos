@@ -54,10 +54,10 @@ const templates = [
 ];
 
 const Documents = () => {
-    const { subscriptionTier } = useSubscription();
+    const { subscriptionTier, subscriptionStatus } = useSubscription();
     const { user } = useAuth();
-    // Block downloads and apply DRM if tier is missing or free
-    const isRestricted = !subscriptionTier || subscriptionTier === 'free' || subscriptionTier === 'demo';
+    // Block downloads and apply DRM if tier is missing or demo
+    const isRestricted = !subscriptionTier || subscriptionTier === 'free' || subscriptionTier === 'BASIC' || subscriptionStatus === 'DEMO';
 
     const [selectedTemplate, setSelectedTemplate] = useState('t2');
     const [formData, setFormData] = useState({

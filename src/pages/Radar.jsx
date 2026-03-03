@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X, AlertCircle, DollarSign, RefreshCw, ZoomIn } from 'lucide-react';
+import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X, AlertCircle, DollarSign, RefreshCw, ZoomIn, Lock, Activity } from 'lucide-react';
 import HeatMap from '../components/HeatMap';
+import { useSubscription } from '../contexts/useSubscription';
 
 const Radar = () => {
+    const { subscriptionTier, subscriptionStatus } = useSubscription();
+    const isRestricted = !subscriptionTier || subscriptionTier === 'free' || subscriptionTier === 'BASIC' || subscriptionStatus === 'DEMO';
+
     const [county, setCounty] = useState('');
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState([]);
@@ -49,6 +53,12 @@ const Radar = () => {
 
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
+
+        if (isRestricted) {
+            alert("Opportunity Radar is locked in DEMO tier. Upgrade to unlock live distressed market data.");
+            return;
+        }
+
         if (!county) return;
         setLoading(true);
         setHasSearched(true);
@@ -59,10 +69,12 @@ const Radar = () => {
         <div className="radar-container animate-fade-in" style={{ padding: '24px' }}>
             <div className="page-header flex-between mb-6">
                 <div>
-                    <h1 className="page-title flex items-center gap-2">
-                        <AlertTriangle className="text-warning" size={28} /> Opportunity Radar
+                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center gap-2">
+                        <Activity className="text-indigo-500" />
+                        Opportunity Radar
+                        {isRestricted && <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded ml-3 flex items-center gap-1 uppercase tracking-wider"><Lock size={12} /> PRO FEATURE</span>}
                     </h1>
-                    <p className="page-description">Track preforeclosures, auctions, and distressed properties in your target markets.</p>
+                    <p className="text-gray-400 mt-1">Live distressed asset and pre-foreclosure tracking</p>
                 </div>
                 <div className="header-actions">
                     <button className="btn btn-secondary" onClick={() => setShowFilters(true)}><Filter size={16} /> Advanced Filters</button>
