@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, Search, Filter, Home, MapPin, Calculator, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import { supabase } from '../lib/supabase';
 import './CompEngineModal.css';
 
 const CompEngineModal = ({ isOpen, onClose, property }) => {
-    const { isDemoMode } = useDemoMode();
 
     // Top-Level Filter State
     const [radius, setRadius] = useState(1.0); // Miles
@@ -22,7 +20,7 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
 
     const handleRenovationTierChange = async (tier) => {
         setRenovationTier(tier);
-        if (!isDemoMode && property?.id) {
+        if (property?.id) {
             try {
                 await supabase.from('properties').update({ renovation_tier: tier }).eq('id', property.id);
             } catch (err) {
@@ -96,7 +94,7 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                         'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        lat, lng, radius, timeframeMonths: timeframe, isDemoMode,
+                        lat, lng, radius, timeframeMonths: timeframe,
                         sqftVariance, exactBedBath,
                         subjectSqft: property.sqft || 1500,
                         subjectBeds: property.beds || 3,
@@ -120,7 +118,7 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
         fetchZillowComps();
 
         return () => { isStale = true; };
-    }, [isOpen, property, radius, timeframe, isDemoMode, sqftVariance, exactBedBath]); // Auto-refetch if radius/timeframe/precise-filters changes
+    }, [isOpen, property, radius, timeframe, sqftVariance, exactBedBath]); // Auto-refetch if radius/timeframe/precise-filters changes
 
     // Active Comps Data Filtering (Phase 11 Logic)
     const { activeComps, avgPpsqft, calculatedArv, confidence } = useMemo(() => {

@@ -6,14 +6,12 @@ const SubscriptionContext = createContext();
 
 export const SubscriptionProvider = ({ children }) => {
     const { user } = useAuth();
-    // Default tier is 'BASIC', 'PRO', 'SUPER'
-    const [subscriptionTier, setSubscriptionTier] = useState('PRO'); // Default fallback
-    const [primaryPersona, setPrimaryPersona] = useState('WHOLESALER');
-    const [allowedPersonas, setAllowedPersonas] = useState(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST']);
-    const [currentViewPersona, setCurrentViewPersona] = useState('WHOLESALER'); // What the user is actively viewing as
-    // Phase 31.5 Status: 'ACTIVE', 'GRACE_PERIOD', 'PAST_DUE', 'PAUSED', 'CANCELED', 'TERMINATED'
-    const [subscriptionStatus, setSubscriptionStatus] = useState('ACTIVE');
-    const [systemRole, setSystemRole] = useState('USER');
+    const [subscriptionTier, setSubscriptionTier] = useState('');
+    const [primaryPersona, setPrimaryPersona] = useState('');
+    const [allowedPersonas, setAllowedPersonas] = useState([]);
+    const [currentViewPersona, setCurrentViewPersona] = useState('');
+    const [subscriptionStatus, setSubscriptionStatus] = useState('');
+    const [systemRole, setSystemRole] = useState('');
     const [loadingSub, setLoadingSub] = useState(true);
 
     useEffect(() => {
@@ -24,58 +22,86 @@ export const SubscriptionProvider = ({ children }) => {
             }
 
             try {
-                // Get user's active organization
-                const { data: userOrg, error: orgError } = await supabase
-                    .from('user_organizations')
-                    .select('organization_id')
-                    .eq('user_id', user.id)
-                    .single();
+                // Phase 37: Clean Auth -> Profile -> Org -> Role pipeline
 
-                if (orgError) throw orgError;
-                const orgId = userOrg.organization_id;
-
-                // Fetch real subscription tier and status from organizations table
-                const { data: orgData, error: subError } = await supabase
-                    .from('organizations')
-                    .select('subscription_tier, subscription_status')
-                    .eq('id', orgId)
-                    .single();
-
-                if (subError) throw subError;
-
-                if (orgData) {
-                    if (orgData.subscription_tier) setSubscriptionTier(orgData.subscription_tier);
-                    if (orgData.subscription_status) setSubscriptionStatus(orgData.subscription_status);
-                }
-
-                // Phase 30 & 33.1: Fetch dynamic Personas and Server-Enforced Roles from Profile
+                // 1. Fetch Profile and Role Data
                 const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
-                    .select('primary_persona, allowed_personas, system_role')
+                    .select('organization_id, primary_persona, allowed_personas, system_role')
                     .eq('id', user.id)
                     .single();
 
                 if (profileError || !profileData) {
-                    throw new Error("Profile not initialized. Authentication session exists but profile backend mapping failed.");
+                    console.error("Profile not initialized. Authentication session exists but profile mapped failed.", profileError);
+                    // Critical failure layer: Do not crash, grant minimal defaults
+                    setSystemRole('USER');
+                    setSubscriptionTier('BASIC');
+                    setLoadingSub(false);
+                    return;
                 }
 
+                // 2. Global Super Admin Override (Absolute Bypass)
+                if (profileData.system_role === 'GLOBAL_SUPER_ADMIN') {
+                    setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
+                    setSubscriptionTier('SUPER');
+                    setSubscriptionStatus('ACTIVE');
+                    setSystemRole('GLOBAL_SUPER_ADMIN');
+                    if (profileData.primary_persona) {
+                        setPrimaryPersona(profileData.primary_persona);
+                        setCurrentViewPersona(profileData.primary_persona);
+                    }
+                    setLoadingSub(false);
+                    return; // Fast-path exit
+                }
+
+                // Normal User Flow
+                let orgId = profileData.organization_id;
+
+                // 3. Organization Bootstrap Guarantee
+                if (!orgId) {
+                    console.warn("Bootstrap Protocol: No organization found for user, initializing Personal Workspace...");
+                    const { data: newOrg, error: insertError } = await supabase
+                        .from('organizations')
+                        .insert({ name: 'Personal Workspace', subscription_tier: 'BASIC', team_seat_limit: 1 })
+                        .select('id')
+                        .single();
+
+                    if (!insertError && newOrg) {
+                        orgId = newOrg.id;
+                        await supabase.from('profiles').update({ organization_id: orgId }).eq('id', user.id);
+                    }
+                }
+
+                // Load User Personas
                 if (profileData.primary_persona) {
                     setPrimaryPersona(profileData.primary_persona);
                     setCurrentViewPersona(profileData.primary_persona);
                 }
-
                 if (profileData.system_role) {
                     setSystemRole(profileData.system_role);
                 }
-
-                if (profileData.system_role === 'GLOBAL_SUPER_ADMIN') {
-                    // Backend-enforced absolute power
-                    setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
-                    setSubscriptionTier('SUPER');
-                    setSubscriptionStatus('ACTIVE');
-                } else if (profileData.allowed_personas) {
+                if (profileData.allowed_personas) {
                     setAllowedPersonas(profileData.allowed_personas);
                 }
+
+                // 4. Fetch real subscription tier and status from organizations table
+                if (orgId) {
+                    const { data: orgData, error: subError } = await supabase
+                        .from('organizations')
+                        .select('subscription_tier, subscription_status')
+                        .eq('id', orgId)
+                        .single();
+
+                    if (!subError && orgData) {
+                        setSubscriptionTier(orgData.subscription_tier || 'BASIC');
+                        setSubscriptionStatus(orgData.subscription_status || 'ACTIVE');
+                    }
+                } else {
+                    // Failsafe for deeply unlinked users
+                    setSubscriptionTier('BASIC');
+                    setSubscriptionStatus('ACTIVE');
+                }
+
             } catch (err) {
                 console.error("Failed to fetch dynamic subscription data:", err);
             } finally {

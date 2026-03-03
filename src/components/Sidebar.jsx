@@ -6,11 +6,13 @@ import {
     List, Briefcase, Inbox, PhoneCall, ListTodo, CheckSquare, Settings, Table
 } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
+import { useAuth } from '../contexts/useAuth';
 import './Sidebar.css';
 import logoUrl from '../assets/logo.png';
 
 const Sidebar = () => {
-    const { currentViewPersona } = useSubscription();
+    const { currentViewPersona, subscriptionTier } = useSubscription();
+    const { user } = useAuth();
 
     const personaNavs = {
         'WHOLESALER': [
@@ -111,10 +113,18 @@ const Sidebar = () => {
 
             <div className="sidebar-footer">
                 <Link to="/profile" className="user-profile-mini hover:bg-white/5 transition-colors cursor-pointer rounded-md p-2">
-                    <div className="avatar">U</div>
+                    <div className="avatar">
+                        {user?.user_metadata?.first_name ? user.user_metadata.first_name.charAt(0).toUpperCase() : 'U'}
+                    </div>
                     <div className="user-info">
-                        <span className="user-name">Demo User</span>
-                        <span className="user-role">Administrator</span>
+                        <span className="user-name">
+                            {user?.user_metadata?.first_name
+                                ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`
+                                : user?.email || 'Authenticated User'}
+                        </span>
+                        <span className="user-role flex items-center gap-1">
+                            {subscriptionTier === 'SUPER' ? 'Global Admin' : `${subscriptionTier} Tier`}
+                        </span>
                     </div>
                 </Link>
             </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Database, Activity, Send, Filter, Plus, X, Search, Home } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import { useAuth } from '../contexts/useAuth';
 import DealPacketModal from '../components/DealPacketModal';
 import CompEngineModal from '../components/CompEngineModal';
@@ -14,7 +13,6 @@ const mockProperties = [
 ];
 
 const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
-    const { isDemoMode } = useDemoMode();
 
     return (
         <div className="property-card glass-panel">
@@ -26,23 +24,19 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
                 </span>
             </div>
             <div className="property-details">
-                <h3 className="property-address flex items-center gap-1" style={{
-                    filter: isDemoMode ? 'blur(5px)' : 'none',
-                    userSelect: isDemoMode ? 'none' : 'auto',
-                    transition: 'filter 0.3s ease'
-                }}>
+                <h3 className="property-address flex items-center gap-1">
                     <MapPin size={16} className="text-primary flex-shrink-0" /> {property.address}
                 </h3>
                 <div className="property-metrics">
                     <div className="metric">
                         <span className="metric-label">ARV</span>
-                        <span className={`metric-value font-mono inline-block transition-all duration-300 ${isDemoMode ? 'blur-md select-none opacity-50 pointer-events-none' : ''}`}>
+                        <span className="metric-value font-mono inline-block transition-all duration-300">
                             {property.arv}
                         </span>
                     </div>
                     <div className="metric">
                         <span className="metric-label">MAO</span>
-                        <span className={`metric-value font-mono inline-block transition-all duration-300 ${isDemoMode ? 'blur-md select-none opacity-50 pointer-events-none' : 'text-success'}`}>
+                        <span className="metric-value font-mono inline-block transition-all duration-300 text-success">
                             {property.mao}
                         </span>
                     </div>
@@ -72,7 +66,6 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
 };
 
 const Properties = () => {
-    const { isDemoMode } = useDemoMode();
     const { user } = useAuth();
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -99,13 +92,6 @@ const Properties = () => {
     useEffect(() => {
         const fetchProperties = async () => {
             setLoading(true);
-
-            if (isDemoMode) {
-                // Explicitly use mock data in demo mode to protect real client info
-                setProperties(mockProperties);
-                setLoading(false);
-                return;
-            }
 
             if (!supabase) {
                 // No supabase client (e.g. no .env connection), fallback to mock
@@ -137,10 +123,10 @@ const Properties = () => {
         };
 
         fetchProperties();
-    }, [isDemoMode]);
+    }, []);
 
     const checkExclusivityLock = async (address) => {
-        if (isDemoMode || !supabase) return { isLocked: false };
+        if (!supabase) return { isLocked: false };
         try {
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -177,13 +163,13 @@ const Properties = () => {
         if (!zillowUrlInput || !acceptedTermsZillow) return;
 
         // Quota Check for Scrapes
-        if (!isDemoMode && user?.id) {
+        if (user?.id) {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: user.id, type: 'scrape', isDemoMode })
+                    body: JSON.stringify({ userId: user.id, type: 'scrape' })
                 });
                 const data = await res.json();
                 if (!res.ok || !data.allowed) {
@@ -232,13 +218,13 @@ const Properties = () => {
         if (!liveFinderInput || !acceptedTermsApify) return;
 
         // Quota Check for Scrapes
-        if (!isDemoMode && user?.id) {
+        if (user?.id) {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: user.id, type: 'scrape', isDemoMode })
+                    body: JSON.stringify({ userId: user.id, type: 'scrape' })
                 });
                 const data = await res.json();
                 if (!res.ok || !data.allowed) {

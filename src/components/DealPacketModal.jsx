@@ -1,20 +1,12 @@
 import React, { useState } from 'react';
 import { X, FileText, Users, Wrench, Send, Link, Zap, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import RehabEstimator from './RehabEstimator';
 import './DealPacketModal.css';
 
-// Mock Cash Buyer Database for the Matching Engine
-const mockCashBuyers = [
-    { id: 1, name: 'Apex Capital Funding', zipCodes: ['78701', '78704', 'TX'], minEquity: 30, phone: '555-0101' },
-    { id: 2, name: 'Sunbelt Property Group', zipCodes: ['Dallas', 'Houston', 'TX'], minEquity: 25, phone: '555-0202' },
-    { id: 3, name: 'Lone Star Rehabbers', zipCodes: ['Austin', 'San Antonio'], minEquity: 20, phone: '555-0303' },
-    { id: 4, name: 'J&M Development Co.', zipCodes: ['Any'], minEquity: 40, phone: '555-0404' }
-];
+
 
 const DealPacketModal = ({ isOpen, onClose, property }) => {
-    const { isDemoMode } = useDemoMode();
     const [activeTab, setActiveTab] = useState('overview');
     const [isGenerating, setIsGenerating] = useState(false);
     const [rehabTotal, setRehabTotal] = useState(null);
@@ -31,26 +23,18 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
         const fetchBuyers = async () => {
             setIsLoadingBuyers(true);
             try {
-                if (isDemoMode) {
-                    const mockMatches = mockCashBuyers.map(buyer => {
-                        const score = 70 + (((property.id || 1) * buyer.id * 17) % 30);
-                        return { ...buyer, matchScore: score };
-                    }).sort((a, b) => b.matchScore - a.matchScore);
-                    if (isMounted) setMatchedBuyers(mockMatches);
-                } else {
-                    const extractedZip = property.address?.match(/\b\d{5}\b/) ? property.address.match(/\b\d{5}\b/)[0] : '37206';
-                    const propEquity = property.arv > 0 ? ((property.arv - (property.mao || 0)) / property.arv) * 100 : 0;
+                const extractedZip = property.address?.match(/\b\d{5}\b/) ? property.address.match(/\b\d{5}\b/)[0] : '37206';
+                const propEquity = property.arv > 0 ? ((property.arv - (property.mao || 0)) / property.arv) * 100 : 0;
 
-                    const { data, error } = await supabase.rpc('get_matching_buyers', {
-                        p_zip_code: extractedZip,
-                        p_equity: propEquity,
-                        p_property_type: 'SFR', // Defaulting to SFR since not explicitly captured
-                        p_asking_price: property.mao || 0
-                    });
+                const { data, error } = await supabase.rpc('get_matching_buyers', {
+                    p_zip_code: extractedZip,
+                    p_equity: propEquity,
+                    p_property_type: 'SFR', // Defaulting to SFR since not explicitly captured
+                    p_asking_price: property.mao || 0
+                });
 
-                    if (error) throw error;
-                    if (isMounted) setMatchedBuyers(data || []);
-                }
+                if (error) throw error;
+                if (isMounted) setMatchedBuyers(data || []);
             } catch (err) {
                 console.error("Match Engine Error", err);
                 if (isMounted) setMatchedBuyers([]);
@@ -61,7 +45,7 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
 
         fetchBuyers();
         return () => { isMounted = false; };
-    }, [property, isOpen, isDemoMode]);
+    }, [property, isOpen]);
 
     if (!property) return null;
 
@@ -107,10 +91,8 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
                 body: JSON.stringify({
                     propertyId: property.id,
                     buyerIds: matchedBuyers.map(b => b.contact_id || b.id),
-                    message: method === 'SMS' ? `Hot off-market deal in ${property.address}. Call us now.` : undefined,
                     subject: method === 'Email' ? `Exclusive Deal Packet: ${property.address}` : undefined,
-                    htmlContent: method === 'Email' ? `<p>Please review the enclosed Deal Packet for ${property.address}.</p>` : undefined,
-                    isDemoMode
+                    htmlContent: method === 'Email' ? `<p>Please review the enclosed Deal Packet for ${property.address}.</p>` : undefined
                 })
             });
 

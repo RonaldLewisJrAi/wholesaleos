@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building, MapPin, DollarSign, Percent, Save, Camera, Target, Calculator, Headphones, ShieldCheck, Activity, Sun, Moon } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
 import './Profile.css';
@@ -9,25 +8,24 @@ import './Profile.css';
 const Profile = () => {
     // Basic Profile State
     const [profile, setProfile] = useState({
-        firstName: 'Demo',
-        lastName: 'User',
-        email: 'demo@wholesale-os.com',
-        phone: '(615) 555-0198',
-        company: 'Wholesale OS Strategies',
-        bio: 'Real estate acquisition specialist focused on off-market distressed assets in the Greater Nashville area.',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        company: '',
+        bio: '',
         primaryPersona: 'WHOLESALER',
         systemRole: 'USER'
     });
 
     const { subscriptionTier, allowedPersonas } = useSubscription();
-    const { isDemoMode } = useDemoMode();
     const { theme, toggleTheme } = useTheme();
 
     // Investor Buy Box State
     const [buyBox, setBuyBox] = useState({
-        targetMarkets: 'Nashville TN, Austin TX',
-        maxPrice: 350000,
-        minROI: 12,
+        targetMarkets: '',
+        maxPrice: 0,
+        minROI: 0,
         propertyTypes: 'SFR, Small MFR',
         rehabLevel: 'Moderate to Full Gut'
     });
@@ -180,18 +178,6 @@ const Profile = () => {
 
     const isMasterAdmin = profile.systemRole === 'GLOBAL_SUPER_ADMIN';
 
-    if (isDemoMode) {
-        return (
-            <div className="profile-container animate-fade-in flex items-center justify-center min-h-[60vh]">
-                <div className="glass-panel p-8 text-center max-w-md bg-[var(--surface-dark)] border border-[var(--border-light)] rounded-xl">
-                    <ShieldCheck size={48} className="text-warning mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold mb-2 text-white">Restricted Access</h2>
-                    <p className="text-muted mb-6">User Profiles are completely disabled in Demo Mode for security purposes. Please log in or upgrade to an active SaaS tier to access your personalized configuration.</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="profile-container animate-fade-in">
             <div className="page-header border-b border-[var(--border-light)] pb-6 mb-2">
@@ -215,7 +201,8 @@ const Profile = () => {
                 <div className="profile-card">
                     <div className="avatar-upload-section">
                         <div className="avatar-preview">
-                            {profile.firstName.charAt(0)}{profile.lastName.charAt(0)}
+                            {profile.firstName ? profile.firstName.charAt(0) : 'U'}
+                            {profile.lastName ? profile.lastName.charAt(0) : ''}
                             <button className="avatar-edit-btn" title="Change Avatar">
                                 <Camera size={16} />
                             </button>
@@ -339,6 +326,54 @@ const Profile = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* Global Plan Governance */}
+                <div className="profile-card border-none bg-[rgba(99,102,241,0.05)] shadow-[0_0_15px_rgba(99,102,241,0.1)]">
+                    <h3 className="section-title mb-4 pb-2 border-b border-primary/30 font-bold text-primary flex items-center gap-2">
+                        <Building size={18} /> Subscriptions & Add-Ons
+                    </h3>
+
+                    <div className="text-sm mb-4">
+                        <p className="text-muted"><strong className="text-white">Current Organization:</strong> {profile.company || 'Personal Workspace'}</p>
+                        <p className="text-muted mt-1"><strong className="text-white">Active Plan:</strong> <span className="badge bg-primary/20 text-primary border border-primary/50 ml-2">{subscriptionTier}</span></p>
+                    </div>
+
+                    {['BASIC', 'PRO', 'ADVANCED'].includes(subscriptionTier) && (
+                        <button
+                            className="btn btn-secondary border-primary text-primary hover:bg-primary/20 w-full mt-6 py-3 disabled:opacity-50"
+                            onClick={handleCheckout}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? 'Processing Secure Redirect...' : 'Upgrade Subscription'}
+                        </button>
+                    )}
+                </div>
+
+                {/* Phase 29: Team Performance Tracker */}
+                {(subscriptionTier === 'SUPER' || isMasterAdmin) && (
+                    <div className="profile-card border-none bg-[rgba(16,185,129,0.05)] shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                        <h3 className="section-title mb-4 pb-2 border-b border-success/30 font-bold text-success flex items-center gap-2">
+                            <Activity size={18} /> Elite Performance Tracker
+                        </h3>
+                        <p className="text-xs text-muted mb-4">Outbound conversion telemetry locked to Elite/Super Admin tiers.</p>
+
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">Outbound Calls</span>
+                                <span className="text-2xl font-bold text-white">142</span>
+                            </div>
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">SMS Sent</span>
+                                <span className="text-2xl font-bold text-primary">845</span>
+                            </div>
+                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
+                                <span className="text-xs text-muted block mb-1 uppercase">Appointments</span>
+                                <span className="text-2xl font-bold text-success">12</span>
+                            </div>
+                        </div>
+                        <div className="mt-4 text-center text-xs text-muted font-mono">Telemetry synced from active Deals pipeline</div>
+                    </div>
+                )}
 
                 {/* Algorithmic Buy Box - INVESTOR PERSONA */}
                 {profile.primaryPersona === 'INVESTOR' && (
@@ -474,56 +509,6 @@ const Profile = () => {
                         </button>
                     </div>
                 )}
-
-                {/* Phase 29: Team Performance Tracker */}
-                {(subscriptionTier === 'SUPER' || isMasterAdmin) && (
-                    <div className="profile-card border-none bg-[rgba(16,185,129,0.05)] shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                        <h3 className="section-title mb-4 pb-2 border-b border-success/30 font-bold text-success flex items-center gap-2">
-                            <Activity size={18} /> Elite Performance Tracker
-                        </h3>
-                        <p className="text-xs text-muted mb-4">Outbound conversion telemetry locked to Elite/Super Admin tiers.</p>
-
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
-                                <span className="text-xs text-muted block mb-1 uppercase">Outbound Calls</span>
-                                <span className="text-2xl font-bold text-white">142</span>
-                            </div>
-                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
-                                <span className="text-xs text-muted block mb-1 uppercase">SMS Sent</span>
-                                <span className="text-2xl font-bold text-primary">845</span>
-                            </div>
-                            <div className="bg-[var(--surface-dark)] p-3 rounded border border-[var(--border-light)] text-center">
-                                <span className="text-xs text-muted block mb-1 uppercase">Appointments</span>
-                                <span className="text-2xl font-bold text-success">12</span>
-                            </div>
-                        </div>
-                        <div className="mt-4 text-center text-xs text-muted font-mono">Telemetry synced from active Deals pipeline</div>
-                    </div>
-                )}
-
-
-
-                {/* Global Plan Governance */}
-                <div className="profile-card border-none bg-[rgba(99,102,241,0.05)] shadow-[0_0_15px_rgba(99,102,241,0.1)]">
-                    <h3 className="section-title mb-4 pb-2 border-b border-primary/30 font-bold text-primary flex items-center gap-2">
-                        <Building size={18} /> Subscriptions & Add-Ons
-                    </h3>
-
-                    <div className="text-sm mb-4">
-                        <p className="text-muted"><strong className="text-white">Current Organization:</strong> Wholesale OS Strategies</p>
-                        <p className="text-muted mt-1"><strong className="text-white">Active Plan:</strong> <span className="badge bg-primary/20 text-primary border border-primary/50 ml-2">{subscriptionTier}</span></p>
-                    </div>
-
-                    {['BASIC', 'PRO', 'ADVANCED'].includes(subscriptionTier) && (
-                        <button
-                            className="btn btn-secondary border-primary text-primary hover:bg-primary/20 w-full mt-6 py-3 disabled:opacity-50"
-                            onClick={handleCheckout}
-                            disabled={isSaving}
-                        >
-                            {isSaving ? 'Processing Secure Redirect...' : 'Upgrade Subscription'}
-                        </button>
-                    )}
-                </div>
 
             </div>
         </div>

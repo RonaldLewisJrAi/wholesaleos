@@ -56,8 +56,8 @@ const templates = [
 const Documents = () => {
     const { subscriptionTier } = useSubscription();
     const { user } = useAuth();
-    // Block downloads and apply DRM if tier is missing, 'demo', or the default 'free'
-    const isDemoMode = !subscriptionTier || subscriptionTier === 'demo' || subscriptionTier === 'free';
+    // Block downloads and apply DRM if tier is missing or free
+    const isRestricted = !subscriptionTier || subscriptionTier === 'free' || subscriptionTier === 'demo';
 
     const [selectedTemplate, setSelectedTemplate] = useState('t2');
     const [formData, setFormData] = useState({
@@ -176,8 +176,8 @@ const Documents = () => {
     };
 
     const handleCloudSync = async () => {
-        if (isDemoMode) {
-            alert('Cloud Synchronization is strictly disabled in Demo Mode. Please log in to securely sync your documents to Supabase.');
+        if (isRestricted) {
+            alert('Cloud Synchronization requires an active SaaS subscription. Please upgrade to sync your documents to Supabase.');
             return;
         }
 
@@ -204,8 +204,8 @@ const Documents = () => {
     };
 
     const generatePDF = async () => {
-        if (isDemoMode) {
-            alert('PDF Download is strictly disabled in Demo Mode. Please unlock Live Mode to generate official documents.');
+        if (isRestricted) {
+            alert('PDF Download requires an active SaaS tier. Please upgrade to generate official documents.');
             return;
         }
         if (!pdfContainerRef.current) return;
@@ -224,7 +224,7 @@ const Documents = () => {
                 },
                 body: JSON.stringify({
                     userId: user?.id,
-                    isDemoMode: isDemoMode
+                    isRestricted: isRestricted
                 })
             });
 
@@ -298,7 +298,7 @@ const Documents = () => {
                 },
                 body: JSON.stringify({
                     userId: user?.id,
-                    isDemoMode: isDemoMode,
+                    isRestricted: isRestricted,
                     htmlContent: fullHtmlContent
                 })
             });
@@ -327,21 +327,21 @@ const Documents = () => {
 
     return (
         <div
-            className={`documents-container animate-fade-in ${isDemoMode ? 'select-none' : ''}`}
+            className={`documents-container animate-fade-in ${isRestricted ? 'select-none' : ''}`}
             onContextMenu={(e) => {
-                if (isDemoMode) {
+                if (isRestricted) {
                     e.preventDefault();
-                    alert("Right-click is disabled in Demo Mode to protect proprietary templates.");
+                    alert("Right-click is disabled on Free Tier to protect proprietary templates.");
                 }
             }}
             onCopy={(e) => {
-                if (isDemoMode) {
+                if (isRestricted) {
                     e.preventDefault();
-                    alert("Copying text is disabled in Demo Mode.");
+                    alert("Copying text is disabled on Free Tier.");
                 }
             }}
             onCut={(e) => {
-                if (isDemoMode) {
+                if (isRestricted) {
                     e.preventDefault();
                 }
             }}
@@ -450,24 +450,24 @@ const Documents = () => {
 
                     <div className="mock-pdf-container">
                         <div
-                            className={`mock-pdf-page text-black relative ${isDemoMode ? 'select-none overflow-hidden' : ''}`}
+                            className={`mock-pdf-page text-black relative ${isRestricted ? 'select-none overflow-hidden' : ''}`}
                             ref={pdfContainerRef}
                             style={{
                                 background: '#ffffff',
                                 color: '#000000',
-                                userSelect: isDemoMode ? 'none' : 'auto',
-                                WebkitUserSelect: isDemoMode ? 'none' : 'auto',
-                                MozUserSelect: isDemoMode ? 'none' : 'auto',
-                                msUserSelect: isDemoMode ? 'none' : 'auto'
+                                userSelect: isRestricted ? 'none' : 'auto',
+                                WebkitUserSelect: isRestricted ? 'none' : 'auto',
+                                MozUserSelect: isRestricted ? 'none' : 'auto',
+                                msUserSelect: isRestricted ? 'none' : 'auto'
                             }}
                             onSelectStart={(e) => {
-                                if (isDemoMode) e.preventDefault();
+                                if (isRestricted) e.preventDefault();
                             }}
                         >
-                            {isDemoMode && (
+                            {isRestricted && (
                                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-50 overflow-hidden" style={{ opacity: 0.15 }}>
                                     <h1 className="text-[6rem] font-black text-black transform -rotate-45 whitespace-nowrap tracking-widest uppercase">
-                                        VOID / DEMO ACCOUNT
+                                        PREVIEW ONLY
                                     </h1>
                                 </div>
                             )}

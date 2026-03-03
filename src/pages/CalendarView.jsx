@@ -1,49 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, X, Edit2, Trash2, MapPin, Clock, AlignLeft } from 'lucide-react';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import './CalendarView.css';
 
 // Basic utility to get days in month
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
-const generateMockEvents = () => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
 
-    return [
-        { id: 1, date: 15, month: currentMonth, year: currentYear, title: 'Seller Walkthrough', time: '10:00 AM', location: '123 Main St', description: 'Initial walkthrough and condition check.' },
-        { id: 2, date: Math.min(18, getDaysInMonth(currentYear, currentMonth)), month: currentMonth, year: currentYear, title: 'Title Company Closing', time: '2:30 PM', location: 'Texas Title Co.', description: 'Sign closing docs for the Smith parcel.' },
-        { id: 3, date: Math.min(22, getDaysInMonth(currentYear, currentMonth)), month: currentMonth, year: currentYear, title: 'Buyer Showing', time: '4:00 PM', location: '456 Oak Ave', description: 'Showing the property to prospective cash buyers.' }
-    ];
-};
 
 const CalendarView = () => {
-    const { isDemoMode } = useDemoMode();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState([]);
 
-    // Auto-load demo data or local storage
+    // Auto-load local storage
     useEffect(() => {
-        if (isDemoMode) {
-            setEvents(generateMockEvents());
+        const saved = localStorage.getItem('wholesale_os_calendar_events');
+        if (saved) {
+            setEvents(JSON.parse(saved));
         } else {
-            const saved = localStorage.getItem('wholesale_os_calendar_events');
-            if (saved) {
-                setEvents(JSON.parse(saved));
-            } else {
-                setEvents([]);
-            }
+            setEvents([]);
         }
-    }, [isDemoMode]);
+    }, []);
 
     // Save live data to local storage
     useEffect(() => {
-        if (!isDemoMode && events.length > 0) {
+        if (events.length > 0) {
             localStorage.setItem('wholesale_os_calendar_events', JSON.stringify(events));
         }
-    }, [events, isDemoMode]);
+    }, [events]);
 
     const [selectedDate, setSelectedDate] = useState(null);
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -152,7 +136,6 @@ const CalendarView = () => {
                 <div>
                     <h1 className="page-title flex items-center gap-2">
                         <CalendarIcon className="text-primary" size={28} /> Schedule
-                        {isDemoMode && <span className="badge-demo">Demo Mode Active</span>}
                     </h1>
                     <p className="page-description">Manage walkthroughs, closings, notate details, and schedule follow-ups.</p>
                 </div>

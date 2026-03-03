@@ -11,6 +11,7 @@ import {
     Zap
 } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
+import { useAuth } from '../contexts/useAuth';
 import InvestorDashboard from './Workstations/InvestorDashboard';
 import RealtorDashboard from './Workstations/RealtorDashboard';
 import VADashboard from './Workstations/VADashboard';
@@ -46,6 +47,7 @@ const StatCard = ({ title, value, change, icon: Icon, trend }) => (
 const Dashboard = () => {
     const navigate = useNavigate();
     const { currentViewPersona, systemRole } = useSubscription();
+    const { user } = useAuth();
 
     useEffect(() => {
         if (systemRole === 'GLOBAL_SUPER_ADMIN') {
@@ -69,7 +71,7 @@ const Dashboard = () => {
             <div className="page-header flex-between">
                 <div>
                     <h1 className="page-title">Dashboard Overview</h1>
-                    <p className="page-description">Welcome back, Demo User. Here's what's happening with your deals today.</p>
+                    <p className="page-description">Welcome back, {user?.user_metadata?.first_name || 'Authenticated User'}. Here's what's happening with your deals today.</p>
                 </div>
                 <div className="header-actions">
                     <button className="btn btn-secondary" onClick={() => alert("Report generation started. A PDF will be downloaded shortly.")}>Download Report</button>

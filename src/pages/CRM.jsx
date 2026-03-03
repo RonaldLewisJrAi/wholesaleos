@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, UserPlus, Mail, Phone, MapPin, X, UploadCloud, Target } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import { useAuth } from '../contexts/useAuth';
 import { calculateDealProbability, calculateBuyerDemandIndex } from '../lib/DealIntelligence';
 import './CRM.css';
 
-const mockContacts = [
-    { id: 1, name: 'Sarah Jenkins', type: 'Cash Buyer', tags: ['VIP', 'Multi-family'], email: 'sarah.j@investments.com', phone: '(555) 123-4567', location: 'Austin, TX', lat: 30.2672, lng: -97.7431, tier: 'Tier 1' },
-    { id: 2, name: 'Michael Chen', type: 'Lead (Motivated)', tags: ['Pre-foreclosure'], email: 'mchen88@gmail.com', phone: '(555) 987-6543', location: 'Dallas, TX', lat: 32.7767, lng: -96.7970, tier: 'N/A', arv: 350000, mortgage_balance: 180000, distress_score: 85, motivation_level: 5, timeline_to_sell: '0-30 days', last_contact_date: '2026-02-21' },
-    { id: 3, name: 'Apex Properties LLC', type: 'Cash Buyer', tags: ['Fix & Flip', 'Commercial'], email: 'acquisitions@apexprop.net', phone: '(555) 456-7890', location: 'Houston, TX', lat: 29.7604, lng: -95.3698, tier: 'Tier 2' },
-    { id: 4, name: 'David Rodriguez', type: 'Lead (Probate)', tags: ['High Equity'], email: 'd.rodriguez.estate@yahoo.com', phone: '(555) 222-3333', location: 'San Antonio, TX', lat: 29.4241, lng: -98.4936, tier: 'N/A', arv: 220000, mortgage_balance: 45000, distress_score: 40, motivation_level: 3, timeline_to_sell: '30-90 days', last_contact_date: '2026-02-15' },
-    { id: 5, name: 'Emily Carter', type: 'Lead (Tired Landlord)', tags: ['Eviction'], email: 'emily.carter99@gmail.com', phone: '(555) 888-1111', location: 'Nashville, TN', lat: 36.1627, lng: -86.7816, tier: 'N/A', arv: 410000, mortgage_balance: 380000, distress_score: 95, motivation_level: 4, timeline_to_sell: '0-30 days', last_contact_date: '2026-02-20' },
-];
+
 
 // Lead Intelligence Logic
 const calculateEquity = (contact) => {
@@ -80,7 +73,6 @@ const calculateOffers = (arv) => {
 };
 
 const CRM = () => {
-    const { isDemoMode } = useDemoMode();
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('All');
     const [contacts, setContacts] = useState([]);
@@ -109,12 +101,6 @@ const CRM = () => {
     useEffect(() => {
         const fetchContacts = async () => {
             setLoading(true);
-            if (isDemoMode) {
-                setContacts(mockContacts);
-                setLoading(false);
-                return;
-            }
-
             if (!supabase) {
                 console.warn('Live Mode active but Supabase is not configured. Contact list will be empty.');
                 setContacts([]);
@@ -143,7 +129,7 @@ const CRM = () => {
         };
 
         fetchContacts();
-    }, [isDemoMode]);
+    }, []);
 
     const handleOpenModal = () => {
         setIsAddModalOpen(true);
@@ -160,13 +146,13 @@ const CRM = () => {
         if (!newContact.name) return;
 
         // Quota Check for CRM Leads
-        if (!isDemoMode && user?.id) {
+        if (user?.id) {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: user.id, type: 'lead', isDemoMode })
+                    body: JSON.stringify({ userId: user.id, type: 'lead' })
                 });
                 const data = await res.json();
                 if (!res.ok || !data.allowed) {
@@ -197,13 +183,13 @@ const CRM = () => {
         setIsUploading(true);
 
         // Quota Check for CRM Leads (File Upload)
-        if (!isDemoMode && user?.id) {
+        if (user?.id) {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: user.id, type: 'lead', isDemoMode })
+                    body: JSON.stringify({ userId: user.id, type: 'lead' })
                 });
                 const data = await res.json();
                 if (!res.ok || !data.allowed) {

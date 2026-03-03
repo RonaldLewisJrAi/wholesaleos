@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { useDemoMode } from '../contexts/DemoModeContext';
 
 const Login = () => {
-    const { setIsDemoMode } = useDemoMode();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(true);
@@ -34,9 +32,6 @@ const Login = () => {
                 setLoading(false);
                 return;
             }
-
-            // Successfully authenticated, unlock the platform from Demo Mode
-            setIsDemoMode(false);
 
             navigate('/dashboard');
         } catch (err) {

@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, User, DollarSign, Calendar, Maximize2, Activity } from 'lucide-react';
-// isDemoMode context removed as map now defaults to 50 states natively
-// Create a custom pulsing marker using divIcon
+// Fallback placeholder data
 const createPulseIcon = (color) => {
     return L.divIcon({
         className: 'custom-pulse-icon',
@@ -19,7 +18,7 @@ const orangePulse = createPulseIcon('#f59e0b');
 // Default coordinates for USA Center
 const defaultCenter = [39.8283, -98.5795];
 
-const demoSalesData = [
+const placeholderSalesData = [
     { id: 1, lat: 32.3668, lng: -86.3000, address: "Montgomery, AL", buyer: "Blackstone Equity Group", amount: "$850,000", date: "2 days ago", type: "hot" },
     { id: 2, lat: 58.3019, lng: -134.4197, address: "Juneau, AK", buyer: "Local Investor", amount: "$425,000", date: "5 days ago", type: "warm" },
     { id: 3, lat: 33.4484, lng: -112.0740, address: "Phoenix, AZ", buyer: "OpenDoor Capital", amount: "$612,500", date: "1 week ago", type: "hot" },
@@ -89,8 +88,8 @@ const MapController = ({ zoomedCenter }) => {
 const HeatMap = ({ data = [] }) => {
     const [zoomedCenter, setZoomedCenter] = useState(null);
 
-    // Forcing the mapData to ALWAYS populate using the 50-state capital simulated array, regardless of demo mode.
-    const mapData = data.length > 0 ? data : demoSalesData;
+    // Forcing the mapData to ALWAYS populate using the 50-state capital simulated array if empty
+    const mapData = data.length > 0 ? data : placeholderSalesData;
 
     return (
         <div className="heatmap-container glass-panel" style={{ height: '500px', width: '100%', borderRadius: '12px', overflow: 'hidden', position: 'relative' }}>

@@ -2,15 +2,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio, Sun, Moon, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useGuidance } from '../contexts/GuidanceContext';
+import { useAuth } from '../contexts/useAuth';
+import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const Header = () => {
-    const { isDemoMode, setIsDemoMode } = useDemoMode();
     const { theme, toggleTheme } = useTheme();
     const { guidanceMode, toggleInsightMode, toggleTourMode } = useGuidance();
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
     const [showNotifications, setShowNotifications] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
 
@@ -37,18 +41,9 @@ const Header = () => {
         setShowNotifications(false);
     };
 
-    const handleDemoToggle = () => {
-        if (isDemoMode) {
-            const password = window.prompt("Security Check: Enter Admin Password to access Live Production Data:");
-            if (password === "paidproperties2026!") {
-                setIsDemoMode(false);
-            } else if (password !== null) {
-                alert("Incorrect password. Access to Live Mode denied.");
-            }
-        } else {
-            // Switching back to demo mode is always allowed
-            setIsDemoMode(true);
-        }
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate('/login', { replace: true });
     };
 
     return (
@@ -64,23 +59,6 @@ const Header = () => {
 
             <div className="header-actions">
                 <WorkspaceSwitcher />
-                <div
-                    className="demo-toggle"
-                    style={{
-                        display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
-                        padding: '6px 12px', borderRadius: '20px',
-                        backgroundColor: isDemoMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(239, 68, 68, 0.1)',
-                        border: `1px solid ${isDemoMode ? 'var(--border-light)' : 'rgba(239, 68, 68, 0.3)'}`,
-                        transition: 'all 0.2s ease'
-                    }}
-                    onClick={handleDemoToggle}
-                    title={isDemoMode ? "Switch to Live Data Pipeline" : "Switch to Mock Data Demo"}
-                >
-                    {isDemoMode ? <ToggleLeft size={20} className="text-muted" /> : <ToggleRight size={20} className="text-danger" />}
-                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: isDemoMode ? 'var(--text-muted)' : 'var(--danger-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                        {isDemoMode ? 'Demo' : <span className="flex items-center gap-1"><Radio size={12} className="animate-pulse" /> Live</span>}
-                    </span>
-                </div>
 
                 <div className="theme-toggle-container flex gap-2">
                     <button
@@ -145,8 +123,10 @@ const Header = () => {
                     {showSettings && (
                         <div className="dropdown-menu settings-dropdown animate-fade-in">
                             <div className="dropdown-header">
-                                <h4>Demo User</h4>
-                                <span className="text-xs text-muted">demo@wholesale-os.com</span>
+                                <h4>Account</h4>
+                                <span className="text-xs text-muted">
+                                    {user?.user_metadata?.first_name ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}` : user?.email || 'Authenticated User'}
+                                </span>
                             </div>
                             <div className="dropdown-body">
                                 <Link to="/profile" className="dropdown-item" onClick={toggleSettings}>
@@ -156,7 +136,7 @@ const Header = () => {
                                     <Settings size={16} /> Account Preferences
                                 </button>
                                 <div className="dropdown-divider"></div>
-                                <button className="dropdown-item text-danger" onClick={() => alert("Securely logging out of the application...")}>
+                                <button className="dropdown-item text-danger" onClick={handleLogout}>
                                     <LogOut size={16} /> Sign Out
                                 </button>
                             </div>

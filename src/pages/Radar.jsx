@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X, AlertCircle, DollarSign, RefreshCw, ZoomIn } from 'lucide-react';
-import { useDemoMode } from '../contexts/DemoModeContext';
 import HeatMap from '../components/HeatMap';
 
 const Radar = () => {
-    const { isDemoMode } = useDemoMode();
     const [county, setCounty] = useState('');
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState([]);
@@ -54,22 +52,7 @@ const Radar = () => {
         if (!county) return;
         setLoading(true);
         setHasSearched(true);
-
-        if (isDemoMode) {
-            // Bypass the backend completely and inject high-quality mock data
-            setTimeout(() => {
-                const demoResults = [
-                    { id: 1, address: `123 Main St, ${county}`, owner: 'John Doe', estimatedEquity: '$65,000', daysLeft: 45, status: 'Notice of Default', defaultAmount: '$12,450' },
-                    { id: 2, address: `456 Oak Ave, ${county}`, owner: 'Jane Smith', estimatedEquity: '$110,000', daysLeft: 12, status: 'Notice of Trustee Sale', defaultAmount: '$24,100' },
-                    { id: 3, address: `789 Pine Ln, ${county}`, owner: 'Robert Johnson', estimatedEquity: '$45,000', daysLeft: 83, status: 'Notice of Default', defaultAmount: '$8,900' }
-                ];
-                setResults(demoResults);
-                setLoading(false);
-            }, 1500);
-        } else {
-            // Live production mode
-            fetchRealData(county);
-        }
+        fetchRealData(county);
     };
 
     return (
@@ -77,8 +60,7 @@ const Radar = () => {
             <div className="page-header flex-between mb-6">
                 <div>
                     <h1 className="page-title flex items-center gap-2">
-                        <AlertTriangle className={isDemoMode ? "text-muted" : "text-warning"} size={28} /> Opportunity Radar
-                        {isDemoMode && <span className="badge bg-[rgba(255,255,255,0.1)] text-xs ml-2 border border-[var(--border-light)]">Demo Mode Active</span>}
+                        <AlertTriangle className="text-warning" size={28} /> Opportunity Radar
                     </h1>
                     <p className="page-description">Track preforeclosures, auctions, and distressed properties in your target markets.</p>
                 </div>
