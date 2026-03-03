@@ -27,29 +27,33 @@ async function removeDemoAccount() {
     try {
         console.log("Searching for demo@wholesale-os.com...");
 
-        // Find user by email (Wait, list users doesn't let us filter by email directly easily in older versions, 
-        // let's do a raw database query or try the admin API)
+        let page = 1;
+        let demoUser = null;
 
-        // Actually we can just do an RPC or just let's try calling auth.admin.deleteUser directly if we get ID
+        while (true) {
+            const { data: { users: authUsers }, error: listErr } = await supabase.auth.admin.listUsers({
+                page: page,
+                perPage: 100
+            });
 
-        // Let's query auth.users via database role (we have service key)
-        const { data: users, error: selectErr } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('email', 'demo@wholesale-os.com');
+            if (listErr) throw listErr;
 
-        // Wait, profiles might not have email or it's out of sync.
-        // Let's just try to query auth schema via supabase JS? supabase js does not allow auth query via from('auth.users').
+            if (!authUsers || authUsers.length === 0) {
+                break; // No more users
+            }
 
-        const { data: { users: authUsers }, error: listErr } = await supabase.auth.admin.listUsers();
-        if (listErr) throw listErr;
+            demoUser = authUsers.find(u => u.email === 'demo@wholesale-os.com');
+            if (demoUser) {
+                break;
+            }
 
-        const demoUser = authUsers.find(u => u.email === 'demo@wholesale-os.com');
+            page++;
+        }
 
         if (!demoUser) {
             console.log("Demo user not found in auth.users.");
         } else {
-            console.log(`Found demo user with ID: ${demoUser.id}. Deleting...`);
+            console.log(`Found demo user with ID: ${demoUser.id} on page ${page}. Deleting...`);
             const { error: delErr } = await supabase.auth.admin.deleteUser(demoUser.id);
             if (delErr) {
                 console.error("Failed to delete from auth:", delErr.message);

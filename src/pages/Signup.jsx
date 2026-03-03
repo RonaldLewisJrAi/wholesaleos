@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { Building, Mail, Lock, User, CheckCircle } from 'lucide-react';
+import { Building, Mail, Lock, User, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -17,6 +17,8 @@ const Signup = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -170,15 +172,43 @@ const Signup = () => {
                             <div>
                                 <label className="block text-xs font-medium text-gray-400 mb-1">Security Key (Password)</label>
                                 <div className="relative">
-                                    <Lock size={16} className="absolute left-3 top-3 text-gray-500" />
-                                    <input required type="password" name="password" value={formData.password} onChange={handleChange}
-                                        className="w-full bg-[#0B0F19] border border-gray-700 rounded-md py-2.5 pl-9 pr-3 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
+                                    <Lock size={16} className="absolute left-3 top-3 text-gray-500 z-10" />
+                                    <input
+                                        required
+                                        type={showPassword ? "text" : "password"}
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        className="w-full bg-[#0B0F19] border border-gray-700 rounded-md py-2.5 pl-9 pr-10 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-300 transition-colors"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-gray-400 mb-1">Verify Key</label>
-                                <input required type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
-                                    className="w-full bg-[#0B0F19] border border-gray-700 rounded-md px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
+                                <div className="relative">
+                                    <input
+                                        required
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        className="w-full bg-[#0B0F19] border border-gray-700 rounded-md py-2.5 px-3 pr-10 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-300 transition-colors"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -201,9 +231,15 @@ const Signup = () => {
                 )}
 
                 <div className="mt-6 text-center pt-6 border-t border-gray-800">
-                    <p className="text-sm text-gray-400">
-                        Signal detected? <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">Return to Central Gateway</Link>
+                    <p className="text-sm text-gray-400 mb-3">
+                        Already have an account?
                     </p>
+                    <Link
+                        to="/login"
+                        className="block w-full bg-[#131B2C] border border-indigo-500/30 hover:bg-indigo-500/10 text-indigo-400 font-medium py-2.5 px-4 rounded-md transition-all text-center"
+                    >
+                        Return to Login
+                    </Link>
                 </div>
             </div>
         </div>

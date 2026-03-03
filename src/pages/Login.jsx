@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -8,6 +9,7 @@ const Login = () => {
     const [rememberMe, setRememberMe] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -71,14 +73,23 @@ const Login = () => {
                         <div className="flex justify-between items-center mb-1">
                             <label className="block text-sm font-medium text-gray-400">Password</label>
                         </div>
-                        <input
-                            type="password"
-                            className="w-full bg-[#0B0F19] border border-gray-700 rounded-md px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                            required
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                className="w-full bg-[#0B0F19] border border-gray-700 rounded-md px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors pr-10"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-300 transition-colors"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -105,9 +116,15 @@ const Login = () => {
                     </button>
 
                     <div className="mt-6 text-center pt-4 border-t border-gray-800">
-                        <p className="text-sm text-gray-400 mb-2">
-                            Need a deployment clearance? <Link to="/signup" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">Initialize Identity</Link>
+                        <p className="text-sm text-gray-400 mb-3">
+                            Don't have an account yet?
                         </p>
+                        <Link
+                            to="/signup"
+                            className="block w-full bg-[#131B2C] border border-indigo-500/30 hover:bg-indigo-500/10 text-indigo-400 font-medium py-2.5 px-4 rounded-md transition-all text-center"
+                        >
+                            Sign Up
+                        </Link>
                     </div>
                 </form>
             </div>
