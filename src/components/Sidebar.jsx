@@ -26,7 +26,7 @@ const Sidebar = () => {
             { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
             { name: 'Calculators', path: '/calculators', icon: <Calculator size={20} /> },
             { name: 'Compliance', path: '/compliance', icon: <ShieldCheck size={20} /> },
-            { name: 'Integration & API', path: '/integrations', icon: <Settings size={20} /> },
+            { name: 'Integration & API', path: '/integrations', icon: <Settings size={20} />, roleRequired: 'GLOBAL_SUPER_ADMIN' },
         ],
         'INVESTOR': [
             { name: 'Investor Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
@@ -77,13 +77,19 @@ const Sidebar = () => {
         'ADMIN': [
             { name: 'Admin Command', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
             { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
-            { name: 'API & Webhooks', path: '/settings', icon: <Settings size={20} /> },
+            { name: 'API & Webhooks', path: '/settings', icon: <Settings size={20} />, roleRequired: 'GLOBAL_SUPER_ADMIN' },
             { name: 'Team Roster', path: '/crm', icon: <Users size={20} /> },
             { name: 'System Logs', path: '/logs', icon: <List size={20} /> }
         ]
     };
 
-    const navItems = personaNavs[currentViewPersona] || personaNavs['WHOLESALER'];
+    const baseNavItems = personaNavs[currentViewPersona] || personaNavs['WHOLESALER'];
+    const navItems = baseNavItems.filter(item => {
+        if (item.roleRequired === 'GLOBAL_SUPER_ADMIN') {
+            return user?.user_metadata?.system_role === 'GLOBAL_SUPER_ADMIN';
+        }
+        return true;
+    });
 
     return (
         <aside className="sidebar glass-panel">

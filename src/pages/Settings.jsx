@@ -5,7 +5,7 @@ import { useIntegrations } from '../contexts/useIntegrations';
 import './Settings.css';
 
 const Settings = () => {
-    const { subscriptionTier, subscriptionStatus, setSubscriptionStatus } = useSubscription();
+    const { systemRole, subscriptionTier, subscriptionStatus, setSubscriptionStatus } = useSubscription();
     const [activeTab, setActiveTab] = useState('communication');
     const {
         integrations = [],
@@ -16,9 +16,8 @@ const Settings = () => {
         toggleFeatureFlag
     } = useIntegrations() || {};
 
-    // Mock User - Assume Admin check passed for this demo
-    const isAdmin = true;
-    const isBasic = subscriptionTier === 'BASIC';
+    // Phase 38.3 Restricted Access
+    const isSuperAdmin = systemRole === 'GLOBAL_SUPER_ADMIN';
 
     // Parse Flags Array to object map for easy toggling lookup
     const featureFlags = {
@@ -120,12 +119,13 @@ const Settings = () => {
         }
     };
 
-    if (!isAdmin) {
+    if (!isSuperAdmin) {
         return (
             <div className="p-8 text-center animate-fade-in text-muted">
-                <Shield className="mx-auto mb-4 opacity-50" size={48} />
-                <h2 className="text-xl font-bold">Access Denied</h2>
-                <p>Only Organization Administrators can manage Integrations.</p>
+                <Shield className="mx-auto mb-4 text-red-500/50" size={48} />
+                <h2 className="text-2xl font-bold text-red-400">Enterprise Control Panel Restricted</h2>
+                <p className="mt-2">Integrations, APIs, and Webhooks are currently isolated to Global Super Administrators for the Phase 38 Beta environment.</p>
+                <button className="btn btn-primary mt-6" onClick={() => window.location.href = '/dashboard'}>Return to Dashboard</button>
             </div>
         );
     }
@@ -145,11 +145,6 @@ const Settings = () => {
                     </h1>
                     <p className="text-muted mt-2">Manage third-party connections, webhooks, API tokens, and feature flags.</p>
                 </div>
-                {isBasic && (
-                    <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-2 rounded flex items-center gap-2 text-sm font-bold">
-                        <Shield size={16} /> BASIC TIER: Integrations Locked
-                    </div>
-                )}
             </div>
 
             <div className="flex flex-col md:flex-row gap-8">
@@ -196,7 +191,7 @@ const Settings = () => {
                 </div>
 
                 {/* Main Content Area */}
-                <div className={`flex-1 ${isBasic ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div className="flex-1">
 
                     {/* BILLING TAB */}
                     {activeTab === 'billing' && (

@@ -24,6 +24,11 @@ router.post('/generate', async (req, res) => {
             return res.status(403).json({ error: 'Action Blocked: User not linked to an active organization.' });
         }
 
+        // Phase 38.3: Enterprise Feature Isolation
+        if (req.user?.role !== 'GLOBAL_SUPER_ADMIN') {
+            return res.status(403).json({ error: 'Enterprise Control Panel Restricted: Integrations and API Hooks are locked to Super Admins only.' });
+        }
+
         if (!supabaseAdmin) {
             return res.status(500).json({ error: 'Backend Supabase configuration is missing.' });
         }
