@@ -1,0 +1,12 @@
+{
+  "error": {
+    "code": "PGRST202",
+    "details": "Searched for the function public.get_table_columns_by_name with parameter t_name or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.",
+    "hint": "Perhaps you meant to call the function public.get_matching_buyers",
+    "message": "Could not find the function public.get_table_columns_by_name(t_name) in the schema cache"
+  },
+  "data": null,
+  "count": null,
+  "status": 404,
+  "statusText": "Not Found"
+}
