@@ -185,10 +185,26 @@ const Properties = () => {
         setIsImporting(true);
         setIsZillowModalOpen(false);
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            const scrapedAddress = 'Scraped Property: ' + Math.floor(Math.random() * 9999) + ' Zillow Ln';
+            // We simulate the import delay but we DO NOT fabricate data.
+            // In Phase 38, we only capture the Deep Link reference.
+            await new Promise(resolve => setTimeout(resolve, 800));
 
-            const { isLocked } = await checkExclusivityLock(scrapedAddress);
+            // Extract a reasonable identifier from the Zillow URL (the slug before the ID)
+            let parsedIdentifier = 'Zillow Extracted Listing';
+            try {
+                const urlObj = new URL(zillowUrlInput);
+                const pathParts = urlObj.pathname.split('/');
+                const homeDetailsIndex = pathParts.findIndex(p => p === 'homedetails');
+                if (homeDetailsIndex !== -1 && pathParts.length > homeDetailsIndex + 1) {
+                    parsedIdentifier = pathParts[homeDetailsIndex + 1].replace(/-/g, ' ');
+                    // Capitalize first letters for aesthetics
+                    parsedIdentifier = parsedIdentifier.replace(/\b\w/g, l => l.toUpperCase());
+                }
+            } catch (e) {
+                // If invalid URL, fallback to default 
+            }
+
+            const { isLocked } = await checkExclusivityLock(parsedIdentifier);
             if (isLocked) {
                 alert("🔒 Access Denied: This property is actively being worked by another investor. The 30-day exclusivity lock has not expired.");
                 return;
@@ -196,15 +212,16 @@ const Properties = () => {
 
             const newProperty = {
                 id: Date.now(),
-                address: scrapedAddress,
+                address: parsedIdentifier,
                 status: 'Lead',
-                arv: '$' + (Math.floor(Math.random() * 50) + 30) + '0,000',
+                arv: 'Pending',
                 mao: 'Pending Calc',
+                source_url: zillowUrlInput, // Retain the deep link
                 image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
             };
 
             setProperties(prev => [newProperty, ...prev]);
-            alert("Property successfully imported from Zillow!");
+            alert("Property linkage established from Zillow!");
         } catch (error) {
             console.error("Zillow import failed", error);
             alert("Failed to import property. Check the URL and try again.");
