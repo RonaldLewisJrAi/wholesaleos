@@ -24,6 +24,7 @@ import { GuidanceProvider } from './contexts/GuidanceContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
+import Pricing from './pages/Pricing';
 import ProxyComponent from './pages/Workstations/ProxyComponent';
 import Spreadsheets from './pages/Workstations/Spreadsheets';
 
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/pricing" element={<Pricing />} />
                 <Route path="/" element={<Layout />}>
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />

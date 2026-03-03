@@ -331,7 +331,7 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                                     <AlertCircle size={36} className="mx-auto mb-3" />
                                     <h4 className="font-bold text-lg mb-2">Access Denied</h4>
                                     <p>{compError}</p>
-                                    <button className="btn btn-primary mt-4" onClick={() => window.location.href = '/settings'}>Upgrade Account</button>
+                                    <button className="btn btn-primary mt-4" onClick={() => window.location.href = '/pricing'}>Upgrade Account</button>
                                 </div>
                             ) : deepLinkMessage ? (
                                 <div className="text-center py-12 border border-dashed border-indigo-500/30 rounded-lg bg-indigo-500/5">

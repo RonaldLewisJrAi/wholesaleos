@@ -5,8 +5,9 @@ import { useIntegrations } from '../contexts/useIntegrations';
 import './Settings.css';
 
 const Settings = () => {
-    const { systemRole, subscriptionTier, subscriptionStatus, setSubscriptionStatus } = useSubscription();
-    const [activeTab, setActiveTab] = useState('communication');
+    const { systemRole, subscriptionTier, subscriptionStatus } = useSubscription();
+    const isSuperAdmin = systemRole === 'GLOBAL_SUPER_ADMIN';
+    const [activeTab, setActiveTab] = useState(isSuperAdmin ? 'communication' : 'billing');
     const {
         integrations = [],
         featureFlags: dbFlags = [],
@@ -15,9 +16,6 @@ const Settings = () => {
         saveIntegrationConfig,
         toggleFeatureFlag
     } = useIntegrations() || {};
-
-    // Phase 38.3 Restricted Access
-    const isSuperAdmin = systemRole === 'GLOBAL_SUPER_ADMIN';
 
     // Parse Flags Array to object map for easy toggling lookup
     const featureFlags = {
@@ -73,63 +71,6 @@ const Settings = () => {
         }
     };
 
-    // Phase 32: Secure Action Handler wired to Real Netlify API
-    const handleSecureAction = async (actionName, finalStatus) => {
-        const actionMap = {
-            'PAUSE': 'pause',
-            'RESUME': 'resume',
-            'CANCEL': 'cancel',
-            'TERMINATE': 'terminate'
-        };
-
-        const apiAction = actionMap[actionName];
-        if (!apiAction) return;
-
-        let password = null;
-        if (actionName !== 'RESUME') {
-            password = prompt(`Security Verification Required.\n\nPlease enter your password to confirm [${actionName}]:`);
-            if (password === null || password === "") {
-                return; // User canceled
-            }
-        }
-
-        try {
-            // Mapping local dev or prod origin naturally
-            const response = await fetch('/api/subscription/action', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: apiAction,
-                    password: password || 'dummy_for_resume' // Note: REAL backend auth verifies bearer token, password re-entry is an extra layer handled by the auth helper if configured
-                })
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                setSubscriptionStatus(finalStatus);
-                alert(`${actionName} confirmed and executed. Immutable log generated.`);
-            } else {
-                alert(`Action Failed: ${data.error}`);
-            }
-        } catch (error) {
-            console.error('API Error:', error);
-            alert('Failed to reach backend infrastructure. Check your connection.');
-        }
-    };
-
-    if (!isSuperAdmin) {
-        return (
-            <div className="p-8 text-center animate-fade-in text-muted">
-                <Shield className="mx-auto mb-4 text-red-500/50" size={48} />
-                <h2 className="text-2xl font-bold text-red-400">Enterprise Control Panel Restricted</h2>
-                <p className="mt-2">Integrations, APIs, and Webhooks are currently isolated to Global Super Administrators for the Phase 38 Beta environment.</p>
-                <button className="btn btn-primary mt-6" onClick={() => window.location.href = '/dashboard'}>Return to Dashboard</button>
-            </div>
-        );
-    }
-
     return (
         <div className="settings-container animate-fade-in max-w-6xl mx-auto">
             {integrationsLoading && (
@@ -151,42 +92,48 @@ const Settings = () => {
                 {/* Lateral Tabs */}
                 <div className="w-full md:w-64 flex-shrink-0">
                     <div className="card glass-panel flex flex-col overflow-hidden">
-                        <button
-                            className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'billing' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
-                            onClick={() => setActiveTab('billing')}
-                        >
-                            <CreditCard size={16} /> Billing & Plan
-                        </button>
-                        <button
-                            className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'communication' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
-                            onClick={() => setActiveTab('communication')}
-                        >
-                            <MessageSquare size={16} /> Communication
-                        </button>
-                        <button
-                            className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'automation' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
-                            onClick={() => setActiveTab('automation')}
-                        >
-                            <Zap size={16} /> Automation
-                        </button>
-                        <button
-                            className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'webhooks' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
-                            onClick={() => setActiveTab('webhooks')}
-                        >
-                            <Webhook size={16} /> Webhooks
-                        </button>
-                        <button
-                            className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'api' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
-                            onClick={() => setActiveTab('api')}
-                        >
-                            <Key size={16} /> API Access
-                        </button>
-                        <button
-                            className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'flags' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
-                            onClick={() => setActiveTab('flags')}
-                        >
-                            <Terminal size={16} /> Feature Flags
-                        </button>
+                        {!isSuperAdmin && (
+                            <button
+                                className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'billing' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
+                                onClick={() => setActiveTab('billing')}
+                            >
+                                <CreditCard size={16} /> Billing & Plan
+                            </button>
+                        )}
+                        {isSuperAdmin && (
+                            <>
+                                <button
+                                    className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'communication' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
+                                    onClick={() => setActiveTab('communication')}
+                                >
+                                    <MessageSquare size={16} /> Communication
+                                </button>
+                                <button
+                                    className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'automation' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
+                                    onClick={() => setActiveTab('automation')}
+                                >
+                                    <Zap size={16} /> Automation
+                                </button>
+                                <button
+                                    className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'webhooks' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
+                                    onClick={() => setActiveTab('webhooks')}
+                                >
+                                    <Webhook size={16} /> Webhooks
+                                </button>
+                                <button
+                                    className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'api' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
+                                    onClick={() => setActiveTab('api')}
+                                >
+                                    <Key size={16} /> API Access
+                                </button>
+                                <button
+                                    className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'flags' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
+                                    onClick={() => setActiveTab('flags')}
+                                >
+                                    <Terminal size={16} /> Feature Flags
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -233,22 +180,15 @@ const Settings = () => {
                                 <div className="border-t border-[var(--border-light)] pt-6 mt-6">
                                     <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-muted">Self-Service Actions</h4>
                                     <div className="flex flex-wrap gap-3">
-                                        {subscriptionStatus === 'ACTIVE' && (
-                                            <button className="btn btn-secondary border-warning/50 hover:bg-warning hover:text-black hover:border-warning" onClick={() => handleSecureAction('PAUSE', 'PAUSED')}>
-                                                Pause Subscription
+                                        {subscriptionStatus === 'DEMO' ? (
+                                            <button className="btn btn-primary" onClick={() => window.location.href = '/pricing'}>
+                                                Upgrade to PRO
+                                            </button>
+                                        ) : (
+                                            <button className="btn btn-secondary border-white/20 hover:bg-white/10" onClick={() => alert("Redirecting to Stripe Customer Portal...")}>
+                                                Manage Subscription
                                             </button>
                                         )}
-                                        {subscriptionStatus === 'PAUSED' && (
-                                            <button className="btn btn-primary" onClick={() => handleSecureAction('RESUME', 'ACTIVE')}>
-                                                Resume Plan
-                                            </button>
-                                        )}
-                                        <button className="btn btn-secondary border-danger/50 hover:bg-danger hover:text-white hover:border-danger" onClick={() => handleSecureAction('CANCEL', 'CANCELED')}>
-                                            Cancel Plan (End of Term)
-                                        </button>
-                                        <button className="btn btn-secondary text-danger border-danger/20 hover:bg-danger hover:text-white ml-auto" onClick={() => handleSecureAction('TERMINATE', 'TERMINATED')}>
-                                            Terminate Immediately
-                                        </button>
                                     </div>
                                 </div>
                             </div>

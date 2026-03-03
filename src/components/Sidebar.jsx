@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import {
     LayoutDashboard, Map, KanbanSquare, Users, FileText, Calculator,
     ShieldCheck, Activity, Calendar as CalendarIcon, Target, Search, FolderHeart,
-    List, Briefcase, Inbox, PhoneCall, ListTodo, CheckSquare, Settings, Table
+    List, Briefcase, Inbox, PhoneCall, ListTodo, CheckSquare, Settings, Table, CreditCard, Webhook
 } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import { useAuth } from '../contexts/useAuth';
@@ -26,6 +26,7 @@ const Sidebar = () => {
             { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
             { name: 'Calculators', path: '/calculators', icon: <Calculator size={20} /> },
             { name: 'Compliance', path: '/compliance', icon: <ShieldCheck size={20} /> },
+            { name: 'Billing & Plan', path: '/settings', icon: <CreditCard size={20} />, roleRequired: 'NON_ADMIN' },
             { name: 'Integration & API', path: '/integrations', icon: <Settings size={20} />, roleRequired: 'GLOBAL_SUPER_ADMIN' },
         ],
         'INVESTOR': [
@@ -77,7 +78,8 @@ const Sidebar = () => {
         'ADMIN': [
             { name: 'Admin Command', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
             { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
-            { name: 'API & Webhooks', path: '/settings', icon: <Settings size={20} />, roleRequired: 'GLOBAL_SUPER_ADMIN' },
+            { name: 'Billing & Plan', path: '/settings', icon: <CreditCard size={20} />, roleRequired: 'NON_ADMIN' },
+            { name: 'API & Webhooks', path: '/integrations', icon: <Settings size={20} />, roleRequired: 'GLOBAL_SUPER_ADMIN' },
             { name: 'Team Roster', path: '/crm', icon: <Users size={20} /> },
             { name: 'System Logs', path: '/logs', icon: <List size={20} /> }
         ]
@@ -87,6 +89,9 @@ const Sidebar = () => {
     const navItems = baseNavItems.filter(item => {
         if (item.roleRequired === 'GLOBAL_SUPER_ADMIN') {
             return user?.user_metadata?.system_role === 'GLOBAL_SUPER_ADMIN';
+        }
+        if (item.roleRequired === 'NON_ADMIN') {
+            return user?.user_metadata?.system_role !== 'GLOBAL_SUPER_ADMIN';
         }
         return true;
     });

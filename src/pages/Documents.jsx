@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, Download, CheckCircle, Edit3, UploadCloud, Link as LinkIcon } from 'lucide-react';
+import { FileText, Download, CheckCircle, Edit3, UploadCloud, Link as LinkIcon, Lock } from 'lucide-react';
 import SignatureCanvas from 'react-signature-canvas';
 import { supabase } from '../lib/supabase';
 import { useSubscription } from '../contexts/useSubscription';
@@ -324,6 +324,28 @@ const Documents = () => {
             setIsGeneratingPDF(false);
         }
     };
+
+    if (isRestricted) {
+        return (
+            <div className="documents-container animate-fade-in p-6 flex flex-col items-center justify-center min-h-[70vh]">
+                <div className="card glass-panel text-center max-w-lg p-10 border-indigo-500/30">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-500/10 mb-6">
+                        <Lock size={40} className="text-indigo-400" />
+                    </div>
+                    <h2 className="text-3xl font-bold mb-4">Document Suite Locked</h2>
+                    <p className="text-lg text-muted mb-8">
+                        The state-specific contract generator and E-Signature suite is restricted in the DEMO tier. Upgrade to the PRO tier to generate binding real estate documents.
+                    </p>
+                    <button className="btn btn-primary w-full py-4 text-lg text-white" onClick={() => window.location.href = '/pricing'}>
+                        View Pricing Plans
+                    </button>
+                    <button className="btn btn-secondary w-full mt-3" onClick={() => window.location.href = '/dashboard'}>
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div

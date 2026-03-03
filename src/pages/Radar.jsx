@@ -55,7 +55,7 @@ const Radar = () => {
         if (e) e.preventDefault();
 
         if (isRestricted) {
-            alert("Opportunity Radar is locked in DEMO tier. Upgrade to unlock live distressed market data.");
+            window.location.href = '/pricing';
             return;
         }
 
@@ -65,6 +65,28 @@ const Radar = () => {
         fetchRealData(county);
     };
 
+    if (isRestricted) {
+        return (
+            <div className="radar-container animate-fade-in p-6 flex items-center justify-center min-h-[70vh]">
+                <div className="card glass-panel text-center max-w-lg p-10 border-indigo-500/30">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-500/10 mb-6">
+                        <Lock size={40} className="text-indigo-400" />
+                    </div>
+                    <h2 className="text-3xl font-bold mb-4">Opportunity Radar Locked</h2>
+                    <p className="text-lg text-muted mb-8">
+                        Live foreclosure and distressed market data is restricted in the DEMO tier. Upgrade to the PRO tier to map active off-market opportunities.
+                    </p>
+                    <button className="btn btn-primary w-full py-4 text-lg" onClick={() => window.location.href = '/pricing'}>
+                        View Pricing Plans
+                    </button>
+                    <button className="btn btn-secondary w-full mt-3" onClick={() => window.location.href = '/properties'}>
+                        Back to Properties
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="radar-container animate-fade-in" style={{ padding: '24px' }}>
             <div className="page-header flex-between mb-6">
@@ -72,7 +94,6 @@ const Radar = () => {
                     <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center gap-2">
                         <Activity className="text-indigo-500" />
                         Opportunity Radar
-                        {isRestricted && <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded ml-3 flex items-center gap-1 uppercase tracking-wider"><Lock size={12} /> PRO FEATURE</span>}
                     </h1>
                     <p className="text-gray-400 mt-1">Live distressed asset and pre-foreclosure tracking</p>
                 </div>

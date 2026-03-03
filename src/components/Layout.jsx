@@ -31,7 +31,7 @@ const Layout = () => {
     }
 
     // 4. Enterprise Feature Isolation (Phase 38.3)
-    const isEnterpriseRoute = window.location.pathname.includes('/integrations') || window.location.pathname.includes('/settings') || window.location.pathname.includes('/api-keys') || window.location.pathname.includes('/webhooks');
+    const isEnterpriseRoute = window.location.pathname.includes('/integrations') || window.location.pathname.includes('/api-keys') || window.location.pathname.includes('/webhooks');
 
     if (isEnterpriseRoute && systemRole !== 'GLOBAL_SUPER_ADMIN') {
         return (
