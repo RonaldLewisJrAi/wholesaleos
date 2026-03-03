@@ -161,7 +161,7 @@ const getBounds = (lat, lng, radiusMiles) => {
 // Apply rate limiter specifically to the expensive scraping endpoint
 app.post('/api/comps', apiLimiter, async (req, res) => {
     const {
-        lat, lng, radius, timeframeMonths = 6, isDemoMode = false,
+        lat, lng, radius, timeframeMonths = 6,
         sqftVariance = 15, exactBedBath = false,
         subjectSqft = 1500, subjectBeds = 3, subjectBaths = 2
     } = req.body;
@@ -170,25 +170,27 @@ app.post('/api/comps', apiLimiter, async (req, res) => {
         return res.status(400).json({ error: 'Lat, Lng, and Radius are required.' });
     }
 
-    const cacheKey = `comps:${Math.floor(lat * 1000)}:${Math.floor(lng * 1000)}:${radius}:${timeframeMonths}:${isDemoMode}:${sqftVariance}:${exactBedBath}`;
+    const cacheKey = `comps:${Math.floor(lat * 1000)}:${Math.floor(lng * 1000)}:${radius}:${timeframeMonths}:${sqftVariance}:${exactBedBath}`;
 
-    // 1. Check Redis Cache
+    // 1. Strict Server-Side Tier Gating
+    // req.organization is populated by the requireSubscription middleware
+    if (req.user?.role !== 'GLOBAL_SUPER_ADMIN') {
+        if (!req.organization || req.organization.subscription_status !== 'ACTIVE' || req.organization.subscription_tier === 'BASIC') {
+            return res.status(403).json({
+                error: "Comps Engine locked in DEMO tier. Upgrade to PRO to unlock live comp intelligence."
+            });
+        }
+    }
+
+    // 2. Check Redis Cache
     try {
         const cachedData = await redis.get(cacheKey);
         if (cachedData) {
-            console.log(`[Comps Engine] ⚡ Serving Comps from Redis Cache for ${cacheKey}`);
+            console.log(`[Comps Engine] ⚡ Serving Deep-Link from Redis Cache for ${cacheKey}`);
             return res.json(JSON.parse(cachedData));
         }
     } catch (err) {
         console.warn(`[Redis Warn] Cache read failed:`, err.message);
-    }
-
-    if (!isDemoMode) {
-        console.log(`[Comps Engine] LIVE PIPELINE: Zillow API blocked by Anti-Bot constraints. Failing gracefully to use Deep-Link.`);
-        return res.status(403).json({
-            error: 'Live Data API disconnected due to active Zillow CAPTCHA. Please utilize the interactive Zillow Pop-out map.',
-            requiresDeepLink: true
-        });
     }
 
     const bounds = getBounds(lat, lng, radius);
@@ -207,78 +209,24 @@ app.post('/api/comps', apiLimiter, async (req, res) => {
 
     const targetUrl = `https://www.zillow.com/homes/recently_sold/?searchQueryState=${encodeURIComponent(JSON.stringify(searchQueryState))}`;
 
-    console.log(`[Comps Engine] Fetching Zillow for bounds:`, bounds);
-
-    console.log(`[Comps Engine] Generating highly-realistic simulated comps for bounds:`, bounds);
-
-    // Zillow, Redfin, and Realtor all block automated scraping with strong Cloudflare Turnstile CAPTCHAs.
-    // To execute this flawlessly without paid residential proxies, we generate realistic mock data 
-    // exactly around the requested radius to power the Wholesale OS mapping interface, 
-    // while the frontend deep-links the human user to the real Zillow Map.
-
-    const simulatedComps = [];
-    const numComps = Math.floor(Math.random() * 8) + 5; // 5 to 12 comps
-
-    for (let i = 0; i < numComps; i++) {
-        // Randomly scatter coordinates within the requested radius
-        const maxLatDelta = radius / 69.0;
-        const maxLngDelta = radius / (69.0 * Math.cos(lat * Math.PI / 180));
-
-        const compLat = lat + (Math.random() * 2 - 1) * maxLatDelta;
-        const compLng = lng + (Math.random() * 2 - 1) * maxLngDelta;
-
-        // Exact distance formula
-        const dLat = compLat - lat;
-        const dLng = compLng - lng;
-        const distance = Math.sqrt(dLat * dLat + dLng * dLng) * 69;
-
-        // Enforce precise constraints provided by intelligence engine
-        const varianceLimit = subjectSqft * (sqftVariance / 100);
-        const sqft = Math.floor(subjectSqft + (Math.random() * varianceLimit * 2 - Math.random() * varianceLimit));
-
-        const beds = exactBedBath ? subjectBeds : Math.max(1, Math.floor(subjectBeds + (Math.random() * 2 - 1)));
-        const baths = exactBedBath ? subjectBaths : Math.max(1, Math.floor(subjectBaths + (Math.random() * 1.5 - 0.5)));
-
-        const price = Math.floor(sqft * (Math.random() * 100 + 200));
-        const ppsqft = price / sqft;
-        const monthsAgo = Math.floor(Math.random() * timeframeMonths) + 1;
-
-        simulatedComps.push({
-            id: `sim-comp-${i}`,
-            address: `${Math.floor(Math.random() * 9999)} Local Street, Neighborhood`,
-            distance: distance,
-            monthsAgo: monthsAgo,
-            sqft: sqft,
-            yearBuilt: Math.floor(Math.random() * 50) + 1960,
-            beds: beds,
-            baths: baths,
-            price: price,
-            ppsqft: ppsqft,
-            lat: compLat,
-            lng: compLng,
-        });
-    }
-
-    const sortedComps = simulatedComps.sort((a, b) => a.distance - b.distance);
+    console.log(`[Comps Engine] Generating Deterministic Deep-Link for bounds:`, bounds);
 
     const responsePayload = {
         success: true,
-        count: sortedComps.length,
-        comps: sortedComps,
-        note: "Data simulated to bypass active Zillow CAPTCHA blockades. Rely on the Zillow Deep-Link for real-world validation."
+        requiresDeepLink: true,
+        message: "Live Zillow scraping temporarily disabled. Click below to view live comps.",
+        deepLinkUrl: targetUrl,
+        comps: [] // Hard enforce empty array so frontend never renders fake data
     };
 
-    // 2. Save to Redis Cache (expire in 2 hours)
+    // 3. Save to Redis Cache (expire in 2 hours)
     try {
         await redis.set(cacheKey, JSON.stringify(responsePayload), 'EX', 60 * 60 * 2);
     } catch (err) {
         console.warn(`[Redis Warn] Cache write failed for ${cacheKey}`, err.message);
     }
 
-    // Simulate API delay for first load
-    setTimeout(() => {
-        return res.json(responsePayload);
-    }, 1500);
+    return res.json(responsePayload);
 });
 
 app.listen(PORT, () => {

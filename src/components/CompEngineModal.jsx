@@ -32,6 +32,8 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [rawComps, setRawComps] = useState([]);
     const [zillowLink, setZillowLink] = useState(null);
+    const [compError, setCompError] = useState(null);
+    const [deepLinkMessage, setDeepLinkMessage] = useState(null);
 
     // Initial Fetch when Modal Opens or Filters change
     useEffect(() => {
@@ -41,6 +43,10 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
 
         const fetchZillowComps = async () => {
             setIsLoading(true);
+            setCompError(null);
+            setDeepLinkMessage(null);
+            setRawComps([]);
+
             try {
                 let lat = property.lat;
                 let lng = property.lng;
@@ -102,14 +108,37 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                     })
                 });
 
-                if (!res.ok) throw new Error('Failed to fetch real comps from proxy');
+                if (res.status === 403) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || "Forbidden. Upgrade required.");
+                }
+                if (res.status === 500) {
+                    throw new Error("Server misconfiguration. The Comps Engine failed to process the request.");
+                }
+                if (res.status === 503) {
+                    throw new Error("Comps Engine Temporarily Offline");
+                }
+                if (!res.ok) {
+                    throw new Error('Failed to fetch real comps from proxy');
+                }
 
                 const data = await res.json();
-                if (!isStale) setRawComps(data.comps || []);
+                if (!isStale) {
+                    if (data.requiresDeepLink) {
+                        setDeepLinkMessage(data.message);
+                        if (data.deepLinkUrl) setZillowLink(data.deepLinkUrl);
+                        setRawComps([]); // Ensure no fake comps
+                    } else {
+                        setRawComps(data.comps || []);
+                    }
+                }
 
             } catch (error) {
                 console.error("CompEngine Error:", error);
-                if (!isStale) setRawComps([]); // Fallback to empty
+                if (!isStale) {
+                    setCompError(error.message);
+                    setRawComps([]); // NO MORE FAKE DATA! Deterministic blank failure.
+                }
             } finally {
                 if (!isStale) setIsLoading(false);
             }
@@ -295,7 +324,23 @@ const CompEngineModal = ({ isOpen, onClose, property }) => {
                                 <div className="text-center py-12 text-muted border border-dashed border-[var(--border-light)] rounded-lg">
                                     <RefreshCw size={32} className="mx-auto mb-2 opacity-50 animate-spin" />
                                     <p>Connecting to Stealth Proxy...</p>
-                                    <p className="text-sm mt-1">Intercepting live maps for a {radius}-mile radius.</p>
+                                    <p className="text-sm mt-1">Authenticating and retrieving Live Comps.</p>
+                                </div>
+                            ) : compError ? (
+                                <div className="text-center py-12 text-red-500 border border-dashed border-red-500/30 rounded-lg bg-red-500/5">
+                                    <AlertCircle size={36} className="mx-auto mb-3" />
+                                    <h4 className="font-bold text-lg mb-2">Access Denied</h4>
+                                    <p>{compError}</p>
+                                    <button className="btn btn-primary mt-4" onClick={() => window.location.href = '/settings'}>Upgrade Account</button>
+                                </div>
+                            ) : deepLinkMessage ? (
+                                <div className="text-center py-12 border border-dashed border-indigo-500/30 rounded-lg bg-indigo-500/5">
+                                    <ExternalLink size={36} className="mx-auto mb-3 text-indigo-400" />
+                                    <h4 className="font-bold text-lg mb-2 text-indigo-400">Live External Data Required</h4>
+                                    <p className="text-muted mb-4 max-w-sm mx-auto">{deepLinkMessage}</p>
+                                    <button className="btn btn-primary px-8" onClick={() => window.open(zillowLink, '_blank')}>
+                                        Open Zillow Map ({radius}mi Radius)
+                                    </button>
                                 </div>
                             ) : activeComps.length === 0 ? (
                                 <div className="text-center py-12 text-muted border border-dashed border-[var(--border-light)] rounded-lg">
