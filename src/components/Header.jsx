@@ -11,7 +11,7 @@ import './Header.css';
 
 const Header = () => {
     const { theme, toggleTheme } = useTheme();
-    const { guidanceMode, toggleInsightMode, toggleTourMode } = useGuidance();
+    const { guidanceMode, setGuidanceMode } = useGuidance();
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -63,8 +63,12 @@ const Header = () => {
                 <div className="theme-toggle-container flex gap-2">
                     <button
                         className={`icon-btn ${guidanceMode !== 'off' ? 'text-primary animate-pulse shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]' : ''}`}
-                        onClick={() => guidanceMode === 'tour' ? toggleTourMode() : toggleInsightMode()}
-                        title="Guided Mode: Toggle holographic insights"
+                        onClick={() => {
+                            if (guidanceMode === 'off') setGuidanceMode('insight');
+                            else if (guidanceMode === 'insight') setGuidanceMode('tour');
+                            else setGuidanceMode('off');
+                        }}
+                        title={`Guided Mode: Current = ${guidanceMode.toUpperCase()} (Click to toggle)`}
                     >
                         <Info size={20} />
                     </button>
