@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, Lock } from 'lucide-react';
 import FileDropzone from '../../components/UploadStage/FileDropzone';
 import ColumnMapper from '../../components/UploadStage/ColumnMapper';
 import DataPreviewGrid from '../../components/UploadStage/DataPreviewGrid';
@@ -81,7 +81,12 @@ const Spreadsheets = () => {
                 }])
                 .select().single();
 
-            if (stagingErr) throw new Error("Failed to create staging record: " + stagingErr.message);
+            if (stagingErr) {
+                if (stagingErr.code === '42501' || stagingErr.message?.includes('row-level security')) {
+                    throw new Error("403_UPGRADE_REQUIRED");
+                }
+                throw new Error("Failed to create staging record: " + stagingErr.message);
+            }
 
             // 3. Process & Map Records
             const mappedHeaders = Object.entries(columnMapping)
@@ -109,6 +114,9 @@ const Spreadsheets = () => {
                 const chunk = insertPayloads.slice(i, i + chunkSize);
                 const { error: insertErr } = await supabase.from('leads').insert(chunk);
                 if (insertErr) {
+                    if (insertErr.code === '42501' || insertErr.message?.includes('row-level security')) {
+                        throw new Error("403_UPGRADE_REQUIRED");
+                    }
                     console.error("Batch insert error:", insertErr);
                     failureCount += chunk.length;
                 } else {
@@ -141,6 +149,10 @@ const Spreadsheets = () => {
             setImportStage('complete');
         } catch (err) {
             console.error("Import execution failed:", err);
+            if (err.message === "403_UPGRADE_REQUIRED") {
+                setImportStage('upgrade-locked');
+                return;
+            }
             setImportStage('dropzone');
             alert(`Import Sequence Failed: ${err.message}`);
         }
@@ -225,6 +237,22 @@ const Spreadsheets = () => {
                             <button onClick={handleRestart} className="btn-primary flex items-center gap-2">
                                 <ArrowLeft size={18} /> Import Another File
                             </button>
+                        </div>
+                    )}
+
+                    {importStage === 'upgrade-locked' && (
+                        <div className="glass-panel p-12 text-center flex flex-col items-center justify-center border-indigo-500/30 border">
+                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-500/10 mb-6">
+                                <Lock size={40} className="text-indigo-400" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-2">Import Limit Reached</h3>
+                            <p className="text-gray-400 max-w-lg mb-8">
+                                DEMO accounts are heavily restricted to 1 import per 24 hours, capped at 100 rows, and a maximum total of 25 leads. Upgrade to the PRO tier to unleash unlimited acquisitions.
+                            </p>
+                            <button onClick={() => window.location.href = '/pricing'} className="btn btn-primary w-full max-w-xs py-3 text-lg">
+                                View Pricing Plans
+                            </button>
+                            <button onClick={handleRestart} className="btn-secondary mt-3">Cancel Import</button>
                         </div>
                     )}
                 </div>
