@@ -43,6 +43,7 @@ const Signup = () => {
         setLoading(true);
 
         try {
+            console.log("[SIGNUP TELEMETRY] Executing supabase.auth.signUp...");
             const { data: authData, error: signUpError } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
@@ -56,8 +57,14 @@ const Signup = () => {
                     }
                 }
             });
+            console.log("[SIGNUP TELEMETRY] supabase.auth.signUp completed.");
 
-            if (signUpError) throw signUpError;
+            if (signUpError) {
+                console.error("[SIGNUP TELEMETRY] signUpError:", signUpError);
+                throw signUpError;
+            }
+
+            console.log("[SIGNUP TELEMETRY] session present?", !!authData.session);
 
             // In projects requiring Email Confirmation, the user is NOT issued a session on signup.
             // Halt execution here to avoid premature requests.
