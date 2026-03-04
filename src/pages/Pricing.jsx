@@ -17,17 +17,22 @@ const Pricing = () => {
 
         setIsCheckoutLoading(true);
         try {
-            // Note: We don't have the explicit session token here easily without supabase auth, 
-            // but we can assume /api/stripe/create-checkout handles it via cookies or we can pass user ID.
+            // Map plain text tiers to live Stripe Price IDs securely
+            let priceId = '';
+            if (tier === 'PRO') priceId = 'price_1QxOpeA3e2M6S811g4EaVlXm'; // Replace with actual Pro Price ID if needed
+            else if (tier === 'SUPER') priceId = 'price_1QxOqKA3e2M6S811zRMyQnTw'; // Replace with actual Super Price ID if needed
 
             // Standard fetch call to the backend
-            const res = await fetch('/api/stripe/create-checkout', {
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const res = await fetch(`${baseUrl}/api/stripe/create-checkout-session`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId: user.id,
-                    email: user.email,
-                    tier: tier
+                    userEmail: user.email,
+                    tier: tier,
+                    priceId: priceId,
+                    tosAccepted: true // Enforce TOS acceptance at this juncture
                 })
             });
 

@@ -122,8 +122,16 @@ const Sidebar = () => {
                 </ul>
             </nav>
 
-            <div className="sidebar-footer">
-                <Link to="/profile" className="user-profile-mini hover:bg-white/5 transition-colors cursor-pointer rounded-md p-2">
+            <div className="sidebar-footer flex flex-col gap-3">
+                {(subscriptionTier === 'DEMO' || subscriptionTier === 'BASIC') && (
+                    <div className="px-4">
+                        <Link to="/pricing" className="btn btn-primary w-full flex justify-center py-2 shadow-[0_0_15px_rgba(255,100,100,0.3)] animate-pulse">
+                            Upgrade to PRO
+                        </Link>
+                    </div>
+                )}
+
+                <Link to="/profile" className="user-profile-mini hover:bg-white/5 transition-colors cursor-pointer rounded-md p-2 mx-2 mb-2">
                     <div className="avatar">
                         {user?.user_metadata?.first_name ? user.user_metadata.first_name.charAt(0).toUpperCase() : 'U'}
                     </div>

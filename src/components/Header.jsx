@@ -58,6 +58,12 @@ const Header = () => {
             </div>
 
             <div className="header-actions">
+                {!user && (
+                    <Link to="/pricing" className="btn btn-secondary mr-4 hover:bg-white/10 transition-colors">
+                        Pricing
+                    </Link>
+                )}
+
                 <WorkspaceSwitcher />
 
                 <div className="theme-toggle-container flex gap-2">
