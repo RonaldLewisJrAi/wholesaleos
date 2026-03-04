@@ -11,6 +11,25 @@ const AuthCallback = () => {
     useEffect(() => {
         const processAuth = async () => {
             try {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const queryParams = new URLSearchParams(window.location.search);
+
+                const errorMsg = hashParams.get('error_description') || queryParams.get('error_description');
+                if (errorMsg) {
+                    throw new Error(errorMsg.replace(/\+/g, ' '));
+                }
+
+                const code = queryParams.get('code');
+                if (code) {
+                    // Force the token exchange to guarantee the GoTrue server confirms the email flag
+                    try {
+                        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+                        if (exchangeError) console.warn("PKCE Exchange warning (may already be hydrated):", exchangeError.message);
+                    } catch (e) {
+                        console.warn("PKCE Exchange exception:", e.message);
+                    }
+                }
+
                 // Supabase SDK automatically intercepts the hash fragment on load.
                 // We just need to give it a brief moment, then check if we have a valid session.
                 const { data: { session }, error } = await supabase.auth.getSession();

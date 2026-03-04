@@ -59,6 +59,17 @@ const Signup = () => {
 
             if (signUpError) throw signUpError;
 
+            // In projects requiring Email Confirmation, the user is NOT issued a session on signup.
+            // Halt execution here to avoid 'new row violates row-level security policy' on organizations table.
+            // The Bootstrap Protocol in useSubscription.jsx will build their Organization on first login.
+            if (!authData.session) {
+                setSuccessMessage("Identity secured! Please check your inbox for an activation link. You must verify your email before logging in.");
+                setTimeout(() => {
+                    navigate('/login');
+                }, 4000);
+                return; // Stop execution
+            }
+
             const userId = authData.user.id;
 
             // Second: Create the Organization
