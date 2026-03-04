@@ -67,28 +67,8 @@ export const SubscriptionProvider = ({ children }) => {
 
                 // 3. Organization Bootstrap Guarantee
                 if (!orgId) {
-                    console.warn("Bootstrap Protocol: No organization found for user, initializing Personal Workspace...");
-                    const { data: newOrg, error: insertError } = await supabase
-                        .from('organizations')
-                        .insert({
-                            name: 'Personal Workspace',
-                            subscription_tier: 'BASIC',
-                            subscription_status: 'DEMO',
-                            team_seat_limit: 1
-                        })
-                        .select('id')
-                        .single();
-
-                    if (insertError || !newOrg) {
-                        setLoadingSub(false);
-                        throw new Error("CRITICAL WORKSPACE FAILURE: Failed to bootstrap organization. Diagnostics: " + (insertError?.message || "Unknown db constraint."));
-                    }
-
-                    orgId = newOrg.id;
-                    await supabase.from('profiles').update({
-                        organization_id: orgId,
-                        system_role: 'ADMIN'
-                    }).eq('id', user.id);
+                    console.warn("Bootstrap Protocol: No organization found for user. Awaiting underlying database trigger synchronization.");
+                    // Defer to database trigger; we no longer manually insert to public.organizations here.
                 }
 
                 // Load User Personas

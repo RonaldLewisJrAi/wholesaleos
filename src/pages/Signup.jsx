@@ -60,8 +60,8 @@ const Signup = () => {
             if (signUpError) throw signUpError;
 
             // In projects requiring Email Confirmation, the user is NOT issued a session on signup.
-            // Halt execution here to avoid 'new row violates row-level security policy' on organizations table.
-            // The Bootstrap Protocol in useSubscription.jsx will build their Organization on first login.
+            // Halt execution here to avoid premature requests.
+            // The handle_new_user trigger handles the profile and organization creation on the backend.
             if (!authData.session) {
                 setSuccessMessage("Identity secured! Please check your inbox for an activation link. You must verify your email before logging in.");
                 setTimeout(() => {
@@ -70,37 +70,8 @@ const Signup = () => {
                 return; // Stop execution
             }
 
-            const userId = authData.user.id;
-
-            // Second: Create the Organization
-            const { data: orgData, error: orgError } = await supabase
-                .from('organizations')
-                .insert({
-                    name: formData.company,
-                    subscription_tier: 'BASIC', // Default tier
-                    subscription_status: 'DEMO', // New users start in Demo restriction
-                    team_seat_limit: 1
-                })
-                .select()
-                .single();
-
-            if (orgError) throw orgError;
-
-            // Third: Link the Profile to the Organization and assign 'Owner' role
-            const { error: profileError } = await supabase
-                .from('profiles')
-                .update({
-                    organization_id: orgData.id,
-                    role: 'Owner',
-                    system_role: 'ADMIN' // They are an admin of their own default setup
-                })
-                .eq('id', userId);
-
-            if (profileError) throw profileError;
-
-            // Wait, the public.profiles trigger usually creates the db row.
-            // On successful creation, send them to login.
-            setSuccessMessage("Identity secured! Please check your email to verify your account before logging in.");
+            // On successful creation (if session auto-hydrates), send them to login or dashboard.
+            setSuccessMessage("Identity secured! Rerouting to your workspace...");
 
             // Auto redirect after a few seconds
             setTimeout(() => {
