@@ -219,6 +219,7 @@ async function runAudit() {
         }
 
     } catch (e) {
+        console.error("FULL ERROR TRACE:", e.stack);
         err("SCRIPT PANIC ERROR:", e);
     } finally {
         log("\n=== CLEANUP ===");

@@ -185,26 +185,21 @@ const Properties = () => {
         setIsImporting(true);
         setIsZillowModalOpen(false);
         try {
-            // We simulate the import delay but we DO NOT fabricate data.
-            // In Phase 38, we only capture the Deep Link reference.
-            await new Promise(resolve => setTimeout(resolve, 800));
+            // Call the real Zillow Scraper Proxy Backend
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const scrapeRes = await fetch(`${baseUrl}/api/properties/import-zillow`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user?.id || ''}` // Optional depending on strict auth
+                },
+                body: JSON.stringify({ url: zillowUrlInput })
+            });
 
-            // Extract a reasonable identifier from the Zillow URL (the slug before the ID)
-            let parsedIdentifier = 'Zillow Extracted Listing';
-            try {
-                const urlObj = new URL(zillowUrlInput);
-                const pathParts = urlObj.pathname.split('/');
-                const homeDetailsIndex = pathParts.findIndex(p => p === 'homedetails');
-                if (homeDetailsIndex !== -1 && pathParts.length > homeDetailsIndex + 1) {
-                    parsedIdentifier = pathParts[homeDetailsIndex + 1].replace(/-/g, ' ');
-                    // Capitalize first letters for aesthetics
-                    parsedIdentifier = parsedIdentifier.replace(/\b\w/g, l => l.toUpperCase());
-                }
-            } catch (e) {
-                // If invalid URL, fallback to default 
-            }
+            if (!scrapeRes.ok) throw new Error("Scraper returned error");
+            const scrapeData = await scrapeRes.json();
 
-            const { isLocked } = await checkExclusivityLock(parsedIdentifier);
+            const { isLocked } = await checkExclusivityLock(scrapeData.address);
             if (isLocked) {
                 alert("🔒 Access Denied: This property is actively being worked by another investor. The 30-day exclusivity lock has not expired.");
                 return;
@@ -212,12 +207,15 @@ const Properties = () => {
 
             const newProperty = {
                 id: Date.now(),
-                address: parsedIdentifier,
+                address: scrapeData.address || 'Scraped Zillow Property',
                 status: 'Lead',
-                arv: 'Pending',
+                arv: scrapeData.arv || 'Pending',
                 mao: 'Pending Calc',
+                sqft: scrapeData.sqft || null,
+                beds: scrapeData.beds || null,
+                baths: scrapeData.baths || null,
                 source_url: zillowUrlInput, // Retain the deep link
-                image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+                image: scrapeData.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
             };
 
             setProperties(prev => [newProperty, ...prev]);

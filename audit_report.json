@@ -8,6 +8,14 @@
     "message": "=== 0. SETUP: Bootstrapping DEMO Identity ==="
   },
   {
+    "type": "info",
+    "message": "✅ Created test user: e08df30c-367f-4265-8c0e-3a89b4745026"
+  },
+  {
+    "type": "info",
+    "message": "✅ Created DEMO organization: ab7c3f55-c9f8-4be6-9a3c-2503cba7afb2"
+  },
+  {
     "type": "error",
     "message": "SCRIPT PANIC ERROR:",
     "data": "fetch failed"
@@ -15,6 +23,10 @@
   {
     "type": "info",
     "message": "\n=== CLEANUP ==="
+  },
+  {
+    "type": "info",
+    "message": "✅ Deleted test user and organization data."
   },
   {
     "type": "info",

@@ -1,0 +1,22 @@
+--- Starting Phase 40 Lifecycle Auto-Enforcement Verification ---
+
+[1] SETUP: Bootstrapping Test Identity & ACTIVE Organization
+
+[2] ACTIVE INSERT TEST (Should Pass)
+✅ Valid Deal inserted for ACTIVE org: ed2dbae1-ab03-499d-8023-7b5419f641c9
+
+[3] PAST_DUE ENFORCEMENT TEST (Read Only)
+✅ SUCCESS: UPDATE Blocked Gracefully -> Organization is in read-only lifecycle state.
+
+[4] TERMINATION LOCKDOWN TEST (Complete Freeze & Retention applied)
+✅ SUCCESS: Organization automatically downgraded to BASIC tier and Data Retention countdown began.
+✅ SUCCESS: INSERT Blocked under Termination Lockdown -> Organization is in read-only lifecycle state (TERMINATED). Data retention procedures active.
+
+[5] GLOBAL_SUPER_ADMIN IMMUNITY TEST
+✅ SUCCESS: Deal DELETED under GLOBAL_SUPER_ADMIN exception despite org being TERMINATED!
+
+[6] SUBSCRIPTION LOGGING VERIFICATION
+✅ SUCCESS: Transaction logs explicitly persisted 2 transitions (PRO->BASIC, ACTIVE->PAST_DUE->TERMINATED, SYSTEM triggered).
+
+[7] CLEANUP: Removing Test Data
+--- Verification Passed ---

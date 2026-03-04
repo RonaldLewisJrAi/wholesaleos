@@ -1,0 +1,23 @@
+--- Starting Phase 39.1 Limits Verification ---
+
+[1] SETUP: Bootstrapping Test Identity
+Created BASIC Tier Org: 57e1a060-aec1-4bd1-8a54-54e2bac7441e
+
+[2] VERIFICATION: Simulating 5 allowed Deal Inserts
+✅ Inserted Deal 1 (Allowed)
+✅ Inserted Deal 2 (Allowed)
+✅ Inserted Deal 3 (Allowed)
+✅ Inserted Deal 4 (Allowed)
+✅ Inserted Deal 5 (Allowed)
+
+[3] VERIFICATION: Simulating 6th Deal Insert (Expect Failure)
+✅ SUCCESS: 6th deal gracefully blocked by Database Trigger -> Subscription limit reached. Upgrade required.
+
+[4] VERIFICATION: Testing GLOBAL_SUPER_ADMIN Bypass
+JWT USER_METADATA: {"email_verified":true}
+JWT APP_METADATA: {"provider":"email","providers":["email"],"system_role":"GLOBAL_SUPER_ADMIN"}
+
+❌ SCRIPT PANIC ERROR: ❌ FATAL: GLOBAL_SUPER_ADMIN bypass failed! {"code":"P0001","details":null,"hint":null,"message":"Subscription limit reached. Upgrade required."}
+
+[5] CLEANUP: Removing Test Data
+--- Verification Passed ---

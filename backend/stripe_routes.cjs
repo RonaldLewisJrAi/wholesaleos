@@ -143,9 +143,9 @@ router.post('/webhook', rawBodyParser, async (req, res) => {
 
             case 'invoice.payment_failed': {
                 console.log(`[Webhook] Payment Failed for Customer ID: ${event.data.object.customer}.`);
-                // Phase 31.5: Downgrade to GRACE_PERIOD immediately upon invoice failure
+                // Phase 40: Downgrade to PAST_DUE immediately upon invoice failure
                 await supabaseAdmin.from('organizations').update({
-                    subscription_status: 'GRACE_PERIOD'
+                    subscription_status: 'PAST_DUE'
                 }).eq('stripe_customer_id', event.data.object.customer);
                 break;
             }
