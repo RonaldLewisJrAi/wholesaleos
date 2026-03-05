@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle2, XCircle, Zap, Shield, Crown } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
-import './App.css';
+import '../App.css';
 
 const Pricing = () => {
     const { user, loadingAuth } = useAuth();
