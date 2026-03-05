@@ -21,6 +21,15 @@ export const SubscriptionProvider = ({ children }) => {
                 return;
             }
 
+            // --- DEFENSIVE SESSION GUARD ---
+            const { data: sessionData } = await supabase.auth.getSession();
+            if (!sessionData?.session) {
+                console.log("[WHOLESALEOS] Skipping org fetch — no authenticated session yet.");
+                setLoadingSub(false);
+                return;
+            }
+            // -------------------------------
+
             try {
                 // Phase 37: Clean Auth -> Profile -> Org -> Role pipeline
 
