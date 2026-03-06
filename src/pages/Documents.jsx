@@ -215,8 +215,8 @@ const Documents = () => {
             const { data: { session } } = await supabase.auth.getSession();
             const token = session?.access_token;
 
-            // First hit the tracking endpoint to enforce Phase 19 Document Limits
-            const res = await fetch('http://localhost:3001/api/documents/track', {
+            const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+            const res = await fetch(`${baseUrl}/api/documents/track`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -290,7 +290,8 @@ const Documents = () => {
                 ${auditHtml}
             `;
 
-            const generateRes = await fetch('http://localhost:3001/api/documents/generate', {
+            const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+            const generateRes = await fetch(`${baseUrl}/api/documents/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -76,7 +76,7 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
         if (!confirmBlast) return;
 
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
             const endpoint = method === 'SMS' ? '/api/disposition/blast/sms' : '/api/disposition/blast/email';
 
             const { data: { session } } = await supabase.auth.getSession();

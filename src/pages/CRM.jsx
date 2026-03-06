@@ -148,7 +148,7 @@ const CRM = () => {
         // Quota Check for CRM Leads
         if (user?.id) {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -185,7 +185,7 @@ const CRM = () => {
         // Quota Check for CRM Leads (File Upload)
         if (user?.id) {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
