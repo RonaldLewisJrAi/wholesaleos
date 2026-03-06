@@ -17,12 +17,7 @@ const Pricing = () => {
 
         setIsCheckoutLoading(true);
         try {
-            // Map plain text tiers to live Stripe Price IDs securely
-            let priceId = '';
-            if (tier === 'PRO') priceId = 'price_1QxOpeA3e2M6S811g4EaVlXm'; // Replace with actual Pro Price ID if needed
-            else if (tier === 'SUPER') priceId = 'price_1QxOqKA3e2M6S811zRMyQnTw'; // Replace with actual Super Price ID if needed
-
-            console.log(`[Pricing] Initiating checkout. Tier: ${tier}, Price ID: ${priceId}`);
+            console.log(`[Pricing] Initiating checkout. Tier: ${tier}`);
 
             // Direct fetch call to Vercel Serverless Function (renamed to break cache)
             const res = await fetch('/api/stripe/checkout', {
@@ -31,9 +26,8 @@ const Pricing = () => {
                 body: JSON.stringify({
                     userId: user.id,
                     userEmail: user.email,
-                    tier: tier,
-                    priceId: priceId,
-                    tosAccepted: true // Enforce TOS acceptance at this juncture
+                    plan: tier,
+                    tosAccepted: true
                 })
             });
 
