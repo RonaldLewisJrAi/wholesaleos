@@ -3,52 +3,42 @@
 import Stripe from 'stripe';
 
 export default async function handler(req, res) {
-    // Handle CORS preflight
-    if (req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-        return res.status(200).end();
-    }
-
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
         return res.status(405).end('Method Not Allowed');
     }
 
-    // Set CORS headers for actual request
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
     try {
-        const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY || process.env.VITE_STRIPE_SECRET_KEY;
-
-        console.log("[Create Checkout] Environment Verification:");
-        console.log(" - STRIPE_SECRET_KEY exists:", !!process.env.STRIPE_SECRET_KEY);
-        console.log(" - VITE_STRIPE_PUBLISHABLE_KEY exists:", !!process.env.VITE_STRIPE_PUBLISHABLE_KEY);
-        console.log(" - STRIPE_WEBHOOK_SECRET exists:", !!process.env.STRIPE_WEBHOOK_SECRET);
+        const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 
         if (!STRIPE_SECRET) {
-            console.error("[Create Checkout] FATAL: Stripe Secret Key is missing from the environment.");
-            return res.status(500).json({ error: 'Stripe Secret Key is missing from the environment.' });
+            return res.status(500).json({ error: 'Stripe Secret Key missing.' });
         }
 
         const stripe = new Stripe(STRIPE_SECRET);
 
-        const { priceId, userEmail, userId } = req.body;
+        const { plan, userEmail, userId } = req.body;
 
-        if (!priceId || !userEmail || !userId) {
-            console.error('[Create Checkout] Missing required parameters:', { priceId, userEmail, userId });
-            return res.status(400).json({ error: 'Missing required parameters: priceId, userEmail, userId' });
+        if (!plan || !userEmail || !userId) {
+            return res.status(400).json({ error: 'Missing required parameters: plan, userEmail, userId' });
         }
 
-        console.log(`[Create Checkout] Payload Received | User: ${userId} | Email: ${userEmail} | Price ID: ${priceId}`);
+        // 🔒 SERVER-SIDE LOCKED LIVE PRICE IDS
+        const PRICE_MAP = {
+            BASIC: 'price_1T4jBDK2qPJKpuPcwhetQdJy',
+            PRO: 'price_1T4jL6K2qPJKpuPcOeMWLk04',
+            SUPER: 'price_1T4jOFK2qPJKpuPcVKh0BG4W',
+        };
 
-        // Use the origin from the request to build the return URLs dynamically
-        const protocol = req.headers['x-forwarded-proto'] || 'http';
-        const host = req.headers.host || 'localhost:5173';
-        const siteUrl = process.env.VITE_SITE_URL || `${protocol}://${host}`;
+        const selectedPrice = PRICE_MAP[plan];
+
+        if (!selectedPrice) {
+            return res.status(400).json({ error: 'Invalid plan selected.' });
+        }
+
+        const protocol = req.headers['x-forwarded-proto'] || 'https';
+        const host = req.headers.host;
+        const siteUrl = `${protocol}://${host}`;
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -56,20 +46,20 @@ export default async function handler(req, res) {
             customer_email: userEmail,
             line_items: [
                 {
-                    price: priceId,
+                    price: selectedPrice,
                     quantity: 1,
                 },
             ],
             metadata: {
-                supabase_user_id: userId
+                supabase_user_id: userId,
+                selected_plan: plan
             },
-            success_url: `${siteUrl}/profile?session_id={CHECKOUT_SESSION_ID}&success=true&onboarding=true`,
-            cancel_url: `${siteUrl}/profile?canceled=true`,
+            success_url: `${siteUrl}/profile?success=true`,
+            cancel_url: `${siteUrl}/pricing?canceled=true`,
         });
 
-        console.log(`[Create Checkout] SUCCESS: Stripe session created perfectly. Session ID: ${session.id}`);
-
         return res.status(200).json({ url: session.url });
+
     } catch (err) {
         console.error('Stripe checkout error:', err);
         return res.status(500).json({ error: err.message });
