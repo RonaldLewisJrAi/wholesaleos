@@ -22,6 +22,8 @@ const Pricing = () => {
             if (tier === 'PRO') priceId = 'price_1QxOpeA3e2M6S811g4EaVlXm'; // Replace with actual Pro Price ID if needed
             else if (tier === 'SUPER') priceId = 'price_1QxOqKA3e2M6S811zRMyQnTw'; // Replace with actual Super Price ID if needed
 
+            console.log(`[Pricing] Initiating checkout. Tier: ${tier}, Price ID: ${priceId}`);
+
             // Standard fetch call to the backend
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
             const res = await fetch(`${baseUrl}/api/stripe/create-checkout-session`, {
@@ -77,7 +79,7 @@ const Pricing = () => {
                         <div className="mb-6">
                             <h3 className="text-2xl font-bold flex items-center gap-2 mb-2"><Shield className="text-gray-400" /> BASIC</h3>
                             <div className="text-gray-400 mb-4 h-12">The essential sandbox to evaluate the operating system.</div>
-                            <div className="text-4xl font-extrabold mb-1">$0<span className="text-xl text-gray-500 font-normal"> /mo</span></div>
+                            <div className="text-4xl font-extrabold mb-1">$100<span className="text-xl text-gray-500 font-normal"> /mo</span></div>
                             <div className="text-sm text-gray-500">Free forever. No credit card required.</div>
                         </div>
 
@@ -111,7 +113,7 @@ const Pricing = () => {
                         <div className="mb-6">
                             <h3 className="text-2xl font-bold flex items-center gap-2 mb-2"><Zap className="text-primary" /> PRO</h3>
                             <div className="text-indigo-200 mb-4 h-12">For active wholesalers scaling their acquisition volume.</div>
-                            <div className="text-4xl font-extrabold mb-1">$97<span className="text-xl text-indigo-300 font-normal"> /mo</span></div>
+                            <div className="text-4xl font-extrabold mb-1">$500<span className="text-xl text-indigo-300 font-normal"> /mo</span></div>
                             <div className="text-sm text-indigo-400">Cancel anytime.</div>
                         </div>
 
@@ -141,7 +143,7 @@ const Pricing = () => {
                         <div className="mb-6">
                             <h3 className="text-2xl font-bold flex items-center gap-2 mb-2"><Crown className="text-purple-400" /> SUPER</h3>
                             <div className="text-purple-200/70 mb-4 h-12">Enterprise infrastructure for multi-market domination.</div>
-                            <div className="text-4xl font-extrabold mb-1">$297<span className="text-xl text-purple-300/50 font-normal"> /mo</span></div>
+                            <div className="text-4xl font-extrabold mb-1">$1,000<span className="text-xl text-purple-300/50 font-normal"> /mo</span></div>
                             <div className="text-sm text-purple-400/50">Billed monthly.</div>
                         </div>
 

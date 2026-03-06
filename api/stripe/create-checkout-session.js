@@ -23,7 +23,13 @@ export default async function handler(req, res) {
 
     const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY || process.env.VITE_STRIPE_SECRET_KEY;
 
+    console.log("[Create Checkout] Environment Verification:");
+    console.log(" - STRIPE_SECRET_KEY exists:", !!process.env.STRIPE_SECRET_KEY);
+    console.log(" - VITE_STRIPE_PUBLISHABLE_KEY exists:", !!process.env.VITE_STRIPE_PUBLISHABLE_KEY);
+    console.log(" - STRIPE_WEBHOOK_SECRET exists:", !!process.env.STRIPE_WEBHOOK_SECRET);
+
     if (!STRIPE_SECRET) {
+        console.error("[Create Checkout] FATAL: Stripe Secret Key is missing from the environment.");
         return res.status(500).json({ error: 'Stripe Secret Key is missing from the environment.' });
     }
 
@@ -33,8 +39,11 @@ export default async function handler(req, res) {
         const { priceId, userEmail, userId } = req.body;
 
         if (!priceId || !userEmail || !userId) {
+            console.error('[Create Checkout] Missing required parameters:', { priceId, userEmail, userId });
             return res.status(400).json({ error: 'Missing required parameters: priceId, userEmail, userId' });
         }
+
+        console.log(`[Create Checkout] Payload Received | User: ${userId} | Email: ${userEmail} | Price ID: ${priceId}`);
 
         // Use the origin from the request to build the return URLs dynamically
         const protocol = req.headers['x-forwarded-proto'] || 'http';
@@ -58,7 +67,9 @@ export default async function handler(req, res) {
             cancel_url: `${siteUrl}/profile?canceled=true`,
         });
 
-        return res.status(200).json({ id: session.id, url: session.url });
+        console.log(`[Create Checkout] SUCCESS: Stripe session created perfectly. Session ID: ${session.id}`);
+
+        return res.status(200).json({ url: session.url });
     } catch (error) {
         console.error('[Stripe API Error] Create Checkout:', error.message);
         return res.status(500).json({ error: error.message });
