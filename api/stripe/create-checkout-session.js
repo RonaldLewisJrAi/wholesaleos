@@ -21,21 +21,21 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY || process.env.VITE_STRIPE_SECRET_KEY;
-
-    console.log("[Create Checkout] Environment Verification:");
-    console.log(" - STRIPE_SECRET_KEY exists:", !!process.env.STRIPE_SECRET_KEY);
-    console.log(" - VITE_STRIPE_PUBLISHABLE_KEY exists:", !!process.env.VITE_STRIPE_PUBLISHABLE_KEY);
-    console.log(" - STRIPE_WEBHOOK_SECRET exists:", !!process.env.STRIPE_WEBHOOK_SECRET);
-
-    if (!STRIPE_SECRET) {
-        console.error("[Create Checkout] FATAL: Stripe Secret Key is missing from the environment.");
-        return res.status(500).json({ error: 'Stripe Secret Key is missing from the environment.' });
-    }
-
-    const stripe = new Stripe(STRIPE_SECRET);
-
     try {
+        const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY || process.env.VITE_STRIPE_SECRET_KEY;
+
+        console.log("[Create Checkout] Environment Verification:");
+        console.log(" - STRIPE_SECRET_KEY exists:", !!process.env.STRIPE_SECRET_KEY);
+        console.log(" - VITE_STRIPE_PUBLISHABLE_KEY exists:", !!process.env.VITE_STRIPE_PUBLISHABLE_KEY);
+        console.log(" - STRIPE_WEBHOOK_SECRET exists:", !!process.env.STRIPE_WEBHOOK_SECRET);
+
+        if (!STRIPE_SECRET) {
+            console.error("[Create Checkout] FATAL: Stripe Secret Key is missing from the environment.");
+            return res.status(500).json({ error: 'Stripe Secret Key is missing from the environment.' });
+        }
+
+        const stripe = new Stripe(STRIPE_SECRET);
+
         const { priceId, userEmail, userId } = req.body;
 
         if (!priceId || !userEmail || !userId) {
@@ -70,8 +70,8 @@ export default async function handler(req, res) {
         console.log(`[Create Checkout] SUCCESS: Stripe session created perfectly. Session ID: ${session.id}`);
 
         return res.status(200).json({ url: session.url });
-    } catch (error) {
-        console.error('[Stripe API Error] Create Checkout:', error.message);
-        return res.status(500).json({ error: error.message });
+    } catch (err) {
+        console.error('Stripe checkout error:', err);
+        return res.status(500).json({ error: err.message });
     }
 }

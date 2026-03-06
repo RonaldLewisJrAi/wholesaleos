@@ -24,9 +24,8 @@ const Pricing = () => {
 
             console.log(`[Pricing] Initiating checkout. Tier: ${tier}, Price ID: ${priceId}`);
 
-            // Standard fetch call to the backend
-            const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
-            const res = await fetch(`${baseUrl}/api/stripe/create-checkout-session`, {
+            // Direct fetch call to Vercel Serverless Function
+            const res = await fetch('/api/stripe/create-checkout-session', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
