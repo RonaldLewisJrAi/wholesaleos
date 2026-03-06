@@ -24,8 +24,8 @@ const Pricing = () => {
 
             console.log(`[Pricing] Initiating checkout. Tier: ${tier}, Price ID: ${priceId}`);
 
-            // Direct fetch call to Vercel Serverless Function
-            const res = await fetch('/api/stripe/create-checkout-session', {
+            // Direct fetch call to Vercel Serverless Function (renamed to break cache)
+            const res = await fetch('/api/stripe/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
