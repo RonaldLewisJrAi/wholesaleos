@@ -74,10 +74,34 @@ export const SubscriptionProvider = ({ children }) => {
                 // Normal User Flow
                 let orgId = profileDataToUse.organization_id;
 
-                // 3. Organization Bootstrap Guarantee
+                // 3. Organization Bootstrap Guarantee (Polling for Trigger Sync)
                 if (!orgId) {
                     console.warn("Bootstrap Protocol: No organization found for user. Awaiting underlying database trigger synchronization.");
-                    // Defer to database trigger; we no longer manually insert to public.organizations here.
+
+                    let retries = 0;
+                    const maxRetries = 5;
+                    while (!orgId && retries < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // 1s delay
+                        retries++;
+                        console.log(`[Bootstrap Protocol] Polling profile for org_id... Attempt ${retries}`);
+
+                        const { data: retryProfile } = await supabase
+                            .from('profiles')
+                            .select('organization_id')
+                            .eq('id', user.id)
+                            .single();
+
+                        if (retryProfile?.organization_id) {
+                            orgId = retryProfile.organization_id;
+                            profileDataToUse.organization_id = orgId;
+                            console.log("[Bootstrap Protocol] Trigger synchronization complete. Organization attached.");
+                            break;
+                        }
+                    }
+
+                    if (!orgId) {
+                        console.error("[Bootstrap Protocol] FATAL: Database trigger failed to provision organization within timeout window.");
+                    }
                 }
 
                 // Load User Personas
