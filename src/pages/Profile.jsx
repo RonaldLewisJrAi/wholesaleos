@@ -340,7 +340,7 @@ const Profile = () => {
                         <p className="text-muted mt-1"><strong className="text-white">Active Plan:</strong> <span className="badge bg-primary/20 text-primary border border-primary/50 ml-2">{subscriptionTier}</span></p>
                     </div>
 
-                    {['BASIC', 'PRO', 'ADVANCED'].includes(subscriptionTier) && (
+                    {['none', 'FREE', 'BASIC', 'PRO', 'ADVANCED'].includes(subscriptionTier) && (
                         <button
                             className="btn btn-secondary border-primary text-primary hover:bg-primary/20 w-full mt-6 py-3 disabled:opacity-50"
                             onClick={handleCheckout}

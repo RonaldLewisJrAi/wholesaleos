@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle2, XCircle, Zap, Shield, Crown } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
+import { useSubscription } from '../contexts/useSubscription';
 import '../App.css';
 
 const Pricing = () => {
     const { user, loadingAuth } = useAuth();
+    const { subscriptionTier } = useSubscription();
     const navigate = useNavigate();
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
@@ -91,9 +93,17 @@ const Pricing = () => {
                             <button className="btn btn-secondary w-full py-3 border-gray-600 hover:bg-white/5" onClick={() => navigate('/signup')}>
                                 Create Free Account
                             </button>
-                        ) : (
+                        ) : subscriptionTier === 'BASIC' ? (
                             <button className="btn btn-secondary w-full py-3 border-gray-600 opacity-50 cursor-not-allowed">
                                 Current Plan
+                            </button>
+                        ) : (
+                            <button
+                                className="btn btn-secondary w-full py-3 border-gray-600 hover:bg-white/5"
+                                onClick={() => handleUpgrade('BASIC')}
+                                disabled={isCheckoutLoading}
+                            >
+                                {isCheckoutLoading ? 'Initializing...' : 'Upgrade to BASIC'}
                             </button>
                         )}
                     </div>
@@ -122,13 +132,19 @@ const Pricing = () => {
                             </ul>
                         </div>
 
-                        <button
-                            className="btn btn-primary w-full py-3 text-lg font-bold shadow-[0_0_20px_rgba(79,70,229,0.3)]"
-                            onClick={() => handleUpgrade('PRO')}
-                            disabled={isCheckoutLoading}
-                        >
-                            {isCheckoutLoading ? 'Initializing...' : 'Upgrade to PRO'}
-                        </button>
+                        {subscriptionTier === 'PRO' ? (
+                            <button className="btn btn-primary w-full py-3 text-lg font-bold opacity-50 cursor-not-allowed">
+                                Current Plan
+                            </button>
+                        ) : (
+                            <button
+                                className="btn btn-primary w-full py-3 text-lg font-bold shadow-[0_0_20px_rgba(79,70,229,0.3)]"
+                                onClick={() => handleUpgrade('PRO')}
+                                disabled={isCheckoutLoading}
+                            >
+                                {isCheckoutLoading ? 'Initializing...' : 'Upgrade to PRO'}
+                            </button>
+                        )}
                     </div>
 
                     {/* SUPER TIER */}
@@ -151,13 +167,19 @@ const Pricing = () => {
                             </ul>
                         </div>
 
-                        <button
-                            className="btn btn-secondary w-full py-3 border-purple-500/30 hover:bg-purple-500/10 hover:text-white"
-                            onClick={() => handleUpgrade('SUPER')}
-                            disabled={isCheckoutLoading}
-                        >
-                            {isCheckoutLoading ? 'Initializing...' : 'Upgrade to SUPER'}
-                        </button>
+                        {subscriptionTier === 'SUPER' ? (
+                            <button className="btn btn-secondary w-full py-3 border-purple-500/30 opacity-50 cursor-not-allowed">
+                                Current Plan
+                            </button>
+                        ) : (
+                            <button
+                                className="btn btn-secondary w-full py-3 border-purple-500/30 hover:bg-purple-500/10 hover:text-white"
+                                onClick={() => handleUpgrade('SUPER')}
+                                disabled={isCheckoutLoading}
+                            >
+                                {isCheckoutLoading ? 'Initializing...' : 'Upgrade to SUPER'}
+                            </button>
+                        )}
                     </div>
 
                 </div>
