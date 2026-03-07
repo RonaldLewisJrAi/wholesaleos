@@ -95,24 +95,42 @@ export default async function handler(req, res) {
                         .maybeSingle();
 
                     if (userOrg && userOrg.organization_id) {
-                        console.log(`[Webhook] Upgrading Organization ${userOrg.organization_id} to SUPER tier.`);
+                        const selectedPlan = session.metadata?.selected_plan || 'SUPER'; // Fallback for safety
+                        const customerId = session.customer;
+                        const subscriptionId = session.subscription;
 
-                        // Expand team seats and enable all personas
+                        console.log(`[Webhook] Upgrading Organization ${userOrg.organization_id} to ${selectedPlan} tier.`);
+
+                        let seatLimit = 10;
+                        let enabledPersonas = ['WHOLESALER', 'REALTOR', 'INVESTOR', 'VIRTUAL_ASSISTANT'];
+
+                        if (selectedPlan === 'BASIC') {
+                            seatLimit = 1;
+                            enabledPersonas = ['WHOLESALER'];
+                        } else if (selectedPlan === 'PRO') {
+                            seatLimit = 5;
+                            enabledPersonas = ['WHOLESALER', 'REALTOR'];
+                        }
+
+                        // Update organization with dynamic plan and activation status
                         const { error: orgUpdateError } = await supabaseAdmin
                             .from('organizations')
                             .update({
-                                subscription_tier: 'SUPER',
+                                subscription_tier: selectedPlan,
+                                subscription_status: 'ACTIVE',
                                 account_status: 'active',
-                                team_seat_limit: 10,
-                                enabled_personas: ['WHOLESALER', 'REALTOR', 'INVESTOR', 'VIRTUAL_ASSISTANT']
+                                team_seat_limit: seatLimit,
+                                enabled_personas: enabledPersonas,
+                                stripe_customer_id: customerId,
+                                stripe_subscription_id: subscriptionId
                             })
                             .eq('id', userOrg.organization_id);
 
                         if (orgUpdateError) throw orgUpdateError;
 
-                        // Ensure the user who paid gets all personas unlocked in their profile
+                        // Ensure the user who paid gets personas unlocked in their profile
                         await supabaseAdmin.from('profiles').update({
-                            allowed_personas: ['WHOLESALER', 'REALTOR', 'INVESTOR', 'VIRTUAL_ASSISTANT']
+                            allowed_personas: enabledPersonas
                         }).eq('id', supabaseUserId);
                     }
                 } else {

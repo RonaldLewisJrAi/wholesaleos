@@ -12,7 +12,7 @@ import { Navigate } from 'react-router-dom';
 
 const Layout = () => {
     const { user, loadingAuth } = useAuth();
-    const { systemRole, loadingSub } = useSubscription();
+    const { systemRole, subscriptionStatus, loadingSub } = useSubscription();
 
     // 1. Loading Phase
     if (loadingAuth) {
@@ -22,6 +22,16 @@ const Layout = () => {
     // 2. Unauthenticated Guard
     if (!user) {
         return <Navigate to="/login" replace />;
+    }
+
+    // 2.5 SaaS Gating Guard
+    // Block the entire app for unpaid users, but allow Super Admins to bypass.
+    // Also avoid infinite redirect logic if they are already on /pricing.
+    const isPricingRoute = window.location.pathname.includes('/pricing');
+    if (!loadingSub && subscriptionStatus !== 'ACTIVE' && systemRole !== 'GLOBAL_SUPER_ADMIN') {
+        if (!isPricingRoute) {
+            return <Navigate to="/pricing" replace />;
+        }
     }
 
     // 3. Super Admin Route Bypassing
