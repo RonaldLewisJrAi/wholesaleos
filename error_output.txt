@@ -1,0 +1,2 @@
+﻿[dotenv@17.3.1] injecting env (4) from .env.local -- tip: ≡ƒñû agentic secret storage: https://dotenvx.com/as2
+Trying to sign up test_signup_1772880314883@example.com

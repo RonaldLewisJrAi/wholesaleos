@@ -142,7 +142,7 @@ const Signup = () => {
                             <label className="block text-xs font-medium text-gray-400 mb-1">Email Directive</label>
                             <div className="relative">
                                 <Mail size={16} className="absolute left-3 top-3 text-gray-500" />
-                                <input required type="email" name="email" value={formData.email} onChange={handleChange}
+                                <input required type="email" name="email" autoComplete="email" value={formData.email} onChange={handleChange}
                                     className="w-full bg-[#0B0F19] border border-gray-700 rounded-md py-2.5 pl-9 pr-3 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
                             </div>
                         </div>
@@ -166,6 +166,7 @@ const Signup = () => {
                                         required
                                         type={showPassword ? "text" : "password"}
                                         name="password"
+                                        autoComplete="new-password"
                                         value={formData.password}
                                         onChange={handleChange}
                                         className="w-full bg-[#0B0F19] border border-gray-700 rounded-md py-2.5 pl-9 pr-10 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm"
@@ -186,6 +187,7 @@ const Signup = () => {
                                         required
                                         type={showConfirmPassword ? "text" : "password"}
                                         name="confirmPassword"
+                                        autoComplete="new-password"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
                                         className="w-full bg-[#0B0F19] border border-gray-700 rounded-md py-2.5 px-3 pr-10 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm"

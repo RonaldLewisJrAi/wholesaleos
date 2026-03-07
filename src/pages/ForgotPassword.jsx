@@ -60,6 +60,8 @@ const ForgotPassword = () => {
                                 <Mail size={16} className="absolute left-3 top-3 text-gray-500" />
                                 <input
                                     type="email"
+                                    name="email"
+                                    autoComplete="email"
                                     className="w-full bg-[#0B0F19] border border-gray-700 rounded-md px-4 py-2.5 pl-10 text-white focus:outline-none focus:border-indigo-500 transition-colors"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}

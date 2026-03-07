@@ -290,6 +290,8 @@ const Profile = () => {
                         <div className="flex gap-2 mt-2">
                             <input
                                 type="password"
+                                name="newPassword"
+                                autoComplete="new-password"
                                 className="fillable-input w-full"
                                 placeholder="Enter new password..."
                                 id="newPasswordInput"

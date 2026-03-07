@@ -61,6 +61,8 @@ const Login = () => {
                         <label className="block text-sm font-medium text-gray-400 mb-1">Email Address</label>
                         <input
                             type="email"
+                            name="email"
+                            autoComplete="email"
                             className="w-full bg-[#0B0F19] border border-gray-700 rounded-md px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -76,6 +78,8 @@ const Login = () => {
                         <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
+                                name="password"
+                                autoComplete="current-password"
                                 className="w-full bg-[#0B0F19] border border-gray-700 rounded-md px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors pr-10"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}

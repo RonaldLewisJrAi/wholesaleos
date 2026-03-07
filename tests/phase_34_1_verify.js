@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'; // Standard in modern node, or we can use the injected one
 import child_process from 'child_process';
+import process from 'process';
 
 const API_BASE = 'http://localhost:3001';
 
@@ -44,7 +45,7 @@ async function runPenTests() {
             body: JSON.stringify({ propertyId: 1, buyerIds: [1, 2] })
         });
         assertStatus('Spoofed Malformed JWT Signature (Should Reject)', res2, 401);
-    } catch (e) { }
+    } catch (e) { console.error(e); }
 
     console.log("\n--- PART 3: SSRF & PLAYWRIGHT MITIGATION ---");
 
@@ -59,7 +60,7 @@ async function runPenTests() {
             })
         });
         assertStatus('Raw SSRF without JWT (Should be intercepted by Auth first)', res3, 401);
-    } catch (e) { }
+    } catch (e) { console.error(e); }
 
     console.log(`\n🏁 PEN-TEST COMPLETE: ${passed}/${passed + failed} Passed.`);
     if (failed > 0) process.exit(1);
@@ -67,7 +68,7 @@ async function runPenTests() {
 }
 
 // Start the server in the background
-const serverProcess = child_process.exec('node backend/comps_server.cjs', (err, stdout, stderr) => {
+const serverProcess = child_process.exec('node backend/comps_server.cjs', (err) => {
     if (err) console.error(err);
 });
 
