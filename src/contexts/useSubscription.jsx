@@ -21,14 +21,20 @@ export const SubscriptionProvider = ({ children }) => {
                 return;
             }
 
-            // --- DEFENSIVE SESSION GUARD ---
-            const { data: sessionData } = await supabase.auth.getSession();
-            if (!sessionData?.session) {
-                console.log("[WHOLESALEOS] Skipping org fetch — no authenticated session yet.");
+            // --- GLOBAL SUPER ADMIN BYPASS ---
+            if (user.id === 'super-admin-mock-id') {
+                console.log("[useSubscription] Bypassing fetch -> Hydrating Super Admin Grants");
+                setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
+                setSubscriptionTier('SUPER');
+                setSubscriptionStatus('ACTIVE');
+                setSystemRole('GLOBAL_SUPER_ADMIN');
+                setPrimaryPersona('WHOLESALER');
+                setCurrentViewPersona('WHOLESALER');
                 setLoadingSub(false);
                 return;
             }
-            // -------------------------------
+
+            // --- DEFENSIVE SESSION GUARD ---
 
             try {
                 // Phase 37: Clean Auth -> Profile -> Org -> Role pipeline

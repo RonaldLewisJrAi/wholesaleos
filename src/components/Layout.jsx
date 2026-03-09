@@ -34,11 +34,7 @@ const Layout = () => {
         }
     }
 
-    // 3. Super Admin Route Bypassing
-    // Using window.location to strictly avoid rendering nested dashboards when on admin
-    if (!loadingSub && systemRole === 'GLOBAL_SUPER_ADMIN' && !window.location.pathname.includes('/super-admin') && !window.location.pathname.includes('/profile') && !window.location.pathname.includes('/integrations') && !window.location.pathname.includes('/settings')) {
-        return <Navigate to="/super-admin" replace />;
-    }
+    // 3. (Removed) Super Admin Route Bypassing allows the admin to roam freely inside the platform as a normal user if desired.
 
     // 4. Enterprise Feature Isolation (Phase 38.3)
     const isEnterpriseRoute = window.location.pathname.includes('/integrations') || window.location.pathname.includes('/api-keys') || window.location.pathname.includes('/webhooks');

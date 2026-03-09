@@ -29,7 +29,12 @@ import CalendarView from './pages/CalendarView';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
-import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import SuperAdminLayout from './components/layout/SuperAdminLayout';
+import { SuperAdminOverview } from './pages/SuperAdmin/SuperAdminOverview';
+import { SuperAdminUsers } from './pages/SuperAdmin/SuperAdminUsers';
+import { SuperAdminDeals } from './pages/SuperAdmin/SuperAdminDeals';
+import { SuperAdminVerification } from './pages/SuperAdmin/SuperAdminVerification';
+import { SuperAdminLogs } from './pages/SuperAdmin/SuperAdminLogs';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import { SubscriptionProvider } from './contexts/useSubscription';
@@ -64,6 +69,15 @@ function App() {
 
                   {/* Public Deal Room - Standalone UI Layout */}
                   <Route path="/deal/:id" element={<DealPublic />} />
+
+                  {/* Phase 15: Global Super Admin Sandbox */}
+                  <Route path="/super-admin" element={<SuperAdminLayout />}>
+                    <Route index element={<SuperAdminOverview />} />
+                    <Route path="users" element={<SuperAdminUsers />} />
+                    <Route path="deals" element={<SuperAdminDeals />} />
+                    <Route path="verification" element={<SuperAdminVerification />} />
+                    <Route path="logs" element={<SuperAdminLogs />} />
+                  </Route>
 
                   {/* New SaaS App Layout Engine */}
                   <Route path="/app" element={<PersistentLayout />}>
@@ -105,7 +119,6 @@ function App() {
                     <Route path="appointments" element={<ProxyComponent moduleName="Appointment Bookings" />} />
                     <Route path="integrations" element={<Settings />} />
                     <Route path="admin" element={<AdminDashboard />} />
-                    <Route path="super-admin" element={<SuperAdminDashboard />} />
                     <Route path="terms" element={<TermsOfService />} />
                     <Route path="privacy" element={<PrivacyPolicy />} />
                   </Route>
