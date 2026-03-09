@@ -63,8 +63,8 @@ const WorkspaceSwitcher = () => {
             </button>
 
             {isOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-[var(--surface-light)] border border-[var(--border-light)] shadow-xl rounded-lg overflow-hidden z-[100] animate-fade-in">
-                    <div className="p-3 border-b border-[var(--border-light)] bg-[var(--surface-dark)] flex items-center gap-2">
+                <div className="absolute top-full left-0 mt-2 w-64 bg-[#0B0F19] border border-gray-800 shadow-2xl rounded-lg overflow-hidden z-[100] animate-fade-in">
+                    <div className="p-3 border-b border-gray-800 bg-[#131B2C] flex items-center gap-2">
                         <span className="text-xs font-bold text-muted uppercase tracking-wider">Switch Persona</span>
                         <span className="badge tier-pro text-[9px] px-1 py-0">{subscriptionTier} TIER</span>
                     </div>
@@ -77,7 +77,7 @@ const WorkspaceSwitcher = () => {
                                 <button
                                     key={key}
                                     className={`w-full flex items-center gap-3 p-3 rounded-md text-left transition-colors
-                                        ${isActive ? 'bg-primary/10 border border-primary/20' : 'hover:bg-[var(--surface-dark)] border border-transparent'}
+                                        ${isActive ? 'bg-primary/20 border border-primary/30' : 'hover:bg-[#131B2C] border border-transparent'}
                                         ${!isAllowed ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                                     `}
                                     onClick={() => handleSwitch(key)}
