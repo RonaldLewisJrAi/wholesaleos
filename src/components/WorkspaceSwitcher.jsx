@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Building, Target, Calculator, Headphones, ChevronDown, Lock, ShieldCheck } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
+import { useAuth } from '../contexts/useAuth';
 
 const WorkspaceSwitcher = () => {
     const { subscriptionTier, currentViewPersona, setCurrentViewPersona, allowedPersonas } = useSubscription();
+    const { user } = useAuth();
 
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -70,6 +72,10 @@ const WorkspaceSwitcher = () => {
                     </div>
                     <div className="p-1">
                         {Object.entries(personas).map(([key, config]) => {
+                            if (key === 'ADMIN' && user?.email?.toLowerCase() !== 'ronald_lewis_jr@live.com') {
+                                return null;
+                            }
+
                             const isAllowed = allowedPersonas.includes(key);
                             const isActive = key === currentViewPersona;
 
