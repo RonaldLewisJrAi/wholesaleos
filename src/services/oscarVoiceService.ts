@@ -52,9 +52,41 @@ class OSCARVoiceService {
 
         const utterance = new SpeechSynthesisUtterance(text);
 
-        // Bloomberg-style analyst tone parameters
-        utterance.rate = 0.9;
-        utterance.pitch = 0.9;
+        // Attempt to select a more natural human voice for OSCAR
+        const voices = window.speechSynthesis.getVoices();
+
+        // Priority list of natural sounding voices (Professional Analyst Persona)
+        const preferredVoices = [
+            "Google US English",
+            "Google UK English Male",
+            "Microsoft Guy Online (Natural)",
+            "Microsoft Aria Online (Natural)",
+            "Microsoft Mark",
+            "Samantha",
+            "Daniel"
+        ];
+
+        let selectedVoice = null;
+        for (const pref of preferredVoices) {
+            selectedVoice = voices.find(v => v.name.includes(pref));
+            if (selectedVoice) break;
+        }
+
+        // Fallback to the first high-quality English voice if exact matches fail
+        if (!selectedVoice) {
+            selectedVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Premium') || v.name.includes('Natural')));
+        }
+        if (!selectedVoice) {
+            selectedVoice = voices.find(v => v.lang.startsWith('en'));
+        }
+
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
+
+        // Adjusted parameters for a more natural cadence
+        utterance.rate = 1.0; // Standard speed is more human than sluggish
+        utterance.pitch = 1.0;
         utterance.volume = 1.0;
         utterance.lang = "en-US";
 
