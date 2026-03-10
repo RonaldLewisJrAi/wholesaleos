@@ -6,6 +6,7 @@ import ScrollChevron from './ScrollChevron';
 import OrgHealthWidget from './OrgHealthWidget';
 import GlobalStatusBanner from './GlobalStatusBanner';
 import GuidedTour from './GuidedTour';
+import { AssistantPanel } from './assistant/AssistantPanel';
 import { useAuth } from '../contexts/useAuth';
 import { useSubscription } from '../contexts/useSubscription';
 import { Navigate } from 'react-router-dom';
@@ -57,6 +58,7 @@ const Layout = () => {
                         </div>
                     </main>
                 </div>
+                <AssistantPanel />
             </div>
         );
     }
@@ -74,6 +76,7 @@ const Layout = () => {
             <ScrollChevron />
             <OrgHealthWidget />
             <GuidedTour />
+            <AssistantPanel />
         </div>
     );
 };

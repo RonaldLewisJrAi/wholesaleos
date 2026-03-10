@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { FileText, Search, ShieldAlert, Lock, Trash2, Eye } from 'lucide-react';
+import { FileText, Search, ShieldAlert, Lock, Trash2, Eye, CheckCircle, XCircle } from 'lucide-react';
+import { dealDocumentService } from '../../services/dealDocumentService';
+import { useAuth } from '../../contexts/useAuth';
 
 export const SuperAdminDeals = () => {
+    const { user } = useAuth();
     const [deals, setDeals] = useState([
-        { id: 'd1', property: '123 Main St', city: 'Nashville, TN', wholesaler: 'John Supplier', score: 92, status: 'Active', claimStatus: 'Available' },
-        { id: 'd2', property: '456 Oak Ave', city: 'Atlanta, GA', wholesaler: 'Bob Flips', score: 45, status: 'Flagged', claimStatus: 'Available' },
-        { id: 'd3', property: '789 Pine Rd', city: 'Austin, TX', wholesaler: 'Ronald Lewis Jr', score: 98, status: 'Active', claimStatus: 'Claimed (Escrow)' },
-        { id: 'd4', property: '321 Elm St', city: 'Denver, CO', wholesaler: 'John Supplier', score: 88, status: 'Locked', claimStatus: 'Closed' }
+        { id: 'd1', property: '123 Main St', city: 'Nashville, TN', wholesaler: 'John Supplier', wholesalerId: 'mock-uid-1', score: 92, status: 'Active', claimStatus: 'Available', pocStatus: 'PENDING', pocDocId: 'doc-123' },
+        { id: 'd2', property: '456 Oak Ave', city: 'Atlanta, GA', wholesaler: 'Bob Flips', wholesalerId: 'mock-uid-2', score: 45, status: 'Flagged', claimStatus: 'Available', pocStatus: 'REJECTED', pocDocId: 'doc-456' },
+        { id: 'd3', property: '789 Pine Rd', city: 'Austin, TX', wholesaler: 'Ronald Lewis Jr', wholesalerId: 'mock-uid-3', score: 98, status: 'Active', claimStatus: 'Claimed (Escrow)', pocStatus: 'VERIFIED', pocDocId: 'doc-789' },
+        { id: 'd4', property: '321 Elm St', city: 'Denver, CO', wholesaler: 'John Supplier', wholesalerId: 'mock-uid-1', score: 88, status: 'Locked', claimStatus: 'Closed', pocStatus: 'NONE', pocDocId: null }
     ]);
 
     const handleAction = (id: string, actionName: string) => {
@@ -22,6 +25,34 @@ export const SuperAdminDeals = () => {
             } else if (actionName === 'Remove') {
                 setDeals(prev => prev.filter(deal => deal.id !== id));
             }
+        }
+    };
+
+    const handleDocumentVerify = async (dealId, docId, wholesalerId) => {
+        if (!docId) return;
+        const confirmation = window.confirm('Approve this Proof of Control document? This will grant the wholesaler +5 Trust Score points.');
+        if (!confirmation) return;
+
+        const res = await dealDocumentService.verifyDealDocument(docId, user?.id || 'admin-id', dealId, wholesalerId);
+        if (res.success) {
+            setDeals(prev => prev.map(d => d.id === dealId ? { ...d, pocStatus: 'VERIFIED' } : d));
+            alert('Document verified! Wholesaler awarded +5 Trust Score.');
+        } else {
+            alert('Database update failed: ' + res.error);
+        }
+    };
+
+    const handleDocumentReject = async (dealId, docId, wholesalerId) => {
+        if (!docId) return;
+        const confirmation = window.confirm('Reject this document? This will penalize the wholesaler -15 Trust Score points for a fraudulent upload.');
+        if (!confirmation) return;
+
+        const res = await dealDocumentService.rejectDealDocument(docId, user?.id || 'admin-id', dealId, wholesalerId);
+        if (res.success) {
+            setDeals(prev => prev.map(d => d.id === dealId ? { ...d, pocStatus: 'REJECTED' } : d));
+            alert('Document rejected! Wholesaler penalized -15 Trust Score.');
+        } else {
+            alert('Database update failed: ' + res.error);
         }
     };
 
@@ -55,6 +86,7 @@ export const SuperAdminDeals = () => {
                             <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Property</th>
                             <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Wholesaler</th>
                             <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Score</th>
+                            <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Proof of Control</th>
                             <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">System Status</th>
                             <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Claim Status</th>
                             <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Actions</th>
@@ -75,6 +107,24 @@ export const SuperAdminDeals = () => {
                                         }`}>
                                         {d.score}
                                     </span>
+                                </td>
+                                <td className="p-4">
+                                    {d.pocStatus === 'NONE' ? <span className="text-xs text-gray-600">No Upload</span> : (
+                                        <div className="flex items-center gap-2">
+                                            <span className={`px-2 py-1 rounded text-[10px] font-bold ${d.pocStatus === 'VERIFIED' ? 'bg-green-500/20 text-green-400' :
+                                                    d.pocStatus === 'REJECTED' ? 'bg-red-500/20 text-red-400' :
+                                                        'bg-yellow-500/20 text-yellow-400'
+                                                }`}>
+                                                {d.pocStatus}
+                                            </span>
+                                            {d.pocStatus === 'PENDING' && (
+                                                <div className="flex gap-1 ml-2">
+                                                    <button onClick={() => handleDocumentVerify(d.id, d.pocDocId, d.wholesalerId)} className="text-green-400 hover:text-green-300 transition-colors" title="Verify PoC (+5 Trust)"><CheckCircle size={16} /></button>
+                                                    <button onClick={() => handleDocumentReject(d.id, d.pocDocId, d.wholesalerId)} className="text-red-400 hover:text-red-300 transition-colors" title="Reject PoC (-15 Trust)"><XCircle size={16} /></button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 rounded text-xs font-medium ${d.status === 'Active' ? 'text-gray-300' :

@@ -14,6 +14,7 @@ ADD COLUMN IF NOT EXISTS visibility_level TEXT DEFAULT 'PRIVATE' CHECK (
 -- Update existing RLS policies on deals to allow Marketplace discovery
 -- Wholesalers keep their existing `get_current_user_org()` isolated policy.
 -- Adding a secondary READ policy for external investors:
+DROP POLICY IF EXISTS "Investors view marketplace deals" ON public.deals;
 CREATE POLICY "Investors view marketplace deals" ON public.deals FOR
 SELECT USING (
         visibility_level = 'MARKETPLACE'
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS public.title_companies (
 );
 -- RLS: Title Companies are globally visible to authenticated users
 ALTER TABLE public.title_companies ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public read access to title companies" ON public.title_companies;
 CREATE POLICY "Public read access to title companies" ON public.title_companies FOR
 SELECT TO authenticated USING (true);
 -- 4. TRANSACTION LAYER (STRIPE CONNECT)
@@ -81,6 +83,7 @@ CREATE TABLE IF NOT EXISTS public.deal_transactions (
 );
 -- RLS: Transacting Parties Isolation
 ALTER TABLE public.deal_transactions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Wholesalers view their own deal transactions" ON public.deal_transactions;
 CREATE POLICY "Wholesalers view their own deal transactions" ON public.deal_transactions FOR
 SELECT USING (
         deal_id IN (
@@ -89,6 +92,7 @@ SELECT USING (
             WHERE organization_id = get_current_user_org()
         )
     );
+DROP POLICY IF EXISTS "Investors view their own deal transactions" ON public.deal_transactions;
 CREATE POLICY "Investors view their own deal transactions" ON public.deal_transactions FOR
 SELECT USING (
         investor_id IN (
@@ -114,6 +118,7 @@ CREATE TABLE IF NOT EXISTS public.closing_verifications (
 );
 -- RLS on Closing Verifications
 ALTER TABLE public.closing_verifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Wholesalers view their own deal closings" ON public.closing_verifications;
 CREATE POLICY "Wholesalers view their own deal closings" ON public.closing_verifications FOR
 SELECT USING (
         deal_id IN (

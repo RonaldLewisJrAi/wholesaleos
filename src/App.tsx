@@ -2,23 +2,24 @@ import React, { Suspense } from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import { PersistentLayout } from './components/layout/Layout';
+// import { PersistentLayout } from './components/layout/Layout';
 
-// Async Chunk Splitting (Antigravity Memory Optimization)
-const AppDashboard = React.lazy(() => import('./pages/Dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
-const LeadsManagement = React.lazy(() => import('./pages/Leads/LeadsManagement').then(m => ({ default: m.LeadsManagement })));
-const LeadImport = React.lazy(() => import('./pages/Leads/LeadImport').then(m => ({ default: m.LeadImport })));
-const DealsPipeline = React.lazy(() => import('./pages/Deals/DealsPipeline').then(m => ({ default: m.DealsPipeline })));
-const InvestorDashboard = React.lazy(() => import('./pages/Investor/InvestorDashboard').then(m => ({ default: m.InvestorDashboard })));
-const BuyerCRM = React.lazy(() => import('./pages/CRM/BuyerCRM').then(m => ({ default: m.BuyerCRM })));
-const DealAnalyzer = React.lazy(() => import('./pages/Analyzer/DealAnalyzer').then(m => ({ default: m.DealAnalyzer })));
-const ComplianceMonitor = React.lazy(() => import('./pages/Compliance/ComplianceMonitor').then(m => ({ default: m.ComplianceMonitor })));
-const MarketingDashboard = React.lazy(() => import('./pages/Marketing/MarketingDashboard').then(m => ({ default: m.MarketingDashboard })));
-const AppSettings = React.lazy(() => import('./pages/Settings/Settings').then(m => ({ default: m.Settings })));
-const DealPublic = React.lazy(() => import('./pages/Deals/DealPublic').then(m => ({ default: m.DealPublic })));
+// Async Chunk Splitting (Antigravity Memory Optimization) - Commented out incomplete Phase modules
+// const AppDashboard = React.lazy(() => import('./pages/Dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
+// const LeadsManagement = React.lazy(() => import('./pages/Leads/LeadsManagement').then(m => ({ default: m.LeadsManagement })));
+// const LeadImport = React.lazy(() => import('./pages/Leads/LeadImport').then(m => ({ default: m.LeadImport })));
+// const DealsPipeline = React.lazy(() => import('./pages/Deals/DealsPipeline').then(m => ({ default: m.DealsPipeline })));
+const InvestorDashboard = React.lazy(() => import('./pages/Workstations/InvestorDashboard'));
+// const BuyerCRM = React.lazy(() => import('./pages/CRM/BuyerCRM').then(m => ({ default: m.BuyerCRM })));
+// const DealAnalyzer = React.lazy(() => import('./pages/Analyzer/DealAnalyzer').then(m => ({ default: m.DealAnalyzer })));
+// const ComplianceMonitor = React.lazy(() => import('./pages/Compliance/ComplianceMonitor').then(m => ({ default: m.ComplianceMonitor })));
+// const MarketingDashboard = React.lazy(() => import('./pages/Marketing/MarketingDashboard').then(m => ({ default: m.MarketingDashboard })));
+// const AppSettings = React.lazy(() => import('./pages/Settings/Settings').then(m => ({ default: m.Settings })));
+const DealRoom = React.lazy(() => import('./pages/Deals/DealRoom').then(m => ({ default: m.DealRoom })));
 
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Properties = React.lazy(() => import('./pages/Properties'));
+const TitlePortal = React.lazy(() => import('./pages/TitlePortal'));
 const Pipeline = React.lazy(() => import('./pages/Pipeline'));
 const CRM = React.lazy(() => import('./pages/CRM'));
 const Documents = React.lazy(() => import('./pages/Documents'));
@@ -68,7 +69,10 @@ function App() {
                   <Route path="/investor" element={<InvestorDashboard />} />
 
                   {/* Public Deal Room - Standalone UI Layout */}
-                  <Route path="/deal/:id" element={<DealPublic />} />
+                  <Route path="/deal/:id" element={<DealRoom />} />
+
+                  {/* Public Title Portal - Standalone External Access */}
+                  <Route path="/title-portal" element={<TitlePortal />} />
 
                   {/* Phase 15: Global Super Admin Sandbox */}
                   <Route path="/super-admin" element={<SuperAdminLayout />}>
@@ -79,7 +83,7 @@ function App() {
                     <Route path="logs" element={<SuperAdminLogs />} />
                   </Route>
 
-                  {/* New SaaS App Layout Engine */}
+                  {/* New SaaS App Layout Engine (WIP)
                   <Route path="/app" element={<PersistentLayout />}>
                     <Route index element={<AppDashboard />} />
                     <Route path="leads" element={<LeadsManagement />} />
@@ -91,6 +95,7 @@ function App() {
                     <Route path="marketing" element={<MarketingDashboard />} />
                     <Route path="settings" element={<AppSettings />} />
                   </Route>
+                  */}
 
                   <Route path="/" element={<Layout />}>
                     <Route index element={<Navigate to="/dashboard" replace />} />

@@ -33,6 +33,7 @@ import Pricing from './pages/Pricing';
 import AuthCallback from './components/AuthCallback';
 import ProxyComponent from './pages/Workstations/ProxyComponent';
 import Spreadsheets from './pages/Workstations/Spreadsheets';
+import DealRoom from './pages/Deals/DealRoom';
 
 function App() {
   return (
@@ -47,6 +48,9 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
+
+                {/* Phase 16: Central Deal Workspace */}
+                <Route path="/deal/:id" element={<DealRoom />} />
 
                 {/* Phase 15: Global Super Admin Sandbox */}
                 <Route path="/super-admin" element={<SuperAdminLayout />}>

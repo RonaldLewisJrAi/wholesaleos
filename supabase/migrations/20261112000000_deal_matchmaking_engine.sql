@@ -22,6 +22,7 @@ CREATE INDEX IF NOT EXISTS idx_deal_matches_score ON public.deal_matches(match_s
 CREATE INDEX IF NOT EXISTS idx_deal_matches_notified ON public.deal_matches(notified);
 -- 3. RLS Policies for deal_matches
 -- Investors can see their own matches
+DROP POLICY IF EXISTS "Investors view own deal matches" ON public.deal_matches;
 CREATE POLICY "Investors view own deal matches" ON public.deal_matches FOR
 SELECT USING (
         investor_id IN (
@@ -31,6 +32,7 @@ SELECT USING (
         )
     );
 -- Wholesalers can see who their deals matched with (if they own the deal's organization)
+DROP POLICY IF EXISTS "Wholesalers view matches for their deals" ON public.deal_matches;
 CREATE POLICY "Wholesalers view matches for their deals" ON public.deal_matches FOR
 SELECT USING (
         deal_id IN (

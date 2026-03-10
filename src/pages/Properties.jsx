@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Database, Activity, Send, Filter, Plus, X, Search, Home } from 'lucide-react';
+import { MapPin, Database, Activity, Send, Filter, Plus, X, Search, Home, ShieldCheck, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
 import DealPacketModal from '../components/DealPacketModal';
 import CompEngineModal from '../components/CompEngineModal';
+import { useAudioGuidance } from '../hooks/useAudioGuidance';
+import { voiceAssistant } from '../services/voiceAssistantService';
+import { assistantInsightService } from '../services/assistantInsightService';
 import './Properties.css';
 
 const mockProperties = [
-    { id: 1, address: '349 Rayon Dr, Old Hickory, TN 37138', status: 'FSBO Lead', arv: '$260,000', mao: '$180,000', image: 'https://photos.zillowstatic.com/fp/8a5840d24e54e42ba7ed03c2faeb9e7a-p_e.jpg', sqft: 1200, beds: 3, baths: 2 },
-    { id: 2, address: '6207 Laramie Ave, Nashville, TN 37209', status: 'Marketing', arv: '$550,000', mao: '$430,000', image: 'https://photos.zillowstatic.com/fp/9a957b98d4cf72bfec1b9542a17ba3f8-p_e.jpg', sqft: 1850, beds: 4, baths: 3 },
-    { id: 3, address: '52 Trimble St, Nashville, TN 37210', status: 'FSBO Lead', arv: '$480,000', mao: '$350,000', image: 'https://photos.zillowstatic.com/fp/7dce2e9c2f6d0a79a5baeb6dcbadadd5-p_e.jpg', sqft: 1403, beds: 4, baths: 2 }
+    { id: 1, address: '349 Rayon Dr, Old Hickory, TN 37138', status: 'FSBO Lead', arv: '$260,000', mao: '$180,000', image: 'https://photos.zillowstatic.com/fp/8a5840d24e54e42ba7ed03c2faeb9e7a-p_e.jpg', sqft: 1200, beds: 3, baths: 2, poc_verified: false },
+    { id: 2, address: '6207 Laramie Ave, Nashville, TN 37209', status: 'Marketing', arv: '$550,000', mao: '$430,000', image: 'https://photos.zillowstatic.com/fp/9a957b98d4cf72bfec1b9542a17ba3f8-p_e.jpg', sqft: 1850, beds: 4, baths: 3, poc_verified: true },
+    { id: 3, address: '52 Trimble St, Nashville, TN 37210', status: 'FSBO Lead', arv: '$480,000', mao: '$350,000', image: 'https://photos.zillowstatic.com/fp/7dce2e9c2f6d0a79a5baeb6dcbadadd5-p_e.jpg', sqft: 1403, beds: 4, baths: 2, poc_verified: false }
 ];
+
+const getTrustTier = (score = 50) => {
+    if (score >= 90) return { label: 'Elite', class: 'bg-success text-bg-darker' };
+    if (score >= 75) return { label: 'Verified Pro', class: 'bg-primary text-bg-darker' };
+    if (score >= 50) return { label: 'Active Trader', class: 'bg-secondary text-white' };
+    if (score >= 25) return { label: 'New', class: 'bg-warning text-bg-darker' };
+    return { label: 'High Risk', class: 'bg-danger text-white' };
+};
 
 const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
 
@@ -19,9 +30,27 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
             <div className="property-image" style={{
                 backgroundImage: `url(${property.image})`
             }}>
-                <span className={`status-badge ${property.status === 'Under Contract' ? 'bg-warning' : property.status === 'Marketing' ? 'bg-primary' : property.status === 'Web Lead' ? 'bg-secondary' : 'bg-success'}`}>
-                    {property.status}
-                </span>
+                <div className="flex-between w-full p-3 absolute top-0 left-0 items-start">
+                    <div className="flex flex-col gap-2">
+                        <span className={`status-badge w-max ${property.status === 'Under Contract' ? 'bg-warning' : property.status === 'Marketing' ? 'bg-primary' : property.status === 'Web Lead' ? 'bg-secondary' : 'bg-success'}`}>
+                            {property.status}
+                        </span>
+                        {property.poc_verified && (
+                            <span className="badge bg-[rgba(0,0,0,0.6)] backdrop-blur-md text-success border border-success border-opacity-30 font-bold text-[10px] shadow-lg w-max" title="Proof of Control Verified by Admin">
+                                <CheckCircle size={10} className="inline mr-1" /> PoC Verified
+                            </span>
+                        )}
+                    </div>
+                    {property.status !== 'Web Lead' && (() => {
+                        const trustScore = property.wholesaler?.trust_score || property.wholesaler_trust_score || 50;
+                        const tier = getTrustTier(trustScore);
+                        return (
+                            <span className={`badge ${tier.class} font-bold text-xs shadow-lg`} title={`Wholesaler Trust Score: ${trustScore}/100`}>
+                                <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
+                            </span>
+                        );
+                    })()}
+                </div>
             </div>
             <div className="property-details">
                 <h3 className="property-address flex items-center gap-1">
@@ -69,8 +98,13 @@ const Properties = () => {
     const { user } = useAuth();
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const { enabled: audioEnabled } = useAudioGuidance();
+    const [hasSpokenWelcome, setHasSpokenWelcome] = useState(false);
+
     const [isImporting, setIsImporting] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
 
     // Live Finder Modal State (Replaces Assessor Pull)
     const [isLiveFinderModalOpen, setIsLiveFinderModalOpen] = useState(false);
@@ -124,6 +158,13 @@ const Properties = () => {
 
         fetchProperties();
     }, []);
+
+    useEffect(() => {
+        if (audioEnabled && !loading && !hasSpokenWelcome) {
+            voiceAssistant.speak(assistantInsightService.getMarketplaceSummary(properties.length));
+            setHasSpokenWelcome(true);
+        }
+    }, [audioEnabled, loading, properties.length, hasSpokenWelcome]);
 
     const checkExclusivityLock = async (address) => {
         if (!supabase) return { isLocked: false };
@@ -394,6 +435,10 @@ const Properties = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
+                <label className="flex items-center gap-2 cursor-pointer ml-4 mr-auto text-sm font-bold text-muted hover:text-white transition-colors">
+                    <input type="checkbox" className="accent-primary" checked={showVerifiedOnly} onChange={e => setShowVerifiedOnly(e.target.checked)} />
+                    <CheckCircle size={14} className={showVerifiedOnly ? 'text-success' : 'opacity-50'} /> Verified Only
+                </label>
                 <div className="view-toggles">
                     <button className="icon-btn active"><Home size={18} /></button>
                     <button className="icon-btn"><MapPin size={18} /></button>
@@ -407,7 +452,7 @@ const Properties = () => {
                     properties.filter(prop =>
                         prop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         prop.status.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map(prop => (
+                    ).filter(prop => showVerifiedOnly ? prop.poc_verified === true : true).map(prop => (
                         <PropertyCard
                             key={prop.id}
                             property={prop}

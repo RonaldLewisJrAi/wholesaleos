@@ -424,6 +424,12 @@ const Pipeline = () => {
                                                 <span key={tag} className="tag">{tag}</span>
                                             ))}
 
+                                            {deal.poc_verified && (
+                                                <span className="tag text-[10px] bg-[rgba(16,185,129,0.1)] border border-success/30 text-success" title="Proof of Control Verified">
+                                                    <CheckCircle size={10} className="inline mr-1" /> PoC Verified
+                                                </span>
+                                            )}
+
                                             {/* Phase 12 Hologram: Wholesaler Live Risk Badge */}
                                             {currentViewPersona === 'WHOLESALER' && (() => {
                                                 if (deal.days < 5) return <span className="tag text-[10px] bg-[rgba(239,68,68,0.1)] border border-danger/30 text-danger" title="Accelerated Close - Compliance Warning">Critical Risk: Close &lt; 5d</span>;

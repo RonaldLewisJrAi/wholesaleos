@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-env node */
+/* eslint-disable no-unused-vars */
 import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });

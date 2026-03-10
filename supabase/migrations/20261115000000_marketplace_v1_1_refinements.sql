@@ -37,6 +37,7 @@ BEGIN PERFORM net.http_post(
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+DROP TRIGGER IF EXISTS trigger_async_reputation_update ON public.closing_verifications;
 CREATE TRIGGER trigger_async_reputation_update
 AFTER
 INSERT ON public.closing_verifications FOR EACH ROW EXECUTE FUNCTION notify_edge_function_update_reputation();
@@ -64,6 +65,7 @@ BEGIN PERFORM net.http_post(
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+DROP TRIGGER IF EXISTS trigger_async_reverse_matchmaking ON public.investor_buy_boxes;
 CREATE TRIGGER trigger_async_reverse_matchmaking
 AFTER
 INSERT
@@ -73,6 +75,12 @@ UPDATE ON public.investor_buy_boxes FOR EACH ROW EXECUTE FUNCTION notify_edge_fu
 -- SECTION 3: ADD REQUIRED INDEXES FOR MATCHING PERFORMANCE
 -- ========================================================================================
 -- Investor buy box search (GIN Indexes for array intersections)
+ALTER TABLE public.investor_buy_boxes
+ADD COLUMN IF NOT EXISTS markets TEXT [] DEFAULT '{}';
+ALTER TABLE public.investor_buy_boxes
+ADD COLUMN IF NOT EXISTS property_types TEXT [] DEFAULT '{}';
+ALTER TABLE public.investor_buy_boxes
+ADD COLUMN IF NOT EXISTS rehab_levels TEXT [] DEFAULT '{}';
 CREATE INDEX IF NOT EXISTS idx_buy_boxes_markets ON public.investor_buy_boxes USING GIN (markets);
 CREATE INDEX IF NOT EXISTS idx_buy_boxes_property_types ON public.investor_buy_boxes USING GIN (property_types);
 -- Deal match lookup (B-Tree Indexes for rapid lookups and sorting)
@@ -98,8 +106,10 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 );
 -- RLS: Users can only read / dismiss their own notifications
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users view own notifications" ON public.notifications;
 CREATE POLICY "Users view own notifications" ON public.notifications FOR
 SELECT USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "Users update own notifications" ON public.notifications;
 CREATE POLICY "Users update own notifications" ON public.notifications FOR
 UPDATE USING (user_id = auth.uid());
 -- 2. Async Webhook for Notification Processing
@@ -119,6 +129,7 @@ BEGIN PERFORM net.http_post(
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+DROP TRIGGER IF EXISTS trigger_async_process_notifications ON public.notifications;
 CREATE TRIGGER trigger_async_process_notifications
 AFTER
 INSERT ON public.notifications FOR EACH ROW EXECUTE FUNCTION notify_edge_function_process_notifications();

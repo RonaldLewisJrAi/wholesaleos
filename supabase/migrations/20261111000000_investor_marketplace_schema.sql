@@ -51,12 +51,15 @@ ALTER TABLE public.investor_buy_boxes ENABLE ROW LEVEL SECURITY;
 -- ========================================================================================
 -- A. Policies for `investor_profiles`
 -- Investors can select/view their own profile
+DROP POLICY IF EXISTS "Investors can view their own profile" ON public.investor_profiles;
 CREATE POLICY "Investors can view their own profile" ON public.investor_profiles FOR
 SELECT USING (user_id = auth.uid());
 -- Investors can update their own profile
+DROP POLICY IF EXISTS "Investors can update their own profile" ON public.investor_profiles;
 CREATE POLICY "Investors can update their own profile" ON public.investor_profiles FOR
 UPDATE USING (user_id = auth.uid());
 -- Investors can insert their own profile
+DROP POLICY IF EXISTS "Investors can insert their own profile" ON public.investor_profiles;
 CREATE POLICY "Investors can insert their own profile" ON public.investor_profiles FOR
 INSERT WITH CHECK (user_id = auth.uid());
 -- Note: Because there is NO policy referencing `get_current_user_org()` or `user_organizations`, 
@@ -64,6 +67,7 @@ INSERT WITH CHECK (user_id = auth.uid());
 -- expressly granted in a future policy matching a marketplace handshake.
 -- B. Policies for `investor_buy_boxes`
 -- Investors can view their own buy boxes
+DROP POLICY IF EXISTS "Investors can view their own buy boxes" ON public.investor_buy_boxes;
 CREATE POLICY "Investors can view their own buy boxes" ON public.investor_buy_boxes FOR
 SELECT USING (
         investor_id IN (
@@ -73,6 +77,7 @@ SELECT USING (
         )
     );
 -- Investors can insert their own buy boxes
+DROP POLICY IF EXISTS "Investors can insert their own buy boxes" ON public.investor_buy_boxes;
 CREATE POLICY "Investors can insert their own buy boxes" ON public.investor_buy_boxes FOR
 INSERT WITH CHECK (
         investor_id IN (
@@ -82,6 +87,7 @@ INSERT WITH CHECK (
         )
     );
 -- Investors can update their own buy boxes
+DROP POLICY IF EXISTS "Investors can update their own buy boxes" ON public.investor_buy_boxes;
 CREATE POLICY "Investors can update their own buy boxes" ON public.investor_buy_boxes FOR
 UPDATE USING (
         investor_id IN (
@@ -91,6 +97,7 @@ UPDATE USING (
         )
     );
 -- Investors can delete their own buy boxes
+DROP POLICY IF EXISTS "Investors can delete their own buy boxes" ON public.investor_buy_boxes;
 CREATE POLICY "Investors can delete their own buy boxes" ON public.investor_buy_boxes FOR DELETE USING (
     investor_id IN (
         SELECT id

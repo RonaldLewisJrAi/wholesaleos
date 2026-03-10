@@ -62,7 +62,8 @@ const Profile = () => {
                         company: data.company || '',
                         bio: data.bio || '',
                         primaryPersona: data.primary_persona || 'WHOLESALER',
-                        systemRole: data.system_role || 'USER'
+                        systemRole: data.system_role || 'USER',
+                        trustScore: data.trust_score || 50
                     });
                     setBuyBox({
                         targetMarkets: data.target_markets || '',
@@ -210,10 +211,32 @@ const Profile = () => {
                         <h2 className="profile-name">{profile.firstName} {profile.lastName}</h2>
                         <p className="profile-company">{profile.company}</p>
 
-                        <div className="mt-4">
+                        <div className="mt-4 flex flex-col items-center gap-2">
                             <span className="role-badge" style={{ backgroundColor: 'rgba(99,102,241,0.1)', color: 'var(--primary-color)', border: '1px solid rgba(99,102,241,0.3)' }}>
                                 <ShieldCheck size={14} /> Active Seat: {subscriptionTier}
                             </span>
+
+                            {/* Phase 16 Trust Score Widget */}
+                            {(() => {
+                                const clampedScore = profile.trustScore || 50;
+
+                                let tierLabel = 'High Risk';
+                                let tierColorClass = 'bg-danger text-white';
+
+                                if (clampedScore >= 90) { tierLabel = 'Elite Closer'; tierColorClass = 'bg-success text-bg-darker'; }
+                                else if (clampedScore >= 75) { tierLabel = 'Verified Pro'; tierColorClass = 'bg-primary text-bg-darker'; }
+                                else if (clampedScore >= 50) { tierLabel = 'Active Trader'; tierColorClass = 'bg-secondary text-white'; }
+                                else if (clampedScore >= 25) { tierLabel = 'New Participant'; tierColorClass = 'bg-warning text-bg-darker'; }
+
+                                return (
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className={`badge ${tierColorClass} font-bold px-3 py-1`}>
+                                            <ShieldCheck size={14} className="inline mr-1" /> {tierLabel}
+                                        </span>
+                                        <span className="text-xs text-muted font-mono bg-bg-darker px-2 py-1 rounded border border-border-light">Score: {clampedScore}/100</span>
+                                    </div>
+                                );
+                            })()}
                         </div>
                     </div>
 
