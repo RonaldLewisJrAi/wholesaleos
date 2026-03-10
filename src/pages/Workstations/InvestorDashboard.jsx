@@ -169,7 +169,7 @@ const InvestorDashboard = () => {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {deals.map(deal => (
-                                <div key={deal.id} className="relative">
+                                <div key={deal.id} className={`relative rounded-[8px] transition-all ${deal.priority ? 'priority-gold transform hover:-translate-y-1' : ''}`}>
                                     <DealCard deal={deal} />
                                     {/* Strict Enforcement Badges generated on top of DealCard components per UI architecture rules */}
                                     <div className="absolute top-2 right-2 flex gap-1 z-10 pointer-events-none">

@@ -1,17 +1,16 @@
 .header {
-    height: 72px;
+    height: 80px;
     padding: 0 var(--spacing-6);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-radius: 0;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    border-bottom: 1px solid var(--border-light);
+    border-radius: 8px;
+    margin: 12px 12px 12px 0;
     position: sticky;
-    top: 0;
+    top: 12px;
     z-index: 90;
+    -webkit-backdrop-filter: blur(120px) saturate(200%);
+    backdrop-filter: blur(120px) saturate(200%);
 }
 
 .header-search {

@@ -15,9 +15,9 @@
 .properties-toolbar .search-bar {
     display: flex;
     align-items: center;
-    background-color: var(--bg-primary);
+    background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    border-radius: 8px;
     padding: var(--spacing-2) var(--spacing-3);
     width: 400px;
 }
@@ -57,8 +57,8 @@
 
 .property-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-primary);
 }
 
 .property-image {
@@ -104,10 +104,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-4);
-    background-color: var(--bg-primary);
+    background-color: rgba(11, 31, 51, 0.6);
     padding: var(--spacing-3);
-    border-radius: var(--radius-md);
+    border-radius: 8px;
     border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .metric {

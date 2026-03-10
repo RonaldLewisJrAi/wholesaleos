@@ -5,14 +5,9 @@ import { AssistantControls } from './AssistantControls';
 
 export const AssistantPanel: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState(true);
-    /* 
-     * In a full Bloomberg terminal, the user might completely hide the panel,
-     * but for the WholesaleOS implementation we want the audio controls always accessible
-     * when the workstation is active, so we rely on minimize/maximize.
-     */
 
     return (
-        <div className="fixed bottom-6 right-6 w-80 lg:w-96 rounded-lg overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.8)] border border-gray-800 z-50 transition-all duration-300 transform bg-black flex flex-col">
+        <div className={`fixed right-3 top-3 bottom-3 transition-all duration-300 z-50 glass-panel flex flex-col ${isExpanded ? 'w-[340px]' : 'w-16'}`}>
             <AssistantHeader
                 isExpanded={isExpanded}
                 onToggleExpand={() => setIsExpanded(!isExpanded)}
@@ -20,11 +15,17 @@ export const AssistantPanel: React.FC = () => {
             />
 
             {isExpanded && (
-                <>
-                    <AssistantFeed />
-                    <AssistantControls />
-                </>
+                <div className="flex flex-col flex-1 overflow-hidden h-full">
+                    {/* Bloomberg Terminal Console Styling Wrapper */}
+                    <div className="flex-1 overflow-y-auto bg-black/40 border-y border-vision-slate/30 p-2">
+                        <AssistantFeed />
+                    </div>
+                    <div className="p-3 bg-black/60 rounded-b-[20px]">
+                        <AssistantControls />
+                    </div>
+                </div>
             )}
         </div>
     );
 };
+

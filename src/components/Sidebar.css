@@ -1,17 +1,13 @@
 .sidebar {
     width: 260px;
-    height: 100vh;
+    height: calc(100vh - 24px);
     position: fixed;
-    left: 0;
-    top: 0;
+    left: 12px;
+    top: 12px;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid var(--border-light);
-    border-radius: 0;
+    border-radius: 8px;
     z-index: 100;
-    border-top: none;
-    border-bottom: none;
-    border-left: none;
 }
 
 .sidebar-header {

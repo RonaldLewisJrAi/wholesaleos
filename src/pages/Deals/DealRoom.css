@@ -81,7 +81,7 @@
 
 .deal-gallery {
     height: 400px;
-    border-radius: 12px;
+    border-radius: 8px;
     background-size: cover;
     background-position: center;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
@@ -111,13 +111,14 @@
 }
 
 .stat-box {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-light);
+    background: rgba(11, 31, 51, 0.6);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .stat-box.highlight {
