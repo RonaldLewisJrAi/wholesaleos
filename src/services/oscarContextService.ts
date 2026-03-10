@@ -1,10 +1,10 @@
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 
-// Gather live platform state to pass into the OSAR Prompt
-export const getOSARContextSnapshot = () => {
+// Gather live platform state to pass into the OSCAR Prompt
+export const getOSCARContextSnapshot = () => {
     // We export a function that builds this snapshot on the fly 
-    // when askOSAR is called, to ensure fresh data.
+    // when askOSCAR is called, to ensure fresh data.
 
     const locationPath = window.location.pathname;
 
@@ -13,7 +13,7 @@ export const getOSARContextSnapshot = () => {
     if (locationPath.startsWith('/deal/')) {
         const dealId = locationPath.split('/')[2];
         // In a real scenario, this would intercept from a local store or hook.
-        // For OSAR base logic, we provide a generic template.
+        // For OSCAR base logic, we provide a generic template.
         dealContext = {
             dealId: dealId,
             dealScore: 82, // Placeholder

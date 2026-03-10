@@ -5,7 +5,7 @@ import Header from './Header';
 import ScrollChevron from './ScrollChevron';
 import OrgHealthWidget from './OrgHealthWidget';
 import GlobalStatusBanner from './GlobalStatusBanner';
-import { OSARPanel } from './assistant/OSARPanel';
+import { OSCARPanel } from './assistant/OSCARPanel';
 import { useAuth } from '../contexts/useAuth';
 import { useSubscription } from '../contexts/useSubscription';
 import { useGuidance } from '../contexts/GuidanceContext';
@@ -59,7 +59,7 @@ const Layout = () => {
                         </div>
                     </main>
                 </div>
-                {isAssistantOpen && <OSARPanel />}
+                {isAssistantOpen && <OSCARPanel />}
             </div>
         );
     }
@@ -76,7 +76,7 @@ const Layout = () => {
             </div>
             <ScrollChevron />
             <OrgHealthWidget />
-            {isAssistantOpen && <OSARPanel />}
+            {isAssistantOpen && <OSCARPanel />}
         </div>
     );
 };

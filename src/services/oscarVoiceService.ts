@@ -1,4 +1,4 @@
-class OSARVoiceService {
+class OSCARVoiceService {
     private isPlaying: boolean = false;
     private onPlayStateChange: ((isPlaying: boolean) => void) | null = null;
     private onMessageUpdate: ((message: string) => void) | null = null;
@@ -86,4 +86,4 @@ class OSARVoiceService {
     }
 }
 
-export const osarVoiceService = new OSARVoiceService();
+export const oscarVoiceService = new OSCARVoiceService();

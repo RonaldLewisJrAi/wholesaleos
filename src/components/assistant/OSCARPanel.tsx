@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { OSARHeader } from './OSARHeader';
-import { OSARChatHistory, ChatMessage } from './OSARChatHistory';
-import { OSARInput } from './OSARInput';
+import { OSCARHeader } from './OSCARHeader';
+import { OSCARChatHistory, ChatMessage } from './OSCARChatHistory';
+import { OSCARInput } from './OSCARInput';
 import { Volume2, VolumeX, RotateCcw } from 'lucide-react';
-import { askOSAR } from '../../services/osarAssistantService';
-import { osarVoiceService } from '../../services/osarVoiceService';
+import { askOSCAR } from '../../services/oscarAssistantService';
+import { oscarVoiceService } from '../../services/oscarVoiceService';
 
-export const OSARPanel: React.FC = () => {
+export const OSCARPanel: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState(true);
-    const [isVoiceEnabled, setIsVoiceEnabled] = useState(osarVoiceService.getVoiceEnabled());
+    const [isVoiceEnabled, setIsVoiceEnabled] = useState(oscarVoiceService.getVoiceEnabled());
     const [isAudioPlaying, setIsAudioPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -16,19 +16,19 @@ export const OSARPanel: React.FC = () => {
         {
             id: 'init-1',
             role: 'assistant',
-            text: "OSAR Service Desk ready. How can I assist you with WholesaleOS today?"
+            text: "OSCAR Service Desk ready. How can I assist you with WholesaleOS today?"
         }
     ]);
 
     useEffect(() => {
         // Sync visual audio playing state with the service
-        osarVoiceService.setPlayStateCallback(setIsAudioPlaying);
+        oscarVoiceService.setPlayStateCallback(setIsAudioPlaying);
 
         // Initial greeting audio if enabled
         if (isVoiceEnabled) {
             // We delay slightly so TTS doesn't clip on pure mount
             setTimeout(() => {
-                osarVoiceService.speak("OSAR Service Desk ready. How can I assist you?");
+                oscarVoiceService.speak("OSCAR Service Desk ready. How can I assist you?");
             }, 500);
         }
     }, []);
@@ -36,11 +36,11 @@ export const OSARPanel: React.FC = () => {
     const toggleVoice = () => {
         const newState = !isVoiceEnabled;
         setIsVoiceEnabled(newState);
-        osarVoiceService.setVoiceEnabled(newState);
+        oscarVoiceService.setVoiceEnabled(newState);
     };
 
     const handleReplay = () => {
-        osarVoiceService.replayLast();
+        oscarVoiceService.replayLast();
     };
 
     const handleSubmit = async (text: string) => {
@@ -56,14 +56,14 @@ export const OSARPanel: React.FC = () => {
 
         try {
             // 3. Fetch from Gemini
-            const responseText = await askOSAR(text);
+            const responseText = await askOSCAR(text);
 
             // 4. Update History and Speak
             setHistory(prev => prev.map(msg =>
                 msg.id === tempId ? { ...msg, text: responseText, isTyping: false } : msg
             ));
 
-            osarVoiceService.speak(responseText);
+            oscarVoiceService.speak(responseText);
 
         } catch (error) {
             setHistory(prev => prev.map(msg =>
@@ -76,7 +76,7 @@ export const OSARPanel: React.FC = () => {
 
     return (
         <div className={`fixed right-3 top-3 bottom-3 transition-all duration-300 z-50 glass-panel flex flex-col border border-emerald-900/30 ${isExpanded ? 'w-[360px]' : 'w-16'}`}>
-            <OSARHeader
+            <OSCARHeader
                 isExpanded={isExpanded}
                 onToggleExpand={() => setIsExpanded(!isExpanded)}
             />
@@ -101,12 +101,12 @@ export const OSARPanel: React.FC = () => {
                         </button>
                     </div>
 
-                    <OSARChatHistory
+                    <OSCARChatHistory
                         history={history}
                         isAudioPlaying={isAudioPlaying}
                     />
 
-                    <OSARInput
+                    <OSCARInput
                         onSubmit={handleSubmit}
                         isLoading={isLoading}
                     />

@@ -7,12 +7,12 @@ export interface ChatMessage {
     isTyping?: boolean;
 }
 
-interface OSARChatHistoryProps {
+interface OSCARChatHistoryProps {
     history: ChatMessage[];
     isAudioPlaying: boolean;
 }
 
-export const OSARChatHistory: React.FC<OSARChatHistoryProps> = ({ history, isAudioPlaying }) => {
+export const OSCARChatHistory: React.FC<OSCARChatHistoryProps> = ({ history, isAudioPlaying }) => {
     const endRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {

@@ -71,10 +71,10 @@ const Header = () => {
                     <button
                         className={`btn btn-secondary flex items-center h-10 px-3 gap-2 transition-all ${isAssistantOpen ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'text-gray-400 hover:text-white'}`}
                         onClick={toggleAssistant}
-                        title="Toggle OSAR AI Agent"
+                        title="Toggle OSCAR AI Agent"
                     >
                         <Bot size={18} className={isAssistantOpen ? "animate-pulse" : ""} />
-                        <span className="font-mono text-xs font-bold tracking-widest hidden sm:inline-block">OSAR</span>
+                        <span className="font-mono text-xs font-bold tracking-widest hidden sm:inline-block">OSCAR</span>
                     </button>
                     <button className="icon-btn" onClick={toggleTheme} title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
                         {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}

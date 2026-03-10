@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bot, Terminal as TerminalIcon, Sparkles } from 'lucide-react';
 
-export const OSARHeader: React.FC<{ isExpanded: boolean; onToggleExpand: () => void }> = ({
+export const OSCARHeader: React.FC<{ isExpanded: boolean; onToggleExpand: () => void }> = ({
     isExpanded,
     onToggleExpand
 }) => {
@@ -22,7 +22,7 @@ export const OSARHeader: React.FC<{ isExpanded: boolean; onToggleExpand: () => v
                 {isExpanded && (
                     <div>
                         <h3 className="text-white font-medium text-sm flex items-center gap-1">
-                            OSAR <Sparkles size={12} className="text-emerald-400" />
+                            OSCAR <Sparkles size={12} className="text-emerald-400" />
                         </h3>
                         <p className="text-emerald-500/70 text-[10px] uppercase tracking-wider font-mono">Service Terminal</p>
                     </div>
@@ -31,7 +31,7 @@ export const OSARHeader: React.FC<{ isExpanded: boolean; onToggleExpand: () => v
 
             {isExpanded && (
                 <div className="flex gap-2">
-                    <button className="text-gray-500 hover:text-white transition" title="OSAR Interface Active">
+                    <button className="text-gray-500 hover:text-white transition" title="OSCAR Interface Active">
                         <TerminalIcon size={14} />
                     </button>
                 </div>

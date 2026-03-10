@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Send } from 'lucide-react';
 
-interface OSARInputProps {
+interface OSCARInputProps {
     onSubmit: (text: string) => void;
     isLoading: boolean;
 }
 
-export const OSARInput: React.FC<OSARInputProps> = ({ onSubmit, isLoading }) => {
+export const OSCARInput: React.FC<OSCARInputProps> = ({ onSubmit, isLoading }) => {
     const [inputValue, setInputValue] = useState('');
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<any>(null);
