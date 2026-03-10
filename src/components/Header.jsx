@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio, Sun, Moon, Info } from 'lucide-react';
+import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio, Sun, Moon, Info, Terminal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
 import { useTheme } from '../contexts/ThemeContext';
@@ -11,7 +11,7 @@ import './Header.css';
 
 const Header = () => {
     const { theme, toggleTheme } = useTheme();
-    const { guidanceMode, setGuidanceMode } = useGuidance();
+    const { guidanceMode, setGuidanceMode, isAssistantOpen, toggleAssistant } = useGuidance();
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -71,12 +71,18 @@ const Header = () => {
                         className={`icon-btn ${guidanceMode !== 'off' ? 'text-primary animate-pulse shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]' : ''}`}
                         onClick={() => {
                             if (guidanceMode === 'off') setGuidanceMode('insight');
-                            else if (guidanceMode === 'insight') setGuidanceMode('tour');
                             else setGuidanceMode('off');
                         }}
-                        title={`Guided Mode: Current = ${guidanceMode.toUpperCase()} (Click to toggle)`}
+                        title={`Insight Mode: Current = ${guidanceMode.toUpperCase()} (Click to toggle)`}
                     >
                         <Info size={20} />
+                    </button>
+                    <button
+                        className={`icon-btn ${isAssistantOpen ? 'text-blue-400 bg-blue-500/10' : ''}`}
+                        onClick={toggleAssistant}
+                        title="Toggle AI Intelligence Terminal"
+                    >
+                        <Terminal size={20} />
                     </button>
                     <button className="icon-btn" onClick={toggleTheme} title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
                         {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}

@@ -3,11 +3,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const GuidanceContext = createContext();
 
 export const GuidanceProvider = ({ children }) => {
-    // Mode can be: 'off', 'insight', 'tour'
+    // Mode can be: 'off', 'insight'
     const [guidanceMode, setGuidanceMode] = useState(() => {
         const savedMode = localStorage.getItem('wholesale_os_guidance_mode');
         return savedMode || 'off';
     });
+
+    const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
     useEffect(() => {
         localStorage.setItem('wholesale_os_guidance_mode', guidanceMode);
@@ -17,8 +19,8 @@ export const GuidanceProvider = ({ children }) => {
         setGuidanceMode(prev => prev === 'insight' ? 'off' : 'insight');
     };
 
-    const toggleTourMode = () => {
-        setGuidanceMode(prev => prev === 'tour' ? 'off' : 'tour');
+    const toggleAssistant = () => {
+        setIsAssistantOpen(prev => !prev);
     };
 
     return (
@@ -26,7 +28,8 @@ export const GuidanceProvider = ({ children }) => {
             guidanceMode,
             setGuidanceMode,
             toggleInsightMode,
-            toggleTourMode
+            isAssistantOpen,
+            toggleAssistant
         }}>
             {children}
         </GuidanceContext.Provider>

@@ -17,7 +17,7 @@ export const AssistantPanel: React.FC = () => {
             {isExpanded && (
                 <div className="flex flex-col flex-1 overflow-hidden h-full">
                     {/* Bloomberg Terminal Console Styling Wrapper */}
-                    <div className="flex-1 overflow-y-auto bg-black/40 border-y border-vision-slate/30 p-2">
+                    <div className="flex-1 bg-black/80 border-y border-vision-slate/30 overflow-hidden">
                         <AssistantFeed />
                     </div>
                     <div className="p-3 bg-black/60 rounded-b-[20px]">

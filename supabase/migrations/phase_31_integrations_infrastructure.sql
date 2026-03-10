@@ -30,7 +30,7 @@ END $$;
 -- 2. CORE INTEGRATION REGISTRY
 -- =======================================================
 CREATE TABLE IF NOT EXISTS integrations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     type integration_type NOT NULL,
     status integration_status DEFAULT 'DISABLED',
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS integrations (
 );
 -- Logging table for integration events (e.g. webhook payloads sent out)
 CREATE TABLE IF NOT EXISTS integration_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     integration_id UUID REFERENCES integrations(id) ON DELETE CASCADE,
     event_type TEXT NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS integration_logs (
 -- =======================================================
 -- We let node/vercel handle the hashing before inserting to keep DB simple.
 CREATE TABLE IF NOT EXISTS api_keys (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     key_hash TEXT NOT NULL UNIQUE,
     prefix TEXT,
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS api_keys (
 -- 4. FEATURE FLAGS (SCRAPER ISOLATION & GLOBAL TOGGLES)
 -- =======================================================
 CREATE TABLE IF NOT EXISTS feature_flags (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     flag_name TEXT NOT NULL,
     enabled BOOLEAN DEFAULT FALSE,

@@ -5,15 +5,16 @@ import Header from './Header';
 import ScrollChevron from './ScrollChevron';
 import OrgHealthWidget from './OrgHealthWidget';
 import GlobalStatusBanner from './GlobalStatusBanner';
-import GuidedTour from './GuidedTour';
 import { AssistantPanel } from './assistant/AssistantPanel';
 import { useAuth } from '../contexts/useAuth';
 import { useSubscription } from '../contexts/useSubscription';
+import { useGuidance } from '../contexts/GuidanceContext';
 import { Navigate } from 'react-router-dom';
 
 const Layout = () => {
     const { user, loadingAuth } = useAuth();
     const { systemRole, subscriptionStatus, loadingSub } = useSubscription();
+    const { isAssistantOpen } = useGuidance();
 
     // 1. Loading Phase
     if (loadingAuth) {
@@ -58,7 +59,7 @@ const Layout = () => {
                         </div>
                     </main>
                 </div>
-                <AssistantPanel />
+                {isAssistantOpen && <AssistantPanel />}
             </div>
         );
     }
@@ -75,8 +76,7 @@ const Layout = () => {
             </div>
             <ScrollChevron />
             <OrgHealthWidget />
-            <GuidedTour />
-            <AssistantPanel />
+            {isAssistantOpen && <AssistantPanel />}
         </div>
     );
 };

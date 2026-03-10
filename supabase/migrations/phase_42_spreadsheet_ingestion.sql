@@ -3,7 +3,7 @@
 -- ========================================================================================
 -- PART 1: STAGING SCHEMAS
 CREATE TABLE IF NOT EXISTS public.staging_lead_imports (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
     uploaded_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     original_filename TEXT NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.staging_lead_imports (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE TABLE IF NOT EXISTS public.lead_import_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
     imported_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     file_name TEXT NOT NULL,

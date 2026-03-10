@@ -1,0 +1,39 @@
+Initialising login role...
+Connecting to remote database...
+Do you want to push these migrations to the remote database?
+ • 20271231001300_phase_15_architecture_overhaul.sql
+ • 20271231001400_phase_30_tier_gated_personas.sql
+ • 20271231001500_phase_31_5_subscription_lifecycle.sql
+ • 20271231001600_phase_31_integrations_infrastructure.sql
+ • 20271231001700_phase_32_enterprise_hardening.sql
+ • 20271231001800_phase_33_1_super_admin.sql
+ • 20271231001900_phase_33_identity_and_theming.sql
+ • 20271231002000_phase_33_master_admin_elevation.sql
+ • 20271231002100_phase_34_remediation.sql
+ • 20271231002200_phase_35_1_global_super_admin.sql
+ • 20271231002300_phase_36_persona_enforcement.sql
+ • 20271231002400_phase_37_relax_persona.sql
+ • 20271231002500_phase_38_5_tier_enforcement.sql
+ • 20271231002600_phase_38_demo_enum.sql
+ • 20271231002700_phase_38_multitenant_core.sql
+ • 20271231002800_phase_38_recover_profile_schema.sql
+ • 20271231002900_phase_38_recover_role_schema.sql
+ • 20271231003000_phase_39_1_fix_rls_recursion.sql
+ • 20271231003100_phase_39_workflow_triggers.sql
+ • 20271231003200_phase_40_workflow_contract_triggers.sql
+ • 20271231003300_phase_41_intelligent_compliance.sql
+ • 20271231003400_phase_42_spreadsheet_ingestion.sql
+ • 20271231003500_phase_43_operational_intelligence.sql
+ • 20271231003600_phase_9_acquisition_intelligence.sql
+
+ [Y/n] Y
+Applying migration 20271231001300_phase_15_architecture_overhaul.sql...
+ERROR: policy "Public Access to Deal Packets" for table "objects" already exists (SQLSTATE 42710)
+At statement: 2                                                                                  
+-- ========================================================================================      
+-- RLS (Row Level Security) Enforcement on Storage Objects                                       
+-- ========================================================================================      
+-- Grant Public read access ONLY to the 'deal-packets' bucket objects                            
+CREATE POLICY "Public Access to Deal Packets" ON storage.objects FOR                             
+SELECT USING (bucket_id = 'deal-packets')                                                        
+Try rerunning the command with --debug to troubleshoot the error.

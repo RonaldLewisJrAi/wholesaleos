@@ -3,7 +3,7 @@
 -- ==============================================================================
 -- 1. Create a Table to hold System Insights / Flags
 CREATE TABLE IF NOT EXISTS public.deal_intelligence_flags (
-    id uuid DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     organization_id uuid REFERENCES public.organizations(id) ON DELETE CASCADE NOT NULL,
     deal_id uuid REFERENCES public.deals(id) ON DELETE CASCADE NOT NULL,
     flag_type text NOT NULL CHECK (

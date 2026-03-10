@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- =======================================================
 -- Call Tracking (For VAs & Wholesalers)
 CREATE TABLE IF NOT EXISTS call_tracking (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
     caller_user_id UUID REFERENCES auth.users (id) ON DELETE
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS call_tracking (
 );
 -- Deal Offers (For Investors submitting to Wholesalers)
 CREATE TABLE IF NOT EXISTS deal_offers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     deal_id UUID REFERENCES deals(id) ON DELETE CASCADE,
     investor_user_id UUID REFERENCES auth.users (id) ON DELETE
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS deal_offers (
 );
 -- Referrals (For Wholesalers referring to Realtors)
 CREATE TABLE IF NOT EXISTS referrals (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
     referred_by_user_id UUID REFERENCES auth.users (id) ON DELETE
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS referrals (
 );
 -- Assignment History (Cross-Persona Analytics)
 CREATE TABLE IF NOT EXISTS assignment_history (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     deal_id UUID REFERENCES deals(id) ON DELETE CASCADE,
     wholesaler_id UUID REFERENCES auth.users (id) ON DELETE
