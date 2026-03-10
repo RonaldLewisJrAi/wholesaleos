@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, Settings, LogOut, User, Shield, ToggleLeft, ToggleRight, Radio, Sun, Moon, Info, Terminal } from 'lucide-react';
+import { Bell, Search, Settings, LogOut, User, Shield, Sun, Moon, Info, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
 import { useTheme } from '../contexts/ThemeContext';
@@ -69,11 +69,12 @@ const Header = () => {
                 <div className="theme-toggle-container flex gap-2">
 
                     <button
-                        className={`icon-btn ${isAssistantOpen ? 'text-blue-400 bg-blue-500/10' : ''}`}
+                        className={`btn btn-secondary flex items-center h-10 px-3 gap-2 transition-all ${isAssistantOpen ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'text-gray-400 hover:text-white'}`}
                         onClick={toggleAssistant}
-                        title="Toggle AI Intelligence Terminal"
+                        title="Toggle OSAR AI Agent"
                     >
-                        <Terminal size={20} />
+                        <Bot size={18} className={isAssistantOpen ? "animate-pulse" : ""} />
+                        <span className="font-mono text-xs font-bold tracking-widest hidden sm:inline-block">OSAR</span>
                     </button>
                     <button className="icon-btn" onClick={toggleTheme} title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
                         {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}

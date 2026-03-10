@@ -4,9 +4,6 @@ import RiskMatrix from './Shared/RiskMatrix';
 import LiquidityIndex from './Shared/LiquidityIndex';
 import { databaseService } from '../../services/databaseService';
 import { useAuth } from '../../contexts/useAuth';
-import { useAudioGuidance } from '../../hooks/useAudioGuidance';
-import { voiceAssistant } from '../../services/voiceAssistantService';
-import { assistantInsightService } from '../../services/assistantInsightService';
 import DealCard from '@/components/ui/DealCard';
 
 const InvestorDashboard = () => {
@@ -15,8 +12,7 @@ const InvestorDashboard = () => {
     const [deals, setDeals] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const { enabled: audioEnabled } = useAudioGuidance();
-    const [hasSpokenWelcome, setHasSpokenWelcome] = useState(false);
+
 
     const loadDashboardData = async () => {
         setLoading(true);
@@ -97,12 +93,7 @@ const InvestorDashboard = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab]);
 
-    useEffect(() => {
-        if (audioEnabled && !loading && !hasSpokenWelcome) {
-            voiceAssistant.speak(assistantInsightService.getPipelineSummary(deals.length));
-            setHasSpokenWelcome(true);
-        }
-    }, [audioEnabled, loading, deals.length, hasSpokenWelcome]);
+
 
     return (
         <div className="animate-fade-in pb-12">

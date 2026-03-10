@@ -46,7 +46,7 @@ const Layout = () => {
             <div className="layout-container">
                 <GlobalStatusBanner />
                 <Sidebar />
-                <div className="main-wrapper">
+                <div className={`main-wrapper ${isAssistantOpen ? 'assistant-open' : ''}`}>
                     <Header />
                     <main className="main-content flex items-center justify-center">
                         <div className="text-center py-16 px-8 glass-panel max-w-lg border border-red-500/30 bg-red-500/5">
@@ -68,7 +68,7 @@ const Layout = () => {
         <div className="layout-container">
             <GlobalStatusBanner />
             <Sidebar />
-            <div className="main-wrapper">
+            <div className={`main-wrapper ${isAssistantOpen ? 'assistant-open' : ''}`}>
                 <Header />
                 <main className="main-content">
                     <Outlet />

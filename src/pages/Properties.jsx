@@ -4,9 +4,6 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
 import DealPacketModal from '../components/DealPacketModal';
 import CompEngineModal from '../components/CompEngineModal';
-import { useAudioGuidance } from '../hooks/useAudioGuidance';
-import { voiceAssistant } from '../services/voiceAssistantService';
-import { assistantInsightService } from '../services/assistantInsightService';
 import './Properties.css';
 
 const mockProperties = [
@@ -99,8 +96,7 @@ const Properties = () => {
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const { enabled: audioEnabled } = useAudioGuidance();
-    const [hasSpokenWelcome, setHasSpokenWelcome] = useState(false);
+
 
     const [isImporting, setIsImporting] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -159,12 +155,7 @@ const Properties = () => {
         fetchProperties();
     }, []);
 
-    useEffect(() => {
-        if (audioEnabled && !loading && !hasSpokenWelcome) {
-            voiceAssistant.speak(assistantInsightService.getMarketplaceSummary(properties.length));
-            setHasSpokenWelcome(true);
-        }
-    }, [audioEnabled, loading, properties.length, hasSpokenWelcome]);
+
 
     const checkExclusivityLock = async (address) => {
         if (!supabase) return { isLocked: false };

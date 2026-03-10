@@ -7,11 +7,6 @@ import { useAuth } from '../../contexts/useAuth';
 import { dealDocumentService } from '../../services/dealDocumentService';
 import { distributionService } from '../../services/distributionService'; // Added this import
 import { dealBlastEngine } from '../../services/dealBlastEngine';
-import { useAudioGuidance } from '../../hooks/useAudioGuidance';
-import { voiceAssistant } from '../../services/voiceAssistantService';
-import { assistantContextService } from '../../services/assistantContextService';
-import { assistantInsightService } from '../../services/assistantInsightService';
-import { assistantMessages } from '../../services/assistantVoiceTemplates';
 
 const ProgressIndicator = ({ status }) => {
     const steps = [
@@ -78,9 +73,7 @@ export const DealRoom = () => {
     // Phase 20 - Priority Deal Blast State
     const [isPriorityBlast, setIsPriorityBlast] = useState(false);
 
-    // Audio Guidance
-    const { enabled: audioEnabled } = useAudioGuidance();
-    const [hasSpokenDeal, setHasSpokenDeal] = useState(false);
+
 
     // Mock initial fetch if database is empty
     useEffect(() => {
@@ -118,13 +111,7 @@ export const DealRoom = () => {
         fetchDeal();
     }, [id]);
 
-    useEffect(() => {
-        if (audioEnabled && !loading && deal && !hasSpokenDeal) {
-            const context = assistantContextService.getDealContext(deal, user?.primaryPersona || 'UNKNOWN');
-            voiceAssistant.speak(assistantInsightService.getDealRoomSummary(context));
-            setHasSpokenDeal(true);
-        }
-    }, [audioEnabled, loading, deal, hasSpokenDeal, user]);
+
 
     useEffect(() => {
         const fetchVaultDocs = async () => {
@@ -211,9 +198,7 @@ export const DealRoom = () => {
             setActivityLog(prev => [{ id: Date.now().toString(), type: 'DEAL_RESERVED', user: 'Investor', time: new Date().toISOString(), note: '$250 Deposit Secured (24h Exclusivity)' }, ...prev]);
             setIsReserving(false);
             setIsReserveModalOpen(false);
-            if (audioEnabled) {
-                voiceAssistant.speak(assistantMessages.dealReserved());
-            }
+
             alert("Reservation Successful! $250 deposit secured. The Wholesaler has been notified to generate the Assignment Agreement.");
         }, 1500);
     };
@@ -462,9 +447,7 @@ export const DealRoom = () => {
                                                     matchCount = result.matches?.length || 0;
                                                 }
 
-                                                if (audioEnabled) {
-                                                    voiceAssistant.speak(assistantMessages.dealPublished());
-                                                }
+
                                                 alert(`✅ Deal successfully pushed Live! Alert dispatched to ${matchCount} targeted Investors.`);
                                             } catch (e) {
                                                 console.error("Matchmaking distribution failed silently.", e);
