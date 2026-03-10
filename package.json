@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "node --max_old_space_size=8192 node_modules/vite/bin/vite.js",
-    "build": "node --max_old_space_size=16384 node_modules/vite/bin/vite.js build",
+    "build": "node --max_old_space_size=6144 node_modules/vite/bin/vite.js build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test:verify": "node tests/phase_34_1_verify.js",
