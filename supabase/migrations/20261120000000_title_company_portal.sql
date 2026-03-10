@@ -1,7 +1,7 @@
 -- Phase 18: Title Company Portal Schema
 -- 1. Create title_companies table
 CREATE TABLE IF NOT EXISTS public.title_companies (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     contact_email TEXT,
     contact_phone TEXT,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS public.title_companies (
 );
 -- 2. Create closing_codes table
 CREATE TABLE IF NOT EXISTS public.closing_codes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     deal_id UUID REFERENCES public.deals(id) ON DELETE CASCADE,
     code TEXT NOT NULL UNIQUE,
     status TEXT CHECK (status IN ('ACTIVE', 'USED', 'EXPIRED')) DEFAULT 'ACTIVE',

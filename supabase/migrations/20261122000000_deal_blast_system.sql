@@ -5,7 +5,7 @@ ADD COLUMN IF NOT EXISTS priority BOOLEAN DEFAULT false,
     ADD COLUMN IF NOT EXISTS blast_sent_at TIMESTAMP WITH TIME ZONE;
 -- 2. Create the core investor telemetry ledger
 CREATE TABLE IF NOT EXISTS public.investor_activity (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     investor_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
     activity_type TEXT NOT NULL,
     -- e.g., 'DEAL_VIEWED', 'WATCHLIST_ADDED', 'DEAL_RESERVED', 'DEAL_INTERESTED'

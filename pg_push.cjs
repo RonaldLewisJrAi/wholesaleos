@@ -3,7 +3,7 @@ const { Client } = require('pg');
 require('dotenv').config({ path: '.env.local' });
 
 // Using direct remote database cluster connection avoiding the pooler
-const conString = `postgresql://postgres:${encodeURIComponent(process.env.SUPABASE_DB_PASSWORD)}@db.hhjzoufgoifvihuydnxq.supabase.co:5432/postgres`;
+const conString = `postgresql://postgres.hhjzoufgoifvihuydnxq:${encodeURIComponent('Pluck4eva1981!')}@aws-0-us-east-1.pooler.supabase.com:6543/postgres`;
 const c = new Client({
     connectionString: conString,
     ssl: { rejectUnauthorized: false }

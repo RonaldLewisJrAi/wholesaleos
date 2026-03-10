@@ -1,7 +1,7 @@
 -- Phase 19: Deal Distribution Engine Schema
 -- 1. Create investor_preferences table
 CREATE TABLE IF NOT EXISTS public.investor_preferences (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
     states TEXT [] DEFAULT '{}',
     cities TEXT [] DEFAULT '{}',
