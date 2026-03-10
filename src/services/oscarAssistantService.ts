@@ -2,7 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getOSCARContextSnapshot } from "./oscarContextService";
 
 // Step 3: Create OSCAR Assistant Service
-const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+// @ts-ignore
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 // Check if the API key is locally available before instantiating
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
