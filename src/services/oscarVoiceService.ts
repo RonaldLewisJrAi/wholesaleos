@@ -57,13 +57,11 @@ class OSCARVoiceService {
 
         // Priority list of natural sounding voices (Professional Analyst Persona)
         const preferredVoices = [
-            "Google US English",
             "Google UK English Male",
             "Microsoft Guy Online (Natural)",
-            "Microsoft Aria Online (Natural)",
             "Microsoft Mark",
-            "Samantha",
-            "Daniel"
+            "Daniel",
+            "David"
         ];
 
         let selectedVoice = null;
@@ -72,12 +70,13 @@ class OSCARVoiceService {
             if (selectedVoice) break;
         }
 
-        // Fallback to the first high-quality English voice if exact matches fail
+        // Fallback to the first high-quality Male English voice if exact matches fail
         if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Premium') || v.name.includes('Natural')));
+            selectedVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Male') || v.name.includes('Mark') || v.name.includes('Guy') || v.name.includes('David')));
         }
         if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang.startsWith('en'));
+            // Absolute fallback: Just get the first English voice that doesn't explicitly say "Female"
+            selectedVoice = voices.find(v => v.lang.startsWith('en') && !v.name.includes('Female') && !v.name.includes('Zira') && !v.name.includes('Samantha') && !v.name.includes('Aria'));
         }
 
         if (selectedVoice) {
