@@ -11,6 +11,20 @@ export const databaseService = {
         return data || [];
     },
 
+    async getInvestorPreferences(userId: string) {
+        if (!supabase || !userId) return null;
+        const { data, error } = await supabase
+            .from('investor_preferences')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+        if (error && error.code !== 'PGRST116') {
+            console.error('Error fetching preferences:', error);
+            throw error;
+        }
+        return data; // returns null if PGSRT116 (No rows found)
+    },
+
     async setPropertyVerified(dealId: string) {
         if (!supabase) return null;
         const { data, error } = await supabase
