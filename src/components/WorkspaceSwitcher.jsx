@@ -72,7 +72,7 @@ const WorkspaceSwitcher = () => {
                     </div>
                     <div className="p-1">
                         {Object.entries(personas).map(([key, config]) => {
-                            if (key === 'ADMIN' && user?.email?.toLowerCase() !== 'ronald_lewis_jr@live.com') {
+                            if (key === 'ADMIN' && user?.user_metadata?.system_role !== 'GLOBAL_SUPER_ADMIN') {
                                 return null;
                             }
 

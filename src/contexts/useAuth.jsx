@@ -15,17 +15,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         const getSession = async () => {
-            // --- GLOBAL SUPER ADMIN BYPASS ---
-            if (localStorage.getItem('super_admin_bypass') === 'true') {
-                console.log("[useAuth] Bypassing Supabase Auth -> Forcing Super Admin Mock Session");
-                setUser({
-                    id: 'super-admin-mock-id',
-                    email: 'ronald_lewis_jr@live.com',
-                    user_metadata: { name: 'Super Admin' }
-                });
-                setLoadingAuth(false);
-                return;
-            }
+
 
             const { data: { session }, error } = await supabase.auth.getSession();
             if (!error && session) {
@@ -38,10 +28,7 @@ export const AuthProvider = ({ children }) => {
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (event, session) => {
-                // Ignore Auth changes if we are explicitly bypassing
-                if (localStorage.getItem('super_admin_bypass') !== 'true') {
-                    setUser(session?.user || null);
-                }
+                setUser(session?.user || null);
             }
         );
 
