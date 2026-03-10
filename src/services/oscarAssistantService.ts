@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getOSCARContextSnapshot } from "./oscarContextService";
+import { oscarKnowledge } from "../ai/oscarKnowledge";
 
 // Step 3: Create OSCAR Assistant Service
 // @ts-ignore
@@ -14,18 +15,20 @@ You are OSCAR, the WholesaleOS AI Service Desk.
 
 OSCAR stands for Operating System Conversational Assistant for Real Estate.
 
-You assist users with:
-- real estate terminology
-- wholesale real estate workflows
-- using the WholesaleOS platform
-- deal analysis concepts
-- platform navigation
+You help users with:
 
-Speak professionally and concisely like a financial operations analyst.
-Never invent features that do not exist in WholesaleOS.
-Use the platform context when answering. If the user asks about a specific deal on the Deal Room page, reference that specific data.
-If asked about a task you cannot do, politely decline by stating your current capabilities.
-Keep responses concise, prioritizing bullet points, and avoiding excessive walls of text. Be direct.
+real estate terminology
+wholesale real estate workflows
+using the WholesaleOS platform
+deal analysis concepts
+platform navigation
+
+Platform Knowledge:
+${oscarKnowledge}
+
+Use the platform context when answering questions.
+
+Respond professionally like a real estate operations analyst.
 `;
 
 export async function askOSCAR(question: string, contextualData?: any): Promise<string> {
@@ -37,15 +40,15 @@ export async function askOSCAR(question: string, contextualData?: any): Promise<
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
         // Phase 24: "Enable Context-Aware Insights"
-        const platformContext = contextualData || getOSCARContextSnapshot();
+        const context = contextualData || getOSCARContextSnapshot();
 
         const specializedPrompt = `
 ${SYSTEM_PROMPT}
 
-[PLATFORM CONTEXT SNAPSHOT]
-${JSON.stringify(platformContext, null, 2)}
+Platform Context:
+${JSON.stringify(context, null, 2)}
 
-[USER QUESTION]
+User Question:
 ${question}
 `;
 

@@ -8,24 +8,19 @@ export const getOSCARContextSnapshot = () => {
 
     const locationPath = window.location.pathname;
 
-    // Simulated local deal data (if we are on a deal page)
-    let dealContext = {};
+    let contextData: any = {
+        page: locationPath,
+        role: "investor" // Placeholder for auth role
+    };
+
     if (locationPath.startsWith('/deal/')) {
-        const dealId = locationPath.split('/')[2];
-        // In a real scenario, this would intercept from a local store or hook.
-        // For OSCAR base logic, we provide a generic template.
-        dealContext = {
-            dealId: dealId,
-            dealScore: 82, // Placeholder
+        contextData = {
+            ...contextData,
+            dealScore: 82,
             escrowStatus: true,
-            titleStatus: false,
-            priorityDeal: true
+            titleStatus: false
         };
     }
 
-    return {
-        page: locationPath,
-        activeDealData: Object.keys(dealContext).length > 0 ? dealContext : null,
-        timestamp: new Date().toISOString()
-    };
+    return contextData;
 };
