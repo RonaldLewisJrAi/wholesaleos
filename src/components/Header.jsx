@@ -11,7 +11,7 @@ import './Header.css';
 
 const Header = () => {
     const { theme, toggleTheme } = useTheme();
-    const { guidanceMode, setGuidanceMode, isAssistantOpen, toggleAssistant } = useGuidance();
+    const { isAssistantOpen, toggleAssistant } = useGuidance();
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -67,16 +67,7 @@ const Header = () => {
                 <WorkspaceSwitcher />
 
                 <div className="theme-toggle-container flex gap-2">
-                    <button
-                        className={`icon-btn ${guidanceMode !== 'off' ? 'text-primary animate-pulse shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]' : ''}`}
-                        onClick={() => {
-                            if (guidanceMode === 'off') setGuidanceMode('insight');
-                            else setGuidanceMode('off');
-                        }}
-                        title={`Insight Mode: Current = ${guidanceMode.toUpperCase()} (Click to toggle)`}
-                    >
-                        <Info size={20} />
-                    </button>
+
                     <button
                         className={`icon-btn ${isAssistantOpen ? 'text-blue-400 bg-blue-500/10' : ''}`}
                         onClick={toggleAssistant}

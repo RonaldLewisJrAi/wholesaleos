@@ -1,9 +1,10 @@
-class VoiceAssistantService {
+class OSARVoiceService {
     private isPlaying: boolean = false;
     private onPlayStateChange: ((isPlaying: boolean) => void) | null = null;
     private onMessageUpdate: ((message: string) => void) | null = null;
     private lastMessage: string = "";
     private lastSpoken: number = 0;
+    private voiceOutputEnabled: boolean = true; // Phase 24 Toggle Requirement
 
     setPlayStateCallback(callback: (isPlaying: boolean) => void) {
         this.onPlayStateChange = callback;
@@ -11,6 +12,17 @@ class VoiceAssistantService {
 
     setTranscriptCallback(callback: (message: string) => void) {
         this.onMessageUpdate = callback;
+    }
+
+    setVoiceEnabled(enabled: boolean) {
+        this.voiceOutputEnabled = enabled;
+        if (!enabled) {
+            this.stop();
+        }
+    }
+
+    getVoiceEnabled() {
+        return this.voiceOutputEnabled;
     }
 
     private updatePlayState(state: boolean) {
@@ -21,18 +33,21 @@ class VoiceAssistantService {
     }
 
     speak(text: string) {
+        this.lastMessage = text;
+        if (this.onMessageUpdate) {
+            this.onMessageUpdate(text);
+        }
+
+        // Phase 24 Rule: "Optional Voice Output"
+        if (!this.voiceOutputEnabled) return;
+
+        // Phase 24 Rule: "Prevent Audio Spam"
         const now = Date.now();
         if (now - this.lastSpoken < 2000) return;
         this.lastSpoken = now;
 
-        // Prevent strictly overlapping audio or duplicate consecutive spam
         if (this.isPlaying) {
             this.stop();
-        }
-
-        this.lastMessage = text;
-        if (this.onMessageUpdate) {
-            this.onMessageUpdate(text);
         }
 
         const utterance = new SpeechSynthesisUtterance(text);
@@ -58,7 +73,11 @@ class VoiceAssistantService {
 
     replayLast() {
         if (this.lastMessage) {
+            const previousState = this.voiceOutputEnabled;
+            // Temporarily enable voice to force replay if they clicked a button specifically
+            this.voiceOutputEnabled = true;
             this.speak(this.lastMessage);
+            this.voiceOutputEnabled = previousState;
         }
     }
 
@@ -67,4 +86,4 @@ class VoiceAssistantService {
     }
 }
 
-export const voiceAssistant = new VoiceAssistantService();
+export const osarVoiceService = new OSARVoiceService();
