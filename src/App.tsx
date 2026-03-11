@@ -126,6 +126,7 @@ function App() {
                     <Route path="dialer" element={<ProxyComponent moduleName="Auto-Dialer & Scripts" />} />
                     <Route path="leads-queue" element={<ProxyComponent moduleName="Lead Action Queue" />} />
                     <Route path="appointments" element={<ProxyComponent moduleName="Appointment Bookings" />} />
+                    <Route path="settings" element={<Settings />} />
                     <Route path="integrations" element={<Settings />} />
                     <Route path="admin" element={<AdminDashboard />} />
                     <Route path="terms" element={<TermsOfService />} />

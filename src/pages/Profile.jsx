@@ -180,7 +180,7 @@ const Profile = () => {
     const isMasterAdmin = profile.systemRole === 'GLOBAL_SUPER_ADMIN';
 
     return (
-        <div className="profile-container animate-fade-in">
+        <div className="profile-container animate-fade-in max-w-7xl mx-auto w-full">
             <div className="page-header border-b border-[var(--border-light)] pb-6 mb-2">
                 <h1 className="page-title mb-1">User Identity & Access</h1>
                 <p className="page-description m-0">Manage your system persona, contact bindings, and platform configuration.</p>

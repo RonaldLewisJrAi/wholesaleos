@@ -58,11 +58,9 @@ const Header = () => {
             </div>
 
             <div className="header-actions">
-                {!user && (
-                    <Link to="/pricing" className="btn btn-secondary mr-4 hover:bg-white/10 transition-colors">
-                        Pricing
-                    </Link>
-                )}
+                <Link to="/pricing" className="btn btn-secondary mr-4 hover:bg-white/10 text-emerald-400 border-emerald-500/30 border transition-all font-mono font-bold text-xs uppercase tracking-widest px-4 h-10 flex items-center">
+                    Pricing & Plans
+                </Link>
 
                 <WorkspaceSwitcher />
 
