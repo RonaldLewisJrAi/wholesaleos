@@ -67,8 +67,8 @@ export const OSCARInput: React.FC<OSCARInputProps> = ({ onSubmit, isLoading }) =
     };
 
     return (
-        <form onSubmit={handleSubmit} className="p-3 bg-black/60 rounded-b-[20px] flex items-center gap-2 border-t border-emerald-900/30">
-            <span className="text-emerald-500 font-mono font-bold">{'>'}</span>
+        <form onSubmit={handleSubmit} className="p-3 bg-black/60 rounded-b-[16px] flex items-center gap-2 border-t border-blue-900/30">
+            <span className="text-blue-500 font-mono font-bold">{'>'}</span>
 
             <input
                 type="text"
@@ -83,7 +83,7 @@ export const OSCARInput: React.FC<OSCARInputProps> = ({ onSubmit, isLoading }) =
             <button
                 type="button"
                 onClick={toggleListening}
-                className={`p-1.5 rounded transition ${isListening ? 'text-red-400 bg-red-400/10' : 'text-gray-500 hover:text-emerald-400 hover:bg-emerald-400/10'}`}
+                className={`p-1.5 rounded transition ${isListening ? 'text-red-400 bg-red-400/10' : 'text-gray-500 hover:text-blue-400 hover:bg-blue-400/10'}`}
                 title="Voice Input"
             >
                 {isListening ? <Mic size={16} className="animate-pulse" /> : <MicOff size={16} />}
@@ -92,7 +92,7 @@ export const OSCARInput: React.FC<OSCARInputProps> = ({ onSubmit, isLoading }) =
             <button
                 type="submit"
                 disabled={!inputValue.trim() || isLoading}
-                className="p-1.5 rounded text-emerald-500 hover:bg-emerald-500/10 transition disabled:opacity-50 disabled:hover:bg-transparent"
+                className="p-1.5 rounded text-blue-500 hover:bg-blue-500/10 transition disabled:opacity-50 disabled:hover:bg-transparent"
                 title="Send Message"
             >
                 <Send size={16} />

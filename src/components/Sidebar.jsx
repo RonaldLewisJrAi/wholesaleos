@@ -97,7 +97,7 @@ const Sidebar = () => {
     });
 
     return (
-        <aside className="sidebar glass-panel">
+        <aside className="sidebar glass-card">
             <div className="sidebar-header">
                 <Link to="/" className="logo-link">
                     <div className="logo-container">

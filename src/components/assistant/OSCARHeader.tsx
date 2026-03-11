@@ -7,24 +7,24 @@ export const OSCARHeader: React.FC<{ isExpanded: boolean; onToggleExpand: () => 
 }) => {
     return (
         <div
-            className={`flex items-center justify-between p-3 border-b border-emerald-900/30 bg-black/80 rounded-t-[20px] cursor-pointer transition-colors ${!isExpanded ? 'h-full flex-col justify-start py-6' : ''}`}
+            className={`flex items-center justify-between p-3 border-b border-blue-900/30 bg-[#050816]/90 rounded-t-[16px] cursor-pointer transition-colors ${!isExpanded ? 'h-full flex-col justify-start py-6' : ''}`}
             onClick={onToggleExpand}
         >
             <div className={`flex items-center gap-3 ${!isExpanded ? 'flex-col' : ''}`}>
                 <div className="relative">
-                    <div className="w-8 h-8 rounded-full bg-emerald-900/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <div className="w-8 h-8 rounded-full bg-blue-900/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
                         <Bot size={18} />
                     </div>
                     {/* Activity dot */}
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-black animate-pulse"></div>
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-black animate-pulse"></div>
                 </div>
 
                 {isExpanded && (
                     <div>
                         <h3 className="text-white font-medium text-sm flex items-center gap-1">
-                            OSCAR <Sparkles size={12} className="text-emerald-400" />
+                            OSCAR <Sparkles size={12} className="text-blue-400" />
                         </h3>
-                        <p className="text-emerald-500/70 text-[10px] uppercase tracking-wider font-mono">Service Terminal</p>
+                        <p className="text-blue-500/70 text-[10px] uppercase tracking-wider font-mono">Service Terminal</p>
                     </div>
                 )}
             </div>

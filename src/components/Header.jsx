@@ -47,7 +47,7 @@ const Header = () => {
     };
 
     return (
-        <header className="header glass-panel" ref={headerRef}>
+        <header className="header glass-card" ref={headerRef}>
             <div className="header-search">
                 <Search className="search-icon" size={18} />
                 <input
