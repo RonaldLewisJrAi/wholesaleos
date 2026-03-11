@@ -36,6 +36,9 @@ import Spreadsheets from './pages/Workstations/Spreadsheets';
 import DealRoom from './pages/Deals/DealRoom';
 import MarketplaceFeed from './pages/MarketplaceFeed';
 import DealAnalyzer from './pages/DealAnalyzer';
+import AcademyDashboard from './pages/Academy/AcademyDashboard';
+import AcademyModule from './pages/Academy/AcademyModule';
+import DealSimulator from './pages/Academy/DealSimulator';
 
 function App() {
   return (
@@ -91,6 +94,9 @@ function App() {
                   <Route path="appointments" element={<ProxyComponent moduleName="Appointment Bookings" />} />
                   <Route path="integrations" element={<Settings />} />
                   <Route path="admin" element={<AdminDashboard />} />
+                  <Route path="academy" element={<AcademyDashboard />} />
+                  <Route path="academy/:moduleId" element={<AcademyModule />} />
+                  <Route path="simulator" element={<DealSimulator />} />
                   <Route path="terms" element={<TermsOfService />} />
                   <Route path="privacy" element={<PrivacyPolicy />} />
                 </Route>

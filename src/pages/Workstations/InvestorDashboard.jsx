@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Activity, Map, Zap, Users, Radar, History, ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
+import { Target, Activity, Map, Zap, Users, Radar, History, ArrowUpRight, ArrowDownRight, TrendingUp, Shield } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/useAuth';
 import DealCard from '../../components/ui/DealCard';
+import TrustGraph from '../../components/ui/TrustGraph';
 const ModuleWrapper = ({ title, icon: Icon, children, className = "" }) => (
     <div className={`glass-card p-6 flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.2)] ${className}`}>
         <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-blue-900/30 pb-3">
@@ -307,6 +308,11 @@ const InvestorDashboard = () => {
                             <button className="text-[10px] text-gray-500 font-mono uppercase tracking-widest hover:text-blue-400 transition-colors">View All Closing History</button>
                         </div>
                     </div>
+                </ModuleWrapper>
+
+                {/* Module 7: Platform Trust Network */}
+                <ModuleWrapper title="Platform Trust Network" icon={Shield}>
+                    <TrustGraph score={94} closings={18} />
                 </ModuleWrapper>
 
             </div>

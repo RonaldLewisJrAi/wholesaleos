@@ -41,9 +41,18 @@ export async function askOSCAR(question: string, contextualData?: any): Promise<
 
         // Phase 24: "Enable Context-Aware Insights"
         const context = contextualData || getOSCARContextSnapshot();
+        const isBeginner = context?.guidance?.isBeginnerModeActive || localStorage.getItem('wholesale_os_beginner_mode') === 'true';
+
+        const beginnerPromptExtension = isBeginner ? `
+ACADEMY BEGINNER MODE ACTIVE:
+The user is currently learning real estate wholesaling in the WholesaleOS Academy.
+Explain concepts clearly, provide definitions for industry acronyms (like ARV, MAO, EMD), and offer supportive, step-by-step guidance.
+` : '';
 
         const specializedPrompt = `
 ${SYSTEM_PROMPT}
+
+${beginnerPromptExtension}
 
 Platform Context:
 ${JSON.stringify(context, null, 2)}

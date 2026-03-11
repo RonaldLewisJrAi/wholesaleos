@@ -9,18 +9,37 @@ export const GuidanceProvider = ({ children }) => {
         return savedMode || 'off';
     });
 
+    const [isBeginnerModeActive, setIsBeginnerModeActive] = useState(() => {
+        const savedMode = localStorage.getItem('wholesale_os_beginner_mode');
+        return savedMode === 'true';
+    });
+
     const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+    const [contextMsg, setContextMsg] = useState(null);
 
     useEffect(() => {
         localStorage.setItem('wholesale_os_guidance_mode', guidanceMode);
     }, [guidanceMode]);
 
+    useEffect(() => {
+        localStorage.setItem('wholesale_os_beginner_mode', isBeginnerModeActive);
+    }, [isBeginnerModeActive]);
+
     const toggleInsightMode = () => {
         setGuidanceMode(prev => prev === 'insight' ? 'off' : 'insight');
     };
 
+    const toggleBeginnerMode = () => {
+        setIsBeginnerModeActive(prev => !prev);
+    };
+
     const toggleAssistant = () => {
         setIsAssistantOpen(prev => !prev);
+    };
+
+    const addContext = (msg) => {
+        setContextMsg(msg);
+        if (!isAssistantOpen) setIsAssistantOpen(true);
     };
 
     return (
@@ -29,7 +48,12 @@ export const GuidanceProvider = ({ children }) => {
             setGuidanceMode,
             toggleInsightMode,
             isAssistantOpen,
-            toggleAssistant
+            toggleAssistant,
+            isBeginnerModeActive,
+            toggleBeginnerMode,
+            contextMsg,
+            setContextMsg,
+            addContext
         }}>
             {children}
         </GuidanceContext.Provider>

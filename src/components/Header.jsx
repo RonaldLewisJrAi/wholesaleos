@@ -11,7 +11,7 @@ import './Header.css';
 
 const Header = () => {
     const { theme, toggleTheme } = useTheme();
-    const { isAssistantOpen, toggleAssistant } = useGuidance();
+    const { isAssistantOpen, toggleAssistant, isBeginnerModeActive, toggleBeginnerMode } = useGuidance();
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -67,6 +67,14 @@ const Header = () => {
                 <WorkspaceSwitcher />
 
                 <div className="theme-toggle-container flex gap-2">
+
+                    <button
+                        className={`btn btn-secondary flex items-center h-10 px-3 gap-2 transition-all ${isBeginnerModeActive ? 'bg-blue-500/20 text-blue-400 border-blue-500/50 shadow-[0_0_10px_rgba(59,130,246,0.2)]' : 'text-gray-400 hover:text-white border-transparent'}`}
+                        onClick={toggleBeginnerMode}
+                        title={isBeginnerModeActive ? "Disable Beginner Mode" : "Enable Beginner Mode"}
+                    >
+                        <span className="font-mono text-[10px] font-bold tracking-widest hidden sm:inline-block uppercase">Beginner Mode</span>
+                    </button>
 
                     <button
                         className={`btn btn-secondary flex items-center h-10 px-3 gap-2 transition-all ${isAssistantOpen ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'text-gray-400 hover:text-white'}`}

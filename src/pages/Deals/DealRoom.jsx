@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { MapPin, FileText, CheckCircle, Clock, ShieldCheck, Download, Edit3, Loader2, AlertTriangle, CreditCard, X, Activity, User, UploadCloud, Calendar, Building, ExternalLink, Zap, Users, Send, Target, ChevronLeft } from 'lucide-react';
+import { MapPin, FileText, CheckCircle, Clock, ShieldCheck, Download, Edit3, Loader2, AlertTriangle, CreditCard, X, Activity, User, UploadCloud, Calendar, Building, ExternalLink, Zap, Users, Send, Target, ChevronLeft, GraduationCap, Award } from 'lucide-react';
 import { useAuth } from '../../contexts/useAuth';
 import { dealDocumentService } from '../../services/dealDocumentService';
 import { distributionService } from '../../services/distributionService';
 import { dealBlastEngine } from '../../services/dealBlastEngine';
 import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../../services/dealIntelligenceEngine';
+import { matchDealToInvestors, mockLiquidityInvestors } from '../../services/liquidityEngine';
+import ClosingVerificationPanel from '../../components/deals/ClosingVerificationPanel';
+import { databaseService } from '../../services/databaseService';
 
 const ProgressIndicator = ({ status }) => {
     const steps = [
@@ -59,6 +62,7 @@ export const DealRoom = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [deal, setDeal] = useState(null);
+    const isTitleCompany = user?.primaryPersona === 'TITLE_COMPANY';
 
     const getTrustTier = (score = 50) => {
         if (score >= 90) return { label: 'Elite Closer', class: 'text-emerald-400 border-emerald-500/30 bg-emerald-900/10' };
@@ -75,6 +79,7 @@ export const DealRoom = () => {
     // Reservation Modal State
     const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
     const [isReserving, setIsReserving] = useState(false);
+    const [isCanceling, setIsCanceling] = useState(false);
 
     // Platform Events Timeline Tracker
     const [activityLog, setActivityLog] = useState([
@@ -207,6 +212,24 @@ export const DealRoom = () => {
         }, 1500);
     };
 
+    const handleCancelReservation = async () => {
+        setIsCanceling(true);
+        try {
+            await databaseService.cancelReservation(deal.id);
+            setDeal(prev => ({
+                ...prev,
+                status: 'Active',
+                reservation_user_id: null,
+                reservation_expires_at: null
+            }));
+            setActivityLog(prev => [{ id: Date.now().toString(), type: 'RESERVATION_CANCELED', user: 'Investor', time: new Date().toISOString(), note: 'Deal reservation dropped. Asset returned to active Marketplace.' }, ...prev]);
+        } catch (e) {
+            console.error(e);
+            alert("Failed to cancel reservation.");
+        }
+        setIsCanceling(false);
+    };
+
     if (loading) return (
         <div className="flex justify-center items-center min-h-[60vh]">
             <Loader2 className="animate-spin text-blue-500" size={32} />
@@ -232,6 +255,14 @@ export const DealRoom = () => {
     const { label: aiLiquidity } = calculateLiquiditySignal(intelligenceData);
     const closeProb = calculateCloseProbability(intelligenceData);
 
+    const topBuyers = matchDealToInvestors({
+        id: deal.id,
+        market: deal.city || 'Dallas',
+        purchase_price: parseCurrency(deal.mao),
+        property_type: deal.property_type || 'Single Family',
+        dealScore: aiScore
+    }, mockLiquidityInvestors).slice(0, 3);
+
     return (
         <div className="p-6 max-w-[1400px] mx-auto animate-fade-in relative">
             {/* Header */}
@@ -255,10 +286,23 @@ export const DealRoom = () => {
                             {(() => {
                                 const trustScore = deal.wholesaler?.trust_score || deal.wholesaler_trust_score || 50;
                                 const tier = getTrustTier(trustScore);
+                                const academyStatus = deal.wholesaler?.academy_status;
                                 return (
-                                    <span className={`px-3 py-1 rounded border text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1 ${tier.class}`} title={`Trust Score: ${trustScore}/100`}>
-                                        <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
-                                    </span>
+                                    <div className="flex gap-2 items-center">
+                                        <span className={`px-3 py-1 rounded border text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1 ${tier.class}`} title={`Trust Score: ${trustScore}/100`}>
+                                            <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
+                                        </span>
+                                        {academyStatus === 'GRADUATE' && (
+                                            <span className="px-3 py-1 rounded border border-blue-500/50 bg-blue-900/60 text-blue-300 text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1" title="Academy Graduate">
+                                                <GraduationCap size={12} className="inline mr-1" /> Graduate
+                                            </span>
+                                        )}
+                                        {academyStatus === 'CERTIFIED' && (
+                                            <span className="px-3 py-1 rounded border border-emerald-500/50 bg-emerald-900/60 text-emerald-400 text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1" title="Certified Wholesaler">
+                                                <Award size={12} className="inline mr-1" /> Certified
+                                            </span>
+                                        )}
+                                    </div>
                                 );
                             })()}
 
@@ -373,9 +417,10 @@ export const DealRoom = () => {
                                 <div className="p-8 text-center bg-black/40 border border-dashed border-blue-900/50 rounded-lg">
                                     <p className="text-gray-500 text-sm mb-4 font-mono">No Assignment Agreement generated.</p>
                                     <button
-                                        className="bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white px-6 py-2 rounded-lg text-sm font-mono tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)] flex items-center gap-2 mx-auto"
+                                        className={`bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white px-6 py-2 rounded-lg text-sm font-mono tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)] flex items-center gap-2 mx-auto ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-blue-600/20 hover:text-blue-300' : ''}`}
                                         onClick={handleGenerateAgreement}
-                                        disabled={generating}
+                                        disabled={generating || isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
                                     >
                                         {generating ? <Loader2 className="animate-spin" size={16} /> : <FileText size={16} />}
                                         Generate Assignment Agreement
@@ -400,16 +445,18 @@ export const DealRoom = () => {
                                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-400/70 font-mono mb-4">Digital Signatures Required</h4>
                                 <div className="flex gap-4">
                                     <button
-                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold tracking-wide transition-all border ${deal.signed_wholesaler ? 'bg-emerald-900/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-[#050816]/80 border-blue-900/50 text-gray-300 hover:bg-blue-900/30 hover:border-blue-500/40 hover:text-white'}`}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold tracking-wide transition-all border ${deal.signed_wholesaler ? 'bg-emerald-900/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-[#050816]/80 border-blue-900/50 text-gray-300 hover:bg-blue-900/30 hover:border-blue-500/40 hover:text-white'} ${isTitleCompany ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={() => handleSignAgreement('wholesaler')}
-                                        disabled={deal.signed_wholesaler || signing}
+                                        disabled={deal.signed_wholesaler || signing || isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
                                     >
                                         {deal.signed_wholesaler ? <><CheckCircle size={16} /> Wholesaler Signed</> : <><Edit3 size={16} /> Sign as Wholesaler</>}
                                     </button>
                                     <button
-                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold tracking-wide transition-all border ${deal.signed_investor ? 'bg-emerald-900/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/40 hover:text-white shadow-[0_0_15px_rgba(78,123,255,0.2)]'}`}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold tracking-wide transition-all border ${deal.signed_investor ? 'bg-emerald-900/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/40 hover:text-white shadow-[0_0_15px_rgba(78,123,255,0.2)]'} ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-blue-600/20 hover:text-blue-300' : ''}`}
                                         onClick={() => handleSignAgreement('investor')}
-                                        disabled={deal.signed_investor || signing}
+                                        disabled={deal.signed_investor || signing || isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
                                     >
                                         {deal.signed_investor ? <><CheckCircle size={16} /> Investor Signed</> : <><Edit3 size={16} /> Sign as Investor</>}
                                     </button>
@@ -417,6 +464,9 @@ export const DealRoom = () => {
                             </div>
                         )}
                     </div>
+
+                    {/* Tri-Party Closing Verification */}
+                    <ClosingVerificationPanel dealId={deal.id} />
                 </div>
 
                 {/* RIGHT COLUMN: Sticky Transaction Panel & Timeline */}
@@ -474,6 +524,25 @@ export const DealRoom = () => {
                         )}
 
                         <div className="flex flex-col gap-3">
+                            {(!user || user.primaryPersona === 'WHOLESALER') && (deal.status === 'Lead' || deal.status === 'DRAFT') && (
+                                <div className="bg-[#050816]/80 border border-blue-900/50 rounded-lg p-4 mb-2 shadow-lg">
+                                    <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 text-blue-400 mb-3 border-b border-blue-900/30 pb-2">
+                                        <Users size={12} /> Recommended Buyers (Liquidity AI)
+                                    </h4>
+                                    <div className="space-y-2">
+                                        {topBuyers.map(buyer => (
+                                            <div key={buyer.investorId} className="flex justify-between items-center">
+                                                <div className="text-xs text-gray-300 font-medium truncate max-w-[150px]">{buyer.investorName}</div>
+                                                <div className={`text-xs font-mono font-bold ${buyer.matchScore >= 90 ? 'text-emerald-400' : 'text-blue-400'}`}>{buyer.matchScore}%</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="text-[9px] text-gray-500 font-mono mt-3 text-center uppercase tracking-widest">
+                                        Publish to automatically route
+                                    </div>
+                                </div>
+                            )}
+
                             {(!user || user.primaryPersona === 'WHOLESALER') ? (
                                 <>
                                     {deal.status === 'Lead' || deal.status === 'DRAFT' ? (
@@ -530,13 +599,26 @@ export const DealRoom = () => {
                                     </button>
                                 </>
                             ) : (
-                                <button
-                                    className={`w-full py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all shadow-lg ${deal.status === 'Active' || deal.status === 'Marketing' ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/50 border border-blue-400/50' : 'bg-[#050816] border border-blue-900/50 text-gray-500 cursor-not-allowed'}`}
-                                    onClick={handleReserveClick}
-                                    disabled={deal.status !== 'Active' && deal.status !== 'Marketing'}
-                                >
-                                    {deal.status === 'Active' || deal.status === 'Marketing' ? 'Request Deal ($250 Lock)' : deal.status === 'RESERVED' ? 'Deal Reserved (24h Lock)' : 'Verification Pending'}
-                                </button>
+                                <>
+                                    <button
+                                        className={`w-full py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all shadow-lg ${deal.status === 'Active' || deal.status === 'Marketing' ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/50 border border-blue-400/50' : 'bg-[#050816] border border-blue-900/50 text-gray-500 cursor-not-allowed'} ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-blue-600' : ''}`}
+                                        onClick={handleReserveClick}
+                                        disabled={deal.status !== 'Active' && deal.status !== 'Marketing' || isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                                    >
+                                        {deal.status === 'Active' || deal.status === 'Marketing' ? 'Request Deal ($250 Lock)' : deal.status === 'RESERVED' ? 'Deal Reserved (24h Lock)' : 'Verification Pending'}
+                                    </button>
+
+                                    {deal.status === 'RESERVED' && (!user || user.primaryPersona === 'INVESTOR') && (
+                                        <button
+                                            className="w-full mt-2 py-2 rounded-lg text-xs font-mono font-bold tracking-widest uppercase transition-all shadow-lg bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/50"
+                                            onClick={handleCancelReservation}
+                                            disabled={isCanceling}
+                                        >
+                                            {isCanceling ? 'Canceling...' : 'Cancel Reservation'}
+                                        </button>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>

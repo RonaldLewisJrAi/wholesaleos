@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Settings, MoreHorizontal, Edit2, Trash2, Zap, Clock, DollarSign, Target, CheckCircle, Shield, ArrowRight, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/useAuth';
 import { calculateAssignmentFeeRange, calculateBuyerDemandIndex, estimateTimeToClose, calculateDealProbability } from '../lib/DealIntelligence';
 import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../services/dealIntelligenceEngine';
+import { matchDealToInvestors, mockLiquidityInvestors } from '../services/liquidityEngine';
 
 const initialStages = [
     {
@@ -42,6 +44,8 @@ const initialStages = [
 ];
 
 const Pipeline = () => {
+    const { user } = useAuth();
+    const isTitleCompany = user?.primaryPersona === 'TITLE_COMPANY';
     const [stages, setStages] = useState(initialStages);
     const [loading, setLoading] = useState(true);
     const [draggingDeal, setDraggingDeal] = useState(null);
@@ -368,14 +372,18 @@ const Pipeline = () => {
                 </div>
                 <div className="flex gap-3 mt-4 md:mt-0">
                     <button
-                        className="bg-black/30 border border-blue-900/50 hover:bg-blue-900/30 text-gray-300 transition-colors px-4 py-2 rounded-lg text-xs font-mono tracking-widest uppercase flex items-center gap-2"
+                        className={`bg-black/30 border border-blue-900/50 hover:bg-blue-900/30 text-gray-300 transition-colors px-4 py-2 rounded-lg text-xs font-mono tracking-widest uppercase flex items-center gap-2 ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-black/30' : ''}`}
                         onClick={handleCustomizeStages}
+                        disabled={isTitleCompany}
+                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
                     >
                         <Settings size={14} /> Configure Grid
                     </button>
                     <button
-                        className="bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)] px-4 py-2 rounded-lg text-xs font-mono tracking-widest uppercase flex items-center gap-2"
+                        className={`bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)] px-4 py-2 rounded-lg text-xs font-mono tracking-widest uppercase flex items-center gap-2 ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-blue-600/20 hover:text-blue-300' : ''}`}
                         onClick={() => handleAddDeal(stages[0]?.id)}
+                        disabled={isTitleCompany}
+                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
                     >
                         <Plus size={14} /> Inject Deal
                     </button>
@@ -410,21 +418,23 @@ const Pipeline = () => {
                                 {stage.deals.map(deal => (
                                     <div
                                         key={deal.id}
-                                        draggable
+                                        draggable={!isTitleCompany}
                                         onDragStart={(e) => handleDragStart(e, deal, stage.id)}
                                         onDragEnd={handleDragEnd}
-                                        className={`glass-card bg-[#050816]/70 border-blue-900/50 p-4 cursor-grab active:cursor-grabbing hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.25)] transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden ${deal.tags?.includes('Hot') ? 'priority-gold' : ''}`}
+                                        className={`glass-card bg-[#050816]/70 border-blue-900/50 p-4 ${isTitleCompany ? 'cursor-default' : 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.25)]'} transition-all duration-300 transform group relative overflow-hidden ${deal.tags?.includes('Hot') ? 'priority-gold' : ''}`}
                                     >
                                         {/* Card Highlight Strip */}
                                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                                         <div className="flex justify-between items-start mb-3">
                                             <span className="text-sm font-bold text-white tracking-tight break-words pr-2">{deal.address}</span>
-                                            <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-4 bg-[#050816]/90 p-1 rounded-lg border border-blue-900/50 shadow-lg">
-                                                <button className="text-emerald-400 hover:text-emerald-300 transition-colors p-1" onClick={() => handleCloseDeal(stage.id, deal)} title="Close Deal"><CheckCircle size={14} /></button>
-                                                <button className="text-blue-400 hover:text-blue-300 transition-colors p-1" onClick={() => handleEditDeal(stage.id, deal.id, deal.address, deal.value)} title="Edit Deal"><Edit2 size={14} /></button>
-                                                <button className="text-red-400 hover:text-red-300 transition-colors p-1" onClick={() => handleDeleteDeal(stage.id, deal.id, deal.address)} title="Delete Deal"><Trash2 size={14} /></button>
-                                            </div>
+                                            {!isTitleCompany && (
+                                                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-4 bg-[#050816]/90 p-1 rounded-lg border border-blue-900/50 shadow-lg">
+                                                    <button className="text-emerald-400 hover:text-emerald-300 transition-colors p-1" onClick={() => handleCloseDeal(stage.id, deal)} title="Close Deal"><CheckCircle size={14} /></button>
+                                                    <button className="text-blue-400 hover:text-blue-300 transition-colors p-1" onClick={() => handleEditDeal(stage.id, deal.id, deal.address, deal.value)} title="Edit Deal"><Edit2 size={14} /></button>
+                                                    <button className="text-red-400 hover:text-red-300 transition-colors p-1" onClick={() => handleDeleteDeal(stage.id, deal.id, deal.address)} title="Delete Deal"><Trash2 size={14} /></button>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex flex-col gap-2">
@@ -441,6 +451,16 @@ const Pipeline = () => {
                                                 const closeProb = calculateCloseProbability(intelligenceData);
                                                 const { label: liqLabel } = calculateLiquiditySignal(intelligenceData);
 
+                                                // Liquidity Match Calculation
+                                                const rankedBuyers = matchDealToInvestors({
+                                                    id: deal.id,
+                                                    market: deal.zipCode || 'Dallas',
+                                                    purchase_price: deal.purchasePrice || 180000,
+                                                    property_type: deal.propertyType || 'Single Family',
+                                                    dealScore: aiScore
+                                                }, mockLiquidityInvestors);
+                                                const strongMatches = rankedBuyers.filter(b => b.matchScore >= 80).length;
+
                                                 let probColor = "text-red-400 border-red-500/30 bg-red-900/10";
                                                 if (closeProb > 75) probColor = "text-emerald-400 border-emerald-500/30 bg-emerald-900/10";
                                                 else if (closeProb > 50) probColor = "text-amber-400 border-amber-500/30 bg-amber-900/10";
@@ -451,8 +471,11 @@ const Pipeline = () => {
 
                                                 return (
                                                     <>
-                                                        <div className="flex justify-between items-center text-xs font-mono pb-2 border-b border-blue-900/20">
-                                                            <span className="text-gray-500 uppercase tracking-widest text-[10px]">Proj. Fee</span>
+                                                        <div className="flex justify-between items-center text-xs font-mono pb-2 border-b border-blue-900/20 mb-2 mt-1">
+                                                            <div className="flex items-center gap-1.5 bg-red-900/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-sm shadow-[0_0_10px_rgba(248,113,113,0.1)]">
+                                                                <Target size={10} className="text-red-500" />
+                                                                <span className="font-bold tracking-widest uppercase text-[10px]">{strongMatches} Strong Matches</span>
+                                                            </div>
                                                             <span className="text-emerald-400 font-bold">{feePrediction.formatted}</span>
                                                         </div>
 
@@ -494,7 +517,7 @@ const Pipeline = () => {
 
                             {/* Inject Deal Button for Column */}
                             <button
-                                className="mt-4 w-full py-2.5 rounded text-[10px] font-mono font-bold uppercase tracking-widest text-blue-400/50 border border-dashed border-blue-900/40 hover:bg-blue-900/20 hover:text-blue-300 hover:border-blue-500/40 transition-colors flex items-center justify-center gap-2"
+                                className={`mt-4 w-full py-2.5 rounded text-[10px] font-mono font-bold uppercase tracking-widest text-blue-400/50 border border-dashed border-blue-900/40 hover:bg-blue-900/20 hover:text-blue-300 hover:border-blue-500/40 transition-colors flex items-center justify-center gap-2 ${isTitleCompany ? 'hidden' : ''}`}
                                 onClick={() => handleAddDeal(stage.id)}
                             >
                                 <Plus size={12} /> Add to {stage.title}

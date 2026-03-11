@@ -6,6 +6,7 @@ import ScrollChevron from './ScrollChevron';
 import OrgHealthWidget from './OrgHealthWidget';
 import GlobalStatusBanner from './GlobalStatusBanner';
 import { OSCARPanel } from './assistant/OSCARPanel';
+import VerifiedClosingTicker from './ui/VerifiedClosingTicker';
 import { useAuth } from '../contexts/useAuth';
 import { useSubscription } from '../contexts/useSubscription';
 import { useGuidance } from '../contexts/GuidanceContext';
@@ -46,6 +47,7 @@ const Layout = () => {
                 <GlobalStatusBanner />
                 <Sidebar />
                 <div className={`main-wrapper ${isAssistantOpen ? 'assistant-open' : ''}`}>
+                    <VerifiedClosingTicker />
                     <Header />
                     <main className="main-content flex items-center justify-center">
                         <div className="text-center py-16 px-8 glass-card max-w-lg border border-red-500/30 bg-red-500/5">
@@ -68,6 +70,7 @@ const Layout = () => {
             <GlobalStatusBanner />
             <Sidebar />
             <div className={`main-wrapper ${isAssistantOpen ? 'assistant-open' : ''}`}>
+                <VerifiedClosingTicker />
                 <Header />
                 <div className="main-content p-4 min-h-screen">
                     <Outlet />

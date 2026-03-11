@@ -6,6 +6,7 @@ import { OSCARInput } from './OSCARInput';
 import { Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { routeOSCARCommand } from '../../services/oscarCommandRouter';
 import { oscarVoiceService } from '../../services/oscarVoiceService';
+import { useGuidance } from '../../contexts/GuidanceContext';
 
 export const OSCARPanel: React.FC = () => {
     const navigate = useNavigate();
@@ -13,6 +14,8 @@ export const OSCARPanel: React.FC = () => {
     const [isVoiceEnabled, setIsVoiceEnabled] = useState(oscarVoiceService.getVoiceEnabled());
     const [isAudioPlaying, setIsAudioPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    // @ts-ignore
+    const { contextMsg, setContextMsg } = useGuidance();
 
     const [history, setHistory] = useState<ChatMessage[]>([
         {
@@ -21,6 +24,14 @@ export const OSCARPanel: React.FC = () => {
             text: "OSCAR Service Desk ready. How can I assist you with WholesaleOS today?"
         }
     ]);
+
+    useEffect(() => {
+        if (contextMsg) {
+            handleSubmit(contextMsg);
+            setContextMsg(null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [contextMsg]);
 
     useEffect(() => {
         // Sync visual audio playing state with the service

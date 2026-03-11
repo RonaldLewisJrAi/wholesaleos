@@ -1,5 +1,6 @@
 import React from 'react';
-import { MapPin, ShieldCheck, CheckCircle } from 'lucide-react';
+import { MapPin, ShieldCheck, CheckCircle, GraduationCap, Award } from 'lucide-react';
+import { useAuth } from '../../contexts/useAuth';
 
 const getTrustTier = (score = 50) => {
     if (score >= 90) return { label: 'Elite', class: 'bg-success text-bg-darker' };
@@ -10,6 +11,8 @@ const getTrustTier = (score = 50) => {
 };
 
 export default function DealCard({ deal }) {
+    const { user } = useAuth();
+    const isTitleCompany = user?.primaryPersona === 'TITLE_COMPANY';
     const trustScore = deal.wholesaler?.trust_score || deal.wholesaler_trust_score || 50;
     const tier = getTrustTier(trustScore);
     const fallbackImage = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
@@ -31,9 +34,21 @@ export default function DealCard({ deal }) {
                         )}
                     </div>
                     {deal.status !== 'Web Lead' && (
-                        <span className={`badge ${tier.class} font-bold text-xs shadow-lg px-2 py-1 rounded`} title={`Wholesaler Trust Score: ${trustScore}/100`}>
-                            <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
-                        </span>
+                        <div className="flex gap-1 flex-col items-end">
+                            <span className={`badge ${tier.class} font-bold text-xs shadow-lg px-2 py-1 rounded`} title={`Wholesaler Trust Score: ${trustScore}/100`}>
+                                <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
+                            </span>
+                            {deal.wholesaler?.academy_status === 'GRADUATE' && (
+                                <span className="badge bg-blue-900/80 text-blue-300 border border-blue-500/50 font-bold text-[10px] shadow-lg px-2 py-1 rounded flex items-center gap-1 uppercase tracking-widest" title="WholesaleOS Academy Graduate">
+                                    <GraduationCap size={10} /> Graduate
+                                </span>
+                            )}
+                            {deal.wholesaler?.academy_status === 'CERTIFIED' && (
+                                <span className="badge bg-emerald-900/80 text-emerald-400 border border-emerald-500/50 font-bold text-[10px] shadow-lg px-2 py-1 rounded flex items-center gap-1 uppercase tracking-widest" title="WholesaleOS Certified Partner">
+                                    <Award size={10} /> Certified
+                                </span>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>
@@ -60,7 +75,11 @@ export default function DealCard({ deal }) {
                         View Deal ➔
                     </button>
                     {deal.status === 'ACTIVE' && (
-                        <button className="btn btn-secondary w-full opacity-80 hover:opacity-100">
+                        <button
+                            className={`btn btn-secondary w-full opacity-80 hover:opacity-100 ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:opacity-50' : ''}`}
+                            disabled={isTitleCompany}
+                            title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                        >
                             Save to Watchlist
                         </button>
                     )}

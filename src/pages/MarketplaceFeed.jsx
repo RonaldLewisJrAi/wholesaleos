@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, TrendingUp, DollarSign, Hammer, Activity, Droplets, Target, ShieldCheck } from 'lucide-react';
 import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../services/dealIntelligenceEngine';
+import { matchDealToInvestors, mockLiquidityInvestors } from '../services/liquidityEngine';
+import { useAuth } from '../contexts/useAuth';
 import { supabase } from '../lib/supabase';
 
 const mockDeals = [
@@ -89,8 +91,11 @@ const getScoreColor = (score) => {
 };
 
 const MarketplaceFeed = () => {
+    const { user } = useAuth();
     const [deals, setDeals] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const isTitleCompany = user?.primaryPersona === 'TITLE_COMPANY';
 
     useEffect(() => {
         const fetchInitialDeals = async () => {
@@ -140,10 +145,18 @@ const MarketplaceFeed = () => {
                 </div>
 
                 <div className="flex gap-4">
-                    <button className="glass-card px-4 py-2 text-sm text-blue-300 hover:text-white transition-colors flex items-center gap-2">
+                    <button
+                        className={`glass-card px-4 py-2 text-sm text-blue-300 hover:text-white transition-colors flex items-center gap-2 ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:text-blue-300' : ''}`}
+                        disabled={isTitleCompany}
+                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                    >
                         <Activity size={16} /> Filters
                     </button>
-                    <button className="bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white px-4 py-2 rounded-lg text-sm transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)]">
+                    <button
+                        className={`bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white px-4 py-2 rounded-lg text-sm transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)] ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-blue-600/20 hover:text-blue-300' : ''}`}
+                        disabled={isTitleCompany}
+                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                    >
                         Refresh Signals
                     </button>
                 </div>
@@ -187,12 +200,39 @@ const MarketplaceFeed = () => {
                                     titleVerified: deal.title_status === 'cleared'
                                 };
                                 const aiScore = deal.score || calculateDealScore(intelligenceData);
+
+                                const isInvestor = !user || user.primaryPersona === 'INVESTOR';
+                                let matchScore = null;
+
+                                if (isInvestor) {
+                                    const matched = matchDealToInvestors({
+                                        id: deal.id,
+                                        market: deal.city || 'Dallas',
+                                        purchase_price: purchaseNum,
+                                        property_type: deal.property_type || 'Single Family',
+                                        dealScore: aiScore
+                                    }, mockLiquidityInvestors);
+
+                                    const personalMatch = matched.find(m => m.investorId === (user?.id || 'inv-1')) || matched[0];
+                                    matchScore = personalMatch ? personalMatch.matchScore : 85;
+                                }
+
                                 return (
-                                    <div className="absolute top-3 right-3 z-20 glass-card bg-black/60 px-2 py-1 flex items-center gap-1 font-mono text-xs border-blue-500/30 font-bold">
-                                        <span className={getScoreColor(aiScore)}>
-                                            SCORE: {aiScore}
-                                        </span>
-                                    </div>
+                                    <>
+                                        <div className="absolute top-3 right-3 z-20 glass-card bg-black/60 px-2 py-1 flex items-center gap-1 font-mono text-xs border-blue-500/30 font-bold shadow-lg">
+                                            <span className={getScoreColor(aiScore)}>
+                                                SCORE: {aiScore}
+                                            </span>
+                                        </div>
+                                        {isInvestor && matchScore && (
+                                            <div className="absolute top-12 right-3 z-20 glass-card bg-[#050816]/90 px-2 py-1 flex items-center gap-1 font-mono text-xs border-blue-500/30 font-bold shadow-lg">
+                                                <Target size={10} className={matchScore >= 90 ? 'text-emerald-400' : 'text-blue-400'} />
+                                                <span className={matchScore >= 90 ? 'text-emerald-400' : 'text-blue-400'}>
+                                                    MATCH: {matchScore}%
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
                                 );
                             })()}
                         </div>

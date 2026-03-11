@@ -80,5 +80,27 @@ export const databaseService = {
             throw error;
         }
         return data;
+    },
+
+    async cancelReservation(dealId: string) {
+        if (!supabase) return null;
+        const { data, error } = await supabase
+            .from('deals')
+            .update({
+                status: 'ACTIVE',
+                claim_deposit_paid: false,
+                claim_deposit_user_id: null,
+                reservation_expires_at: null,
+                reservation_user_id: null
+            })
+            .eq('id', dealId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error canceling reservation:', error);
+            throw error;
+        }
+        return data;
     }
 };

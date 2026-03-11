@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Calculator, TrendingUp, DollarSign, Hammer, AlertTriangle, ShieldCheck, Activity } from 'lucide-react';
+import { Calculator, TrendingUp, DollarSign, Hammer, AlertTriangle, ShieldCheck, Activity, Users } from 'lucide-react';
+import { useAuth } from '../contexts/useAuth';
 import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../services/dealIntelligenceEngine';
+import { matchDealToInvestors, mockLiquidityInvestors } from '../services/liquidityEngine';
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -18,6 +20,9 @@ const getProfitColor = (profit) => {
 };
 
 const DealAnalyzer = () => {
+    const { user } = useAuth();
+    const isTitleCompany = user?.primaryPersona === 'TITLE_COMPANY';
+
     // Mock State for the interactive calculator
     const [inputs, setInputs] = useState({
         purchasePrice: 250000,
@@ -50,6 +55,15 @@ const DealAnalyzer = () => {
     const closeProb = calculateCloseProbability(intelligenceData);
     const mao = inputs.arv * 0.70 - inputs.repairCost; // Standard 70% rule
 
+    // Liquidity Match Engine
+    const topBuyers = matchDealToInvestors({
+        id: 'analyzer-deal',
+        market: 'Dallas', // Defaulting for analyzer mock
+        purchase_price: inputs.purchasePrice,
+        property_type: 'Single Family',
+        dealScore: dealScore
+    }, mockLiquidityInvestors).slice(0, 5);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setInputs(prev => ({
@@ -72,10 +86,18 @@ const DealAnalyzer = () => {
                 </div>
 
                 <div className="flex gap-4">
-                    <button className="glass-card px-4 py-2 text-sm text-blue-300 hover:text-white transition-colors flex items-center gap-2">
+                    <button
+                        className={`glass-card px-4 py-2 text-sm text-blue-300 hover:text-white transition-colors flex items-center gap-2 ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:text-blue-300' : ''}`}
+                        disabled={isTitleCompany}
+                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                    >
                         <Activity size={16} /> Load Comps
                     </button>
-                    <button className="bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 hover:text-white px-6 py-2 rounded-lg text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] font-bold tracking-wide">
+                    <button
+                        className={`bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 hover:text-white px-6 py-2 rounded-lg text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] font-bold tracking-wide ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-emerald-600/20 hover:text-emerald-300' : ''}`}
+                        disabled={isTitleCompany}
+                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                    >
                         Generate Packet
                     </button>
                 </div>
@@ -101,7 +123,9 @@ const DealAnalyzer = () => {
                                         name="purchasePrice"
                                         value={inputs.purchasePrice}
                                         onChange={handleInputChange}
-                                        className="w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all font-bold"
+                                        disabled={isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -115,7 +139,9 @@ const DealAnalyzer = () => {
                                         name="arv"
                                         value={inputs.arv}
                                         onChange={handleInputChange}
-                                        className="w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all font-bold"
+                                        disabled={isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -129,7 +155,9 @@ const DealAnalyzer = () => {
                                         name="repairCost"
                                         value={inputs.repairCost}
                                         onChange={handleInputChange}
-                                        className="w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all font-bold"
+                                        disabled={isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -142,7 +170,9 @@ const DealAnalyzer = () => {
                                         name="closingCosts"
                                         value={inputs.closingCosts}
                                         onChange={handleInputChange}
-                                        className="w-full bg-black/40 border border-blue-900/50 rounded-md py-2 px-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all text-sm"
+                                        disabled={isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 px-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all text-sm ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                                 <div>
@@ -152,7 +182,9 @@ const DealAnalyzer = () => {
                                         name="holdingCosts"
                                         value={inputs.holdingCosts}
                                         onChange={handleInputChange}
-                                        className="w-full bg-black/40 border border-blue-900/50 rounded-md py-2 px-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all text-sm"
+                                        disabled={isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 px-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all text-sm ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -166,7 +198,9 @@ const DealAnalyzer = () => {
                                         name="assignmentFee"
                                         value={inputs.assignmentFee}
                                         onChange={handleInputChange}
-                                        className="w-full bg-emerald-900/10 border border-emerald-500/30 rounded-md py-3 pl-8 pr-3 text-emerald-400 font-mono focus:border-emerald-500 focus:outline-none transition-all font-bold text-lg"
+                                        disabled={isTitleCompany}
+                                        title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
+                                        className={`w-full bg-emerald-900/10 border border-emerald-500/30 rounded-md py-3 pl-8 pr-3 text-emerald-400 font-mono focus:border-emerald-500 focus:outline-none transition-all font-bold text-lg ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -249,6 +283,43 @@ const DealAnalyzer = () => {
                             </div>
                         </div>
 
+                    </div>
+
+                    {/* Middle Row: Liquidity Engine - Top Buyers */}
+                    <div className="glass-card p-5 mt-6 group transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(78,123,255,0.3)] hover:border-blue-500/50">
+                        <div className="flex justify-between items-center border-b border-blue-900/30 pb-3 mb-4">
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                <Users className="text-blue-400" size={18} />
+                                Top 5 Buyers For This Deal
+                            </h3>
+                            <span className="bg-blue-900/40 text-blue-300 text-[10px] font-mono px-2 py-0.5 rounded tracking-widest border border-blue-500/30">
+                                LIQUIDITY ENGINE AI
+                            </span>
+                        </div>
+
+                        <div className="space-y-3">
+                            {topBuyers.map((buyer, index) => (
+                                <div key={buyer.investorId} className="flex items-center justify-between p-3 bg-black/40 rounded-lg border border-white/5 hover:border-blue-500/30 transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-6 h-6 rounded-full bg-blue-900/50 border border-blue-500/30 flex items-center justify-center text-xs font-bold text-blue-300 font-mono">
+                                            {index + 1}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-white font-medium">{buyer.investorName}</div>
+                                            <div className="text-xs text-gray-400 font-mono mt-0.5 truncate max-w-[200px]">
+                                                {buyer.reasons.join(' • ')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className={`text-lg font-mono font-bold ${buyer.matchScore >= 90 ? 'text-emerald-400' : buyer.matchScore >= 80 ? 'text-blue-400' : 'text-amber-400'}`}>
+                                            {buyer.matchScore}%
+                                        </div>
+                                        <div className="text-[9px] text-gray-500 font-mono tracking-widest uppercase mt-0.5">Match Score</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Bottom Row: Profit Outcome */}

@@ -3,7 +3,8 @@ import { NavLink, Link } from 'react-router-dom';
 import {
     LayoutDashboard, Map, KanbanSquare, Users, FileText, Calculator,
     ShieldCheck, Activity, Calendar as CalendarIcon, Target, Search, FolderHeart,
-    List, Briefcase, Inbox, PhoneCall, ListTodo, CheckSquare, Settings, Table, CreditCard, Webhook
+    List, Briefcase, Inbox, PhoneCall, ListTodo, CheckSquare, Settings, Table, CreditCard, Webhook,
+    GraduationCap, PlayCircle
 } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
 import { useAuth } from '../contexts/useAuth';
@@ -26,6 +27,8 @@ const Sidebar = () => {
             { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
             { name: 'Calculators', path: '/calculators', icon: <Calculator size={20} /> },
             { name: 'Compliance', path: '/compliance', icon: <ShieldCheck size={20} /> },
+            { name: 'Academy', path: '/academy', icon: <GraduationCap size={20} /> },
+            { name: 'Simulator', path: '/simulator', icon: <PlayCircle size={20} /> },
             { name: 'Billing & Plan', path: '/settings', icon: <CreditCard size={20} />, roleRequired: 'NON_ADMIN' },
             { name: 'Integration & API', path: '/integrations', icon: <Settings size={20} />, roleRequired: 'GLOBAL_SUPER_ADMIN' },
         ],
@@ -36,7 +39,8 @@ const Sidebar = () => {
             { name: 'Saved Deals', path: '/saved', icon: <FolderHeart size={20} /> },
             { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
             { name: 'Offers Submitted', path: '/offers', icon: <Briefcase size={20} /> },
-            { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
+            { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> },
+            { name: 'Academy', path: '/academy', icon: <GraduationCap size={20} /> }
         ],
         'REALTOR': [
             { name: 'Realtor Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
@@ -81,6 +85,7 @@ const Sidebar = () => {
             { name: 'Billing & Plan', path: '/settings', icon: <CreditCard size={20} />, roleRequired: 'NON_ADMIN' },
             { name: 'API & Webhooks', path: '/integrations', icon: <Settings size={20} />, roleRequired: 'GLOBAL_SUPER_ADMIN' },
             { name: 'Team Roster', path: '/crm', icon: <Users size={20} /> },
+            { name: 'Academy', path: '/academy', icon: <GraduationCap size={20} /> },
             { name: 'System Logs', path: '/logs', icon: <List size={20} /> }
         ]
     };

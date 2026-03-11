@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { ocrVerificationService } from './ocrVerificationService';
 
 /**
  * Deal Document Verification Service (Phase 17)
@@ -29,6 +30,19 @@ export const dealDocumentService = {
                 .from('deal-documents')
                 .getPublicUrl(filePath);
 
+            // 1.5. OCR Pre-Verification
+            let calculatedStatus = 'PENDING';
+
+            console.log("🔍 Scanning document with Gemini OCR Vision Engine...");
+            const ocrResult = await ocrVerificationService.verifyContractDocument(file);
+
+            if (!ocrResult.isValid) {
+                console.warn("🛑 OCR Pre-Verification Rejected Document:", ocrResult.reason);
+                calculatedStatus = 'REJECTED';
+            } else {
+                console.log("✅ OCR Pre-Verification Cleared. Sending to Admin Queue.");
+            }
+
             // 2. Insert into Database
             const { data: docRecord, error: dbError } = await supabase
                 .from('deal_documents')
@@ -37,7 +51,8 @@ export const dealDocumentService = {
                     document_type: documentType,
                     file_url: publicUrl,
                     uploaded_by: userId,
-                    status: 'PENDING'
+                    status: calculatedStatus,
+                    verified_by: calculatedStatus === 'REJECTED' ? 'SYSTEM_OCR' : null
                 })
                 .select()
                 .single();
@@ -49,7 +64,12 @@ export const dealDocumentService = {
                 event_type: 'PROOF_OF_CONTROL_UPLOADED',
                 user_id: userId,
                 deal_id: dealId,
-                event_data: { document_type: documentType, document_id: docRecord.id }
+                event_data: {
+                    document_type: documentType,
+                    document_id: docRecord.id,
+                    ocr_status: calculatedStatus,
+                    ocr_reason: !ocrResult.isValid ? ocrResult.reason : null
+                }
             });
 
             return { success: true, document: docRecord };

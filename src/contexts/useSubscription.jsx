@@ -24,7 +24,7 @@ export const SubscriptionProvider = ({ children }) => {
             // --- GLOBAL SUPER ADMIN BYPASS ---
             if (user.id === 'super-admin-mock-id') {
                 console.log("[useSubscription] Bypassing fetch -> Hydrating Super Admin Grants");
-                setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
+                setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN', 'TITLE_COMPANY']);
                 setSubscriptionTier('SUPER');
                 setSubscriptionStatus('ACTIVE');
                 setSystemRole('GLOBAL_SUPER_ADMIN');
@@ -65,7 +65,7 @@ export const SubscriptionProvider = ({ children }) => {
 
                 // 2. Global Super Admin Override (Absolute Bypass)
                 if (profileDataToUse.system_role === 'GLOBAL_SUPER_ADMIN') {
-                    setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN']);
+                    setAllowedPersonas(['WHOLESALER', 'INVESTOR', 'REALTOR', 'VIRTUAL_ASSISTANT', 'ACQUISITION', 'DISPOSITION', 'COMPLIANCE', 'ANALYST', 'ADMIN', 'TITLE_COMPANY']);
                     setSubscriptionTier('SUPER');
                     setSubscriptionStatus('ACTIVE');
                     setSystemRole('GLOBAL_SUPER_ADMIN');
