@@ -35,6 +35,7 @@ import ProxyComponent from './pages/Workstations/ProxyComponent';
 import Spreadsheets from './pages/Workstations/Spreadsheets';
 import DealRoom from './pages/Deals/DealRoom';
 import MarketplaceFeed from './pages/MarketplaceFeed';
+import DealAnalyzer from './pages/DealAnalyzer';
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
                   <Route path="pipeline" element={<Pipeline />} />
                   <Route path="crm" element={<CRM />} />
                   <Route path="documents" element={<Documents />} />
+                  <Route path="analyzer" element={<DealAnalyzer />} />
                   <Route path="calculators" element={<Calculators />} />
                   <Route path="radar" element={<Radar />} />
                   <Route path="calendar" element={<CalendarView />} />
