@@ -1,10 +1,5 @@
 import { supabase } from '../lib/supabase';
 
-import { Queue } from 'bullmq';
-import { connection } from '../workers/redisClient';
-
-const distributionQueue = new Queue('deal-distribution', { connection });
-
 export const distributionService = {
     /**
      * Run the Deal Matching Engine against a newly published deal.
@@ -17,9 +12,18 @@ export const distributionService = {
             if (!supabase) return { success: false, error: 'No database connection' };
 
             // Transition from synchronous loops to scalable background architecture (Phase 30)
-            const job = await distributionQueue.add('distribute-deal', { deal, wholesalerId });
+            // Call the local Next.js / Vercel Serverless Function to dispatch the deal 
+            // without locking the UI or crashing Vite's browser bundler.
+            const HOST = window.location.origin;
+            const res = await fetch(`${HOST}/api/v1/distribution`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deal, wholesalerId })
+            });
 
-            console.log(`[DISTRIBUTION ENGINE] Successfully pushed to BullMQ (Job ID: ${job.id})`);
+            if (!res.ok) throw new Error("Matchmaking backend dispatch failed");
+
+            console.log(`[DISTRIBUTION ENGINE] Successfully pushed to Background Queue`);
 
             // Returns mock match representation so the frontend Alert works seamlessly
             return { success: true, count: 'pending', matches: Array(1).fill('In Queue') };

@@ -1,0 +1,8 @@
+{
+  "passed": 1,
+  "failed": 2,
+  "errors": [
+    "Deal creation fail: Could not find the 'address' column of 'deals' in the schema cache",
+    "PoC upload fail: invalid input syntax for type uuid: \"sim1\""
+  ]
+}
