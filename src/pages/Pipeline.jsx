@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Settings, MoreHorizontal, Edit2, Trash2, Zap, Clock, DollarSign, Target, CheckCircle, Shield, ArrowRight, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { calculateAssignmentFeeRange, calculateBuyerDemandIndex, estimateTimeToClose, calculateDealProbability } from '../lib/DealIntelligence';
-import { useSubscription } from '../contexts/useSubscription';
+import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../services/dealIntelligenceEngine';
 
 const initialStages = [
     {
@@ -42,7 +42,6 @@ const initialStages = [
 ];
 
 const Pipeline = () => {
-    const { currentViewPersona } = useSubscription();
     const [stages, setStages] = useState(initialStages);
     const [loading, setLoading] = useState(true);
     const [draggingDeal, setDraggingDeal] = useState(null);
@@ -242,7 +241,7 @@ const Pipeline = () => {
             if (error && error.code !== 'PGRST116') return { isLocked: false, error };
             if (data) return { isLocked: true };
             return { isLocked: false };
-        } catch (err) {
+        } catch {
             return { isLocked: false };
         }
     };
@@ -414,7 +413,7 @@ const Pipeline = () => {
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, deal, stage.id)}
                                         onDragEnd={handleDragEnd}
-                                        className="glass-card bg-[#050816]/70 border-blue-900/50 p-4 cursor-grab active:cursor-grabbing hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.25)] transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden"
+                                        className={`glass-card bg-[#050816]/70 border-blue-900/50 p-4 cursor-grab active:cursor-grabbing hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.25)] transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden ${deal.tags?.includes('Hot') ? 'priority-gold' : ''}`}
                                     >
                                         {/* Card Highlight Strip */}
                                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -431,15 +430,23 @@ const Pipeline = () => {
                                         <div className="flex flex-col gap-2">
                                             {(() => {
                                                 const feePrediction = calculateAssignmentFeeRange(deal.arv || 250000, deal.purchasePrice || 180000, deal.repairs || 25000);
-                                                const probScore = calculateDealProbability(deal.equityPercent || 28, deal.smi || 3, deal.bdiMatches || 0);
+                                                const intelligenceData = {
+                                                    arv: deal.arv || 250000,
+                                                    purchase_price: deal.purchasePrice || 180000,
+                                                    repairs: deal.repairs || 25000,
+                                                    buyerDemand: deal.bdiMatches || (deal.tags?.includes('Hot') ? 8 : 4),
+                                                    escrowStatus: deal.tags?.includes('EMD Cleared') ? 'ACTIVE' : 'PENDING'
+                                                };
+                                                const aiScore = calculateDealScore(intelligenceData);
+                                                const closeProb = calculateCloseProbability(intelligenceData);
+                                                const { label: liqLabel } = calculateLiquiditySignal(intelligenceData);
 
                                                 let probColor = "text-red-400 border-red-500/30 bg-red-900/10";
-                                                if (probScore > 75) probColor = "text-emerald-400 border-emerald-500/30 bg-emerald-900/10";
-                                                else if (probScore > 50) probColor = "text-amber-400 border-amber-500/30 bg-amber-900/10";
+                                                if (closeProb > 75) probColor = "text-emerald-400 border-emerald-500/30 bg-emerald-900/10";
+                                                else if (closeProb > 50) probColor = "text-amber-400 border-amber-500/30 bg-amber-900/10";
 
-                                                const dds = deal.deal_discipline_score ?? 100;
-                                                const ddsColor = dds >= 80 ? 'text-blue-400 bg-blue-900/20 border-blue-500/30' :
-                                                    dds >= 60 ? 'text-amber-400 bg-amber-900/20 border-amber-500/30' :
+                                                const aiScoreColor = aiScore >= 80 ? 'text-blue-400 bg-blue-900/20 border-blue-500/30' :
+                                                    aiScore >= 60 ? 'text-amber-400 bg-amber-900/20 border-amber-500/30' :
                                                         'text-red-400 bg-red-900/20 border-red-500/30';
 
                                                 return (
@@ -450,20 +457,20 @@ const Pipeline = () => {
                                                         </div>
 
                                                         <div className="grid grid-cols-2 gap-2 my-1">
-                                                            <div className={`flex items-center justify-between text-[10px] p-1.5 rounded-md border font-mono ${ddsColor}`}>
+                                                            <div className={`flex items-center justify-between text-[10px] p-1.5 rounded-md border font-mono ${aiScoreColor}`}>
                                                                 <span className="flex items-center gap-1 uppercase"><Shield size={10} /> Score</span>
-                                                                <span className="font-bold">{dds}</span>
+                                                                <span className="font-bold">{aiScore}</span>
                                                             </div>
                                                             <div className={`flex items-center justify-between text-[10px] p-1.5 rounded-md border font-mono ${probColor}`}>
                                                                 <span className="flex items-center gap-1 uppercase"><Target size={10} /> Prob</span>
-                                                                <span className="font-bold">{probScore}%</span>
+                                                                <span className="font-bold">{closeProb}%</span>
                                                             </div>
                                                         </div>
 
                                                         {/* Escrow/Liquidity Status mapped from tags */}
                                                         <div className="flex flex-wrap gap-1.5 mt-1">
-                                                            <span className="text-[9px] uppercase tracking-widest font-mono font-bold px-1.5 py-0.5 rounded border bg-blue-900/20 text-blue-400 border-blue-500/30 flex items-center gap-1">
-                                                                <Zap size={8} /> Liq: {deal.bdiMatches || 0}
+                                                            <span className={`text-[9px] uppercase tracking-widest font-mono font-bold px-1.5 py-0.5 rounded border border-blue-500/30 flex items-center gap-1 ${liqLabel === 'HIGH' ? 'bg-blue-900/20 text-blue-400' : liqLabel === 'MODERATE' ? 'bg-amber-900/20 text-amber-400' : 'bg-gray-800/40 text-gray-400'}`}>
+                                                                <Zap size={8} /> Liq: {liqLabel}
                                                             </span>
 
                                                             {deal.tags?.includes('EMD Cleared') && (

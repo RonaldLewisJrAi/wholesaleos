@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { MapPin, TrendingUp, DollarSign, Hammer, Activity, Droplets, Target } from 'lucide-react';
+import { MapPin, TrendingUp, DollarSign, Hammer, Activity, Droplets, Target, ShieldCheck } from 'lucide-react';
+import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../services/dealIntelligenceEngine';
 
 const mockDeals = [
     {
@@ -126,11 +127,25 @@ const MarketplaceFeed = () => {
                                 alt={deal.address}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                             />
-                            <div className="absolute top-3 right-3 z-20 glass-card bg-black/60 px-2 py-1 flex items-center gap-1 font-mono text-xs border-blue-500/30 font-bold">
-                                <span className={getScoreColor(deal.dealScore)}>
-                                    SCORE: {deal.dealScore}
-                                </span>
-                            </div>
+                            {(() => {
+                                const intelligenceData = {
+                                    arv: deal.arv,
+                                    purchase_price: deal.arv - deal.repairs - deal.assignmentFee - 20000,
+                                    repairs: deal.repairs,
+                                    buyerDemand: deal.liquidityIndex / 10,
+                                    repairConfidence: 75,
+                                    riskScore: 85,
+                                    titleVerified: true
+                                };
+                                const aiScore = calculateDealScore(intelligenceData);
+                                return (
+                                    <div className="absolute top-3 right-3 z-20 glass-card bg-black/60 px-2 py-1 flex items-center gap-1 font-mono text-xs border-blue-500/30 font-bold">
+                                        <span className={getScoreColor(aiScore)}>
+                                            SCORE: {aiScore}
+                                        </span>
+                                    </div>
+                                );
+                            })()}
                         </div>
 
                         {/* Card Body */}
@@ -165,25 +180,43 @@ const MarketplaceFeed = () => {
                                 </div>
                             </div>
 
-                            {/* bottom indicators */}
-                            <div className="mt-auto pt-4 border-t border-blue-900/30 flex justify-between items-center">
-                                <div className="flex items-center gap-2">
-                                    <Activity size={12} className="text-purple-400" />
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] text-gray-500 font-mono tracking-wider">DEMAND</span>
-                                        <span className="text-xs text-white uppercase">{deal.demandSignal}</span>
+                            {/* bottom indicators computed via Intelligence Engine */}
+                            {(() => {
+                                // Create the data object for the engine based on available mock properties
+                                const intelligenceData = {
+                                    arv: deal.arv,
+                                    purchase_price: deal.arv - deal.repairs - deal.assignmentFee - 20000,
+                                    repairs: deal.repairs,
+                                    buyerDemand: deal.liquidityIndex / 10,
+                                    repairConfidence: 75,
+                                    riskScore: 85,
+                                    titleVerified: true
+                                };
+                                const aiScore = calculateDealScore(intelligenceData);
+                                const { label: liqLabel } = calculateLiquiditySignal(intelligenceData);
+                                const closeProb = calculateCloseProbability(intelligenceData);
+
+                                return (
+                                    <div className="mt-auto pt-4 border-t border-blue-900/30 flex justify-between items-center">
+                                        <div className="flex items-center gap-2">
+                                            <Activity size={12} className={liqLabel === 'HIGH' ? 'text-blue-400' : liqLabel === 'MODERATE' ? 'text-amber-400' : 'text-red-400'} />
+                                            <div className="flex flex-col">
+                                                <span className="text-[9px] text-gray-500 font-mono tracking-wider">LIQUIDITY SIGNAL</span>
+                                                <span className={`text-xs uppercase font-bold ${liqLabel === 'HIGH' ? 'text-blue-400' : liqLabel === 'MODERATE' ? 'text-amber-400' : 'text-red-400'}`}>{liqLabel}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-right">
+                                            <div className="flex flex-col">
+                                                <span className="text-[9px] text-gray-500 font-mono tracking-wider">CLOSE PROB</span>
+                                                <span className={`text-xs uppercase font-bold ${closeProb > 75 ? 'text-emerald-400' : closeProb > 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                                                    {closeProb}%
+                                                </span>
+                                            </div>
+                                            <ShieldCheck size={12} className={closeProb > 75 ? 'text-emerald-400' : 'text-amber-400'} />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex items-center gap-2 text-right">
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] text-gray-500 font-mono tracking-wider">LIQUIDITY</span>
-                                        <span className={`text-xs uppercase font-bold ${deal.liquidityIndex > 80 ? 'text-blue-400' : 'text-blue-200'}`}>
-                                            {deal.liquidityIndex} IDX
-                                        </span>
-                                    </div>
-                                    <Droplets size={12} className="text-cyan-400" />
-                                </div>
-                            </div>
+                                );
+                            })()}
                         </div>
                     </div>
                 ))}

@@ -2,18 +2,88 @@ import React, { useState, useEffect } from 'react';
 import { Target, Activity, Map, Zap, Users, Radar, History, ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/useAuth';
+import DealCard from '../../components/ui/DealCard';
+const ModuleWrapper = ({ title, icon: Icon, children, className = "" }) => (
+    <div className={`glass-card p-6 flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.2)] ${className}`}>
+        <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-blue-900/30 pb-3">
+            <Icon size={16} className="text-blue-400" /> {title}
+        </h3>
+        <div className="flex-1">
+            {children}
+        </div>
+    </div>
+);
 
 const InvestorDashboard = () => {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState([]);
 
+    const [matchedDeals, setMatchedDeals] = useState([]);
+    const [loadingMatches, setLoadingMatches] = useState(true);
+
+    useEffect(() => {
+        const fetchMatches = async () => {
+            if (!supabase || !user?.id) {
+                setLoadingMatches(false);
+                return;
+            }
+            try {
+                // 1. Get User Preferences
+                const { data: prefData } = await supabase
+                    .from('investor_preferences')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                // 2. Get Live Deals
+                const { data: deals } = await supabase
+                    .from('properties')
+                    .select('*')
+                    .in('status', ['Active', 'Marketing', 'ASSIGNED']);
+
+                if (deals && prefData) {
+                    const matches = deals.filter(deal => {
+                        const stateMatch = !prefData.states || prefData.states.length === 0 || prefData.states.includes(deal.state);
+                        const cityMatch = !prefData.cities || prefData.cities.length === 0 || prefData.cities.includes(deal.city);
+                        if (!stateMatch || !cityMatch) return false;
+
+                        const arvNum = typeof deal.arv === 'number' ? deal.arv : parseInt(String(deal.arv || '').replace(/[^0-9]/g, '')) || 0;
+                        const minArvMatch = !prefData.min_arv || arvNum >= prefData.min_arv;
+                        const maxArvMatch = !prefData.max_arv || arvNum <= prefData.max_arv;
+
+                        const rehabNum = typeof deal.rehab === 'number' ? deal.rehab : parseInt(String(deal.rehab || '').replace(/[^0-9]/g, '')) || 0;
+                        const maxRehabMatch = !prefData.max_rehab || rehabNum <= prefData.max_rehab;
+
+                        return minArvMatch && maxArvMatch && maxRehabMatch;
+                    });
+
+                    // Sort: Priority -> Score -> Newest
+                    matches.sort((a, b) => {
+                        if (a.poc_verified_doc_id !== b.poc_verified_doc_id) return a.poc_verified_doc_id ? -1 : 1;
+                        if (a.score !== b.score) return (b.score || 0) - (a.score || 0);
+                        return new Date(b.created_at) - new Date(a.created_at);
+                    });
+
+                    setMatchedDeals(matches.slice(0, 5));
+                } else if (!prefData && deals) {
+                    // Fallback to top scored deals if no preferences exist
+                    setMatchedDeals(deals.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 5));
+                }
+            } catch (err) {
+                console.error("Failed to load match feed", err);
+            }
+            setLoadingMatches(false);
+        };
+        fetchMatches();
+    }, [user?.id]);
+
     useEffect(() => {
         // Fetch live platform events for Deal Radar
         const fetchEvents = async () => {
             if (supabase) {
                 try {
-                    const { data, error } = await supabase
+                    const { data } = await supabase
                         .from('platform_events')
                         .select('*')
                         .order('created_at', { ascending: false })
@@ -24,7 +94,7 @@ const InvestorDashboard = () => {
                     } else {
                         setFallbackEvents();
                     }
-                } catch (e) {
+                } catch {
                     setFallbackEvents();
                 }
             } else {
@@ -58,17 +128,6 @@ const InvestorDashboard = () => {
             };
         }
     }, []);
-
-    const ModuleWrapper = ({ title, icon: Icon, children, className = "" }) => (
-        <div className={`glass-card p-6 flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.2)] ${className}`}>
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-blue-900/30 pb-3">
-                <Icon size={16} className="text-blue-400" /> {title}
-            </h3>
-            <div className="flex-1">
-                {children}
-            </div>
-        </div>
-    );
 
     return (
         <div className="p-6 max-w-[1600px] mx-auto animate-fade-in pb-12">
@@ -142,50 +201,24 @@ const InvestorDashboard = () => {
                     </div>
                 </ModuleWrapper>
 
-                {/* Module 3: Top Deals Today */}
-                <ModuleWrapper title="Top Deals Today" icon={Zap}>
-                    <div className="flex flex-col gap-3">
-                        <div className="bg-[#050816]/60 border border-blue-900/50 p-4 rounded-lg hover:border-blue-500/40 transition-colors cursor-pointer group/deal">
-                            <div className="flex justify-between items-start mb-3 border-b border-blue-900/30 pb-2">
-                                <span className="text-sm font-bold text-white tracking-wide">123 Oak St • Dallas</span>
-                                <span className="text-[10px] font-mono font-bold bg-emerald-900/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded uppercase tracking-widest">Matched</span>
+                {/* Module 3: Live Match Feed */}
+                <ModuleWrapper title="Live Match Feed" icon={Zap}>
+                    <div className="flex flex-col gap-4 overflow-y-auto pr-2" style={{ maxHeight: '420px' }}>
+                        {loadingMatches ? (
+                            <div className="text-center text-blue-500 font-mono text-xs tracking-widest py-8 animate-pulse">
+                                QUERYING ALGORITHMIC MATCHES...
                             </div>
-                            <div className="grid grid-cols-3 gap-2 text-xs font-mono">
-                                <div>
-                                    <span className="text-[9px] text-gray-500 uppercase block mb-1">Score</span>
-                                    <span className="text-blue-400 font-bold text-sm">92</span>
+                        ) : matchedDeals.length > 0 ? (
+                            matchedDeals.map(deal => (
+                                <div key={deal.id} className="relative z-10 transition-transform transform hover:-translate-y-1">
+                                    <DealCard deal={deal} />
                                 </div>
-                                <div>
-                                    <span className="text-[9px] text-gray-500 uppercase block mb-1">Proj. Fee</span>
-                                    <span className="text-emerald-400 font-bold text-sm">$24k</span>
-                                </div>
-                                <div>
-                                    <span className="text-[9px] text-gray-500 uppercase block mb-1">Liquidity</span>
-                                    <span className="text-emerald-400 font-bold text-sm">HIGH</span>
-                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center text-gray-500 font-mono text-xs tracking-widest py-8">
+                                NO DEALS CURRENTLY MATCH YOUR CRITERIA
                             </div>
-                        </div>
-
-                        <div className="bg-[#050816]/60 border border-blue-900/50 p-4 rounded-lg hover:border-blue-500/40 transition-colors cursor-pointer group/deal">
-                            <div className="flex justify-between items-start mb-3 border-b border-blue-900/30 pb-2">
-                                <span className="text-sm font-bold text-white tracking-wide">789 Pine Ln • Atlanta</span>
-                                <span className="text-[10px] font-mono font-bold bg-amber-900/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded uppercase tracking-widest">Pending</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 text-xs font-mono">
-                                <div>
-                                    <span className="text-[9px] text-gray-500 uppercase block mb-1">Score</span>
-                                    <span className="text-blue-400 font-bold text-sm">88</span>
-                                </div>
-                                <div>
-                                    <span className="text-[9px] text-gray-500 uppercase block mb-1">Proj. Fee</span>
-                                    <span className="text-emerald-400 font-bold text-sm">$18k</span>
-                                </div>
-                                <div>
-                                    <span className="text-[9px] text-gray-500 uppercase block mb-1">Liquidity</span>
-                                    <span className="text-blue-400 font-bold text-sm">MED</span>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </ModuleWrapper>
 

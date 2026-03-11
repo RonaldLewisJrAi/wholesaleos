@@ -4,15 +4,15 @@
 
 :root {
   /* Vision UI Core Colors (WholesaleOS Brand) */
-  --bg-dark: #081726;
+  --bg-dark: #0B1F33;
+  /* Midnight Navy global bg */
+  --bg-primary: #122842;
+  /* Lighter container bg */
+  --bg-secondary: #081726;
   /* Deepest Navy almost black */
-  --bg-primary: #0B1F33;
-  /* Midnight Navy */
-  --bg-secondary: #122842;
-  /* Slightly Lighter */
   --bg-tertiary: #1C3555;
-  --bg-surface: rgba(11, 31, 51, 0.5);
-  /* Vision UI Card Glass */
+  --bg-surface: rgba(18, 40, 66, 0.7);
+  /* Custom Surface */
 
   /* Accent Colors */
   --accent-primary: #19A974;

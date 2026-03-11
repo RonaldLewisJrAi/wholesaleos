@@ -9,7 +9,6 @@ import { OSCARPanel } from './assistant/OSCARPanel';
 import { useAuth } from '../contexts/useAuth';
 import { useSubscription } from '../contexts/useSubscription';
 import { useGuidance } from '../contexts/GuidanceContext';
-import { Navigate } from 'react-router-dom';
 
 const Layout = () => {
     const { user, loadingAuth } = useAuth();

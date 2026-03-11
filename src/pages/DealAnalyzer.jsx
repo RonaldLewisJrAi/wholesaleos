@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calculator, TrendingUp, DollarSign, Hammer, AlertTriangle, ShieldCheck, Activity } from 'lucide-react';
+import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../services/dealIntelligenceEngine';
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -14,15 +15,6 @@ const getProfitColor = (profit) => {
     if (profit > 50000) return 'text-emerald-400';
     if (profit > 0) return 'text-blue-400';
     return 'text-red-400';
-};
-
-const getRiskColor = (riskLabel) => {
-    switch (riskLabel.toLowerCase()) {
-        case 'low': return 'text-blue-400';
-        case 'moderate': return 'text-amber-400';
-        case 'high': return 'text-red-400';
-        default: return 'text-gray-400';
-    }
 };
 
 const DealAnalyzer = () => {
@@ -42,9 +34,20 @@ const DealAnalyzer = () => {
     const netProfit = grossProfit - inputs.assignmentFee; // From Wholesaler perspective
     const roi = (netProfit / totalInvestment) * 100;
 
-    // AI Mock Intelligence
-    const dealScore = 88;
-    const riskLevel = 'Moderate';
+    // AI Intelligence powered by the Engine
+    const intelligenceData = {
+        arv: inputs.arv,
+        purchase_price: inputs.purchasePrice,
+        repairs: inputs.repairCost,
+        buyerDemand: 8, // mock dynamic signal
+        repairConfidence: 85,
+        riskScore: 75,
+        titleVerified: true
+    };
+
+    const dealScore = calculateDealScore(intelligenceData);
+    const { label: liquidityLabel } = calculateLiquiditySignal(intelligenceData);
+    const closeProb = calculateCloseProbability(intelligenceData);
     const mao = inputs.arv * 0.70 - inputs.repairCost; // Standard 70% rule
 
     const handleInputChange = (e) => {
@@ -191,9 +194,18 @@ const DealAnalyzer = () => {
                                     </div>
                                 </div>
                                 <div className="bg-black/40 rounded-lg p-3 border border-blue-900/30">
-                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1">Risk Level</div>
-                                    <div className={`text-xl font-mono font-bold mt-1 flex items-center gap-2 ${getRiskColor(riskLevel)}`}>
-                                        <AlertTriangle size={18} /> {riskLevel}
+                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1">Liquidity</div>
+                                    <div className={`text-xl font-mono font-bold mt-1 flex items-center gap-2 ${liquidityLabel === 'HIGH' ? 'text-blue-400' : 'text-amber-400'}`}>
+                                        <Activity size={18} /> {liquidityLabel}
+                                    </div>
+                                </div>
+                                <div className="bg-black/40 rounded-lg p-3 border border-blue-900/30 col-span-2">
+                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 flex justify-between">
+                                        <span>Close Probability</span>
+                                        <span className={closeProb >= 80 ? 'text-emerald-400' : 'text-amber-400'}>{closeProb}%</span>
+                                    </div>
+                                    <div className="w-full h-1.5 bg-blue-900/30 rounded mt-2 overflow-hidden">
+                                        <div className={`h-full ${closeProb >= 80 ? 'bg-emerald-400' : 'bg-amber-400'}`} style={{ width: `${closeProb}%` }}></div>
                                     </div>
                                 </div>
                             </div>

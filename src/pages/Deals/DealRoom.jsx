@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/useAuth';
 import { dealDocumentService } from '../../services/dealDocumentService';
 import { distributionService } from '../../services/distributionService';
 import { dealBlastEngine } from '../../services/dealBlastEngine';
+import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../../services/dealIntelligenceEngine';
 
 const ProgressIndicator = ({ status }) => {
     const steps = [
@@ -216,6 +217,21 @@ export const DealRoom = () => {
 
     const bothSigned = deal.signed_wholesaler && deal.signed_investor;
 
+    // AI Intelligence metrics based on deal state
+    const parseCurrency = (str) => parseInt(String(str).replace(/[^0-9]/g, '') || '0', 10);
+    const intelligenceData = {
+        arv: parseCurrency(deal.arv),
+        purchase_price: parseCurrency(deal.mao),
+        repairs: parseCurrency(deal.rehab),
+        buyerDemand: deal.status === 'Active' ? 8 : 4,
+        escrowStatus: (deal.status === 'ASSIGNED' || deal.escrow_status === 'CONFIRMED') ? 'ACTIVE' : 'PENDING',
+        titleVerified: deal.title_status === 'CLEAR'
+    };
+
+    const aiScore = calculateDealScore(intelligenceData);
+    const { label: aiLiquidity } = calculateLiquiditySignal(intelligenceData);
+    const closeProb = calculateCloseProbability(intelligenceData);
+
     return (
         <div className="p-6 max-w-[1400px] mx-auto animate-fade-in relative">
             {/* Header */}
@@ -233,7 +249,7 @@ export const DealRoom = () => {
                         <div className="flex gap-3 items-center">
                             <span className="px-3 py-1 rounded border border-blue-500/30 bg-blue-900/10 text-blue-400 text-xs font-mono font-bold tracking-widest flex items-center gap-1">
                                 <Activity size={12} />
-                                SCORE: {deal.score || 88}
+                                SCORE: {aiScore}
                             </span>
 
                             {(() => {
@@ -410,7 +426,18 @@ export const DealRoom = () => {
                             <Activity className="text-blue-400" size={18} /> Transaction Status
                         </h2>
 
-                        <div className="mb-8">
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                            <div className="bg-black/40 border border-blue-900/30 rounded p-3">
+                                <span className="text-[9px] text-gray-500 uppercase tracking-widest font-mono block mb-1">Liquidity Signal</span>
+                                <span className={`text-sm font-bold font-mono tracking-widest ${aiLiquidity === 'HIGH' ? 'text-blue-400' : 'text-amber-400'}`}>{aiLiquidity}</span>
+                            </div>
+                            <div className="bg-black/40 border border-emerald-900/30 rounded p-3">
+                                <span className="text-[9px] text-gray-500 uppercase tracking-widest font-mono block mb-1">Close Probability</span>
+                                <span className={`text-sm font-bold font-mono tracking-widest ${closeProb >= 80 ? 'text-emerald-400' : 'text-amber-400'}`}>{closeProb}%</span>
+                            </div>
+                        </div>
+
+                        <div className="mb-8 border-t border-blue-900/30 pt-4">
                             <ProgressIndicator status={deal.status} />
                         </div>
 

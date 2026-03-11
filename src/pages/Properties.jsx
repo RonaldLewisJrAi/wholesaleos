@@ -23,7 +23,7 @@ const getTrustTier = (score = 50) => {
 const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
 
     return (
-        <div className="property-card glass-panel">
+        <div className={`property-card glass-panel ${property.poc_verified ? 'priority-gold' : ''}`}>
             <div className="property-image" style={{
                 backgroundImage: `url(${property.image})`
             }}>
