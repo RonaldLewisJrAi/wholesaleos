@@ -1,0 +1,14 @@
+/* src/styles/vision-theme.css */
+
+.dark-vision-ui {
+    /* Brand Colors - Deep Navy & Blue Glows */
+    --vision-bg-darkest: #050816;
+    --vision-bg-darker: #0B1F33;
+    --vision-bg-dark: #121A3A;
+    --vision-glow-blue: #2A4BFF;
+    --vision-glow-light: #4E7BFF;
+
+    /* Global Overrides */
+    background-color: var(--vision-bg-darkest);
+    color: white;
+}
