@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { OSCARHeader } from './OSCARHeader';
 import { OSCARChatHistory, ChatMessage } from './OSCARChatHistory';
 import { OSCARInput } from './OSCARInput';
 import { Volume2, VolumeX, RotateCcw } from 'lucide-react';
-import { askOSCAR } from '../../services/oscarAssistantService';
+import { routeOSCARCommand } from '../../services/oscarCommandRouter';
 import { oscarVoiceService } from '../../services/oscarVoiceService';
 
 export const OSCARPanel: React.FC = () => {
+    const navigate = useNavigate();
     const [isExpanded, setIsExpanded] = useState(true);
     const [isVoiceEnabled, setIsVoiceEnabled] = useState(oscarVoiceService.getVoiceEnabled());
     const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -31,7 +33,7 @@ export const OSCARPanel: React.FC = () => {
                 oscarVoiceService.speak("OSCAR Service Desk ready. How can I assist you?");
             }, 500);
         }
-    }, []);
+    }, [isVoiceEnabled]);
 
     const toggleVoice = () => {
         const newState = !isVoiceEnabled;
@@ -55,15 +57,23 @@ export const OSCARPanel: React.FC = () => {
         setIsLoading(true);
 
         try {
-            // 3. Fetch from Gemini
-            const responseText = await askOSCAR(text);
+            // 3. Route through OSCAR Command Layer
+            const response = await routeOSCARCommand(text);
 
             // 4. Update History and Speak
             setHistory(prev => prev.map(msg =>
-                msg.id === tempId ? { ...msg, text: responseText, isTyping: false } : msg
+                msg.id === tempId ? { ...msg, text: response.text, isTyping: false } : msg
             ));
 
-            oscarVoiceService.speak(responseText);
+            oscarVoiceService.speak(response.text);
+
+            // 5. Execute UI Navigation if the Action Executor returned a Target
+            if (response.isCommand && response.actionResult?.navigationTarget) {
+                // Short delay so the user can read/hear OSCAR before navigating
+                setTimeout(() => {
+                    navigate(response.actionResult!.navigationTarget!);
+                }, 1500);
+            }
 
         } catch (error) {
             setHistory(prev => prev.map(msg =>
