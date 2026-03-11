@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSubscription } from '../../contexts/useSubscription';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, CheckCircle, Award, PlayCircle, ChevronRight, Lock, Target, Zap } from 'lucide-react';
+import { BookOpen, CheckCircle, Award, PlayCircle, ChevronRight, Lock, Target, Zap, GraduationCap } from 'lucide-react';
 
 const MODULES = [
     { id: 'foundations', title: 'Stage 1: Foundations', description: 'Core concepts, legalities, terminology, and what wholesaling is NOT.', duration: '45 mins', status: 'COMPLETED' },
@@ -131,8 +131,8 @@ export default function AcademyDashboard() {
                         key={mod.id}
                         onClick={() => mod.status !== 'LOCKED' ? navigate(`/academy/${mod.id}`) : null}
                         className={`glass-card p-6 flex gap-4 transition-all ${mod.status === 'LOCKED'
-                                ? 'opacity-60 cursor-not-allowed border-blue-900/20'
-                                : 'cursor-pointer hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_8px_20px_rgba(59,130,246,0.1)]'
+                            ? 'opacity-60 cursor-not-allowed border-blue-900/20'
+                            : 'cursor-pointer hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_8px_20px_rgba(59,130,246,0.1)]'
                             } ${mod.status === 'IN_PROGRESS' ? 'border-blue-500/40 ring-1 ring-blue-500/20' : ''}`}
                     >
                         <div className="shrink-0 mt-1">

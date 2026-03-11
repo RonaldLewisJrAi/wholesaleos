@@ -13,7 +13,7 @@ import { useGuidance } from '../contexts/GuidanceContext';
 
 const Layout = () => {
     const { user, loadingAuth } = useAuth();
-    const { systemRole, subscriptionStatus, loadingSub } = useSubscription();
+    const { systemRole, subscriptionStatus, subscriptionTier, loadingSub } = useSubscription();
     const { isAssistantOpen } = useGuidance();
 
     // 1. Loading Phase
@@ -30,7 +30,9 @@ const Layout = () => {
     // Block the entire app for unpaid users, but allow Super Admins to bypass.
     // Also avoid infinite redirect logic if they are already on /pricing.
     const isPricingRoute = window.location.pathname.includes('/pricing');
-    if (!loadingSub && subscriptionStatus !== 'ACTIVE' && systemRole !== 'GLOBAL_SUPER_ADMIN') {
+    const isSubValid = subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'DEMO' || subscriptionTier === 'BASIC';
+
+    if (!loadingSub && !isSubValid && systemRole !== 'GLOBAL_SUPER_ADMIN') {
         if (!isPricingRoute) {
             return <Navigate to="/pricing" replace />;
         }

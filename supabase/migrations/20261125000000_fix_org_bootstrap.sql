@@ -58,7 +58,8 @@ INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 DO $$
 DECLARE broken_profile RECORD;
 new_org_id UUID;
-BEGIN FOR broken_profile IN
+BEGIN -- Pass 1: Handle users with NO organization at all
+FOR broken_profile IN
 SELECT id,
     COALESCE(company, 'Recovered Sandbox') as company_name
 FROM public.profiles
@@ -71,5 +72,20 @@ SET organization_id = new_org_id
 WHERE id = broken_profile.id;
 INSERT INTO public.user_organizations (user_id, organization_id, role)
 VALUES (broken_profile.id, new_org_id, 'ADMIN') ON CONFLICT DO NOTHING;
+END LOOP;
+-- Pass 2: Handle users who got an organization but NO user_organizations link (from the previous flawed script)
+FOR broken_profile IN
+SELECT p.id,
+    p.organization_id
+FROM public.profiles p
+    LEFT JOIN public.user_organizations uo ON p.id = uo.user_id
+WHERE p.organization_id IS NOT NULL
+    AND uo.user_id IS NULL LOOP
+INSERT INTO public.user_organizations (user_id, organization_id, role)
+VALUES (
+        broken_profile.id,
+        broken_profile.organization_id,
+        'ADMIN'
+    ) ON CONFLICT DO NOTHING;
 END LOOP;
 END $$;
