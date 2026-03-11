@@ -74,8 +74,10 @@ const Layout = () => {
             <div className={`main-wrapper ${isAssistantOpen ? 'assistant-open' : ''}`}>
                 <VerifiedClosingTicker />
                 <Header />
-                <div className="main-content p-4 min-h-screen">
-                    <Outlet />
+                <div className="main-content p-4 min-h-screen flex flex-col items-center">
+                    <div className="max-w-7xl w-full">
+                        <Outlet />
+                    </div>
                 </div>
             </div>
             <ScrollChevron />
