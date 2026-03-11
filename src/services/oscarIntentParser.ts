@@ -8,6 +8,10 @@ export type OSCARIntent =
     | 'filter_deals'
     | 'blast_deal'
     | 'open_escrow'
+    | 'query_deals'
+    | 'query_transaction_status'
+    | 'query_intelligence'
+    | 'query_investors'
     | 'general_question'
     | 'unknown';
 
@@ -30,7 +34,15 @@ Choose ONE of the following intents:
     Parameters to extract: target_group (string), address (string)
 4. open_escrow: The user wants to initiate an escrow or closing workflow.
     Parameters to extract: address (string)
-5. general_question: The user is asking a conversational question, not executing an action.
+5. query_deals: The user is asking to search or show deals based on locations, prices, beds/baths, etc (e.g., "Show deals in Atlanta under 200k").
+    Parameters to extract: raw_query (string containing the user's natural language request)
+6. query_transaction_status: The user wants to know about deals in specific pipeline stages like escrow, title, or closing (e.g., "Which deals have escrow confirmed").
+    Parameters to extract: raw_query (string)
+7. query_intelligence: The user wants to filter deals based on algorithmic, ai, or calculated metrics like score, liquidity, probability, or ARV/MAO ratios (e.g., "Show deals above score 85").
+    Parameters to extract: raw_query (string)
+8. query_investors: The user is asking about investor or wholesaler activity, leaderboards, or historical behavior (e.g., "Which investors closed the most deals this month").
+    Parameters to extract: raw_query (string)
+9. general_question: The user is asking a conversational question, not executing an action or querying the database.
 
 Output ONLY a valid JSON object matching this schema, with no markdown formatting:
 {

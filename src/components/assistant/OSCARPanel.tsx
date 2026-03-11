@@ -67,12 +67,20 @@ export const OSCARPanel: React.FC = () => {
 
             oscarVoiceService.speak(response.text);
 
-            // 5. Execute UI Navigation if the Action Executor returned a Target
-            if (response.isCommand && response.actionResult?.navigationTarget) {
-                // Short delay so the user can read/hear OSCAR before navigating
-                setTimeout(() => {
-                    navigate(response.actionResult!.navigationTarget!);
-                }, 1500);
+            // 5. Execute UI Navigation or Data Dispatching if the Action Executor returned a Target
+            if (response.isCommand && response.actionResult) {
+                if (response.actionResult.data) {
+                    window.dispatchEvent(new CustomEvent('oscar:data-ready', {
+                        detail: response.actionResult.data
+                    }));
+                }
+
+                if (response.actionResult.navigationTarget) {
+                    // Short delay so the user can read/hear OSCAR before navigating
+                    setTimeout(() => {
+                        navigate(response.actionResult!.navigationTarget!);
+                    }, 1500);
+                }
             }
 
         } catch (error) {

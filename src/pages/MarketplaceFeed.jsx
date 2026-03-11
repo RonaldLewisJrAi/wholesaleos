@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, TrendingUp, DollarSign, Hammer, Activity, Droplets, Target, ShieldCheck } from 'lucide-react';
 import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../services/dealIntelligenceEngine';
+import { supabase } from '../lib/supabase';
 
 const mockDeals = [
     {
@@ -88,7 +89,42 @@ const getScoreColor = (score) => {
 };
 
 const MarketplaceFeed = () => {
-    const [deals] = useState(mockDeals);
+    const [deals, setDeals] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchInitialDeals = async () => {
+            if (!supabase) {
+                setDeals(mockDeals);
+                setLoading(false);
+                return;
+            }
+            try {
+                const { data } = await supabase.from('properties').select('*');
+                if (data && data.length > 0) {
+                    setDeals(data);
+                } else {
+                    setDeals(mockDeals); // Fallback if no db exists
+                }
+            } catch (err) {
+                console.error("Failed fetching live market deals", err);
+                setDeals(mockDeals);
+            }
+            setLoading(false);
+        };
+
+        const handleOscarData = (event) => {
+            console.log("[MarketplaceFeed] Received OSCAR Stream:", event.detail);
+            if (event.detail && Array.isArray(event.detail)) {
+                setDeals(event.detail);
+            }
+        };
+
+        fetchInitialDeals();
+        window.addEventListener('oscar:data-ready', handleOscarData);
+
+        return () => window.removeEventListener('oscar:data-ready', handleOscarData);
+    }, []);
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
@@ -114,7 +150,15 @@ const MarketplaceFeed = () => {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {deals.map(deal => (
+                {loading ? (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12 text-blue-500 font-mono tracking-widest animate-pulse">
+                        INITIALIZING DATA TERMINAL...
+                    </div>
+                ) : deals.length === 0 ? (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12 text-blue-300 font-mono tracking-widest">
+                        NO RESULTS MATCH CURRENT INTELLIGENCE QUERY
+                    </div>
+                ) : deals.map(deal => (
                     <div
                         key={deal.id}
                         className="glass-card overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(78,123,255,0.4)] hover:border-blue-500/60 cursor-pointer flex flex-col group"
@@ -128,16 +172,21 @@ const MarketplaceFeed = () => {
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                             />
                             {(() => {
+                                const arvNum = typeof deal.arv === 'number' ? deal.arv : parseInt(String(deal.arv || '250000').replace(/[^0-9]/g, '')) || 250000;
+                                const repairNum = typeof deal.repairs === 'number' ? deal.repairs : parseInt(String(deal.rehab || deal.repairs || '35000').replace(/[^0-9]/g, '')) || 35000;
+                                const assignNum = typeof deal.assignmentFee === 'number' ? deal.assignmentFee : parseInt(String(deal.assignment_fee || '15000').replace(/[^0-9]/g, '')) || 15000;
+                                const purchaseNum = typeof deal.purchase_price === 'number' ? deal.purchase_price : arvNum - repairNum - assignNum - 20000;
+
                                 const intelligenceData = {
-                                    arv: deal.arv,
-                                    purchase_price: deal.arv - deal.repairs - deal.assignmentFee - 20000,
-                                    repairs: deal.repairs,
-                                    buyerDemand: deal.liquidityIndex / 10,
-                                    repairConfidence: 75,
-                                    riskScore: 85,
-                                    titleVerified: true
+                                    arv: arvNum,
+                                    purchase_price: purchaseNum,
+                                    repairs: repairNum,
+                                    buyerDemand: deal.liquidityIndex ? deal.liquidityIndex / 10 : 7,
+                                    repairConfidence: deal.poc_verified ? 90 : 50,
+                                    riskScore: 50,
+                                    titleVerified: deal.title_status === 'cleared'
                                 };
-                                const aiScore = calculateDealScore(intelligenceData);
+                                const aiScore = deal.score || calculateDealScore(intelligenceData);
                                 return (
                                     <div className="absolute top-3 right-3 z-20 glass-card bg-black/60 px-2 py-1 flex items-center gap-1 font-mono text-xs border-blue-500/30 font-bold">
                                         <span className={getScoreColor(aiScore)}>
@@ -160,13 +209,13 @@ const MarketplaceFeed = () => {
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest font-mono flex items-center gap-1">
                                         <TrendingUp size={10} /> ARV
                                     </p>
-                                    <p className="text-blue-100 font-semibold">{formatCurrency(deal.arv)}</p>
+                                    <p className="text-blue-100 font-semibold">{formatCurrency(typeof deal.arv === 'number' ? deal.arv : parseInt(String(deal.arv || '250000').replace(/[^0-9]/g, '')))}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest font-mono flex items-center gap-1">
                                         <Hammer size={10} /> Repairs
                                     </p>
-                                    <p className="text-blue-100 font-semibold">{formatCurrency(deal.repairs)}</p>
+                                    <p className="text-blue-100 font-semibold">{formatCurrency(typeof deal.repairs === 'number' ? deal.repairs : parseInt(String(deal.rehab || deal.repairs || '35000').replace(/[^0-9]/g, '')))}</p>
                                 </div>
                             </div>
 
@@ -176,23 +225,27 @@ const MarketplaceFeed = () => {
                                 </div>
                                 <div className="font-bold text-emerald-400 flex items-center tracking-wide">
                                     <DollarSign size={14} className="text-emerald-500" />
-                                    {formatCurrency(deal.assignmentFee).replace('$', '')}
+                                    {formatCurrency(typeof deal.assignmentFee === 'number' ? deal.assignmentFee : parseInt(String(deal.assignment_fee || '15000').replace(/[^0-9]/g, ''))).replace('$', '')}
                                 </div>
                             </div>
 
                             {/* bottom indicators computed via Intelligence Engine */}
                             {(() => {
-                                // Create the data object for the engine based on available mock properties
+                                // Create the data object for the engine based on db properties
+                                const arvNum = typeof deal.arv === 'number' ? deal.arv : parseInt(String(deal.arv || '250000').replace(/[^0-9]/g, '')) || 250000;
+                                const repairNum = typeof deal.repairs === 'number' ? deal.repairs : parseInt(String(deal.rehab || deal.repairs || '35000').replace(/[^0-9]/g, '')) || 35000;
+                                const assignNum = typeof deal.assignmentFee === 'number' ? deal.assignmentFee : parseInt(String(deal.assignment_fee || '15000').replace(/[^0-9]/g, '')) || 15000;
+                                const purchaseNum = typeof deal.purchase_price === 'number' ? deal.purchase_price : arvNum - repairNum - assignNum - 20000;
+
                                 const intelligenceData = {
-                                    arv: deal.arv,
-                                    purchase_price: deal.arv - deal.repairs - deal.assignmentFee - 20000,
-                                    repairs: deal.repairs,
-                                    buyerDemand: deal.liquidityIndex / 10,
-                                    repairConfidence: 75,
-                                    riskScore: 85,
-                                    titleVerified: true
+                                    arv: arvNum,
+                                    purchase_price: purchaseNum,
+                                    repairs: repairNum,
+                                    buyerDemand: deal.liquidityIndex ? deal.liquidityIndex / 10 : 7,
+                                    repairConfidence: deal.poc_verified ? 90 : 50,
+                                    riskScore: 50,
+                                    titleVerified: deal.title_status === 'cleared'
                                 };
-                                const aiScore = calculateDealScore(intelligenceData);
                                 const { label: liqLabel } = calculateLiquiditySignal(intelligenceData);
                                 const closeProb = calculateCloseProbability(intelligenceData);
 

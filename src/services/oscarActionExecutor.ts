@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { OSCARIntent, ParsedIntent } from './oscarIntentParser';
+import { handleOSCARQuery } from './oscarQueryService';
 
 export interface ActionExecutionResult {
     success: boolean;
@@ -20,6 +21,12 @@ export async function executeAction(parsed: ParsedIntent): Promise<ActionExecuti
             return await executeBlastDeal(parameters);
         case 'open_escrow':
             return await executeOpenEscrow(parameters);
+        case 'query_deals':
+        case 'query_transaction_status':
+        case 'query_intelligence':
+        case 'query_investors':
+            const rawQuery = parameters?.raw_query || "Execute data query.";
+            return await handleOSCARQuery(intent, rawQuery);
         case 'general_question':
         case 'unknown':
         default:
