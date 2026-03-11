@@ -112,7 +112,7 @@ const DealPacketModal = ({ isOpen, onClose, property }) => {
 
     return (
         <>
-            {isOpen && <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1040 }} />}
+            {isOpen && <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(11, 31, 51, 0.7)', backdropFilter: 'blur(8px)', zIndex: 1040 }} />}
             <div className={`modal-slide-pane ${isOpen ? 'open' : ''}`}>
                 <div className="modal-slide-header">
                     <div>

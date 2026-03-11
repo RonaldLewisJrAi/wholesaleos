@@ -3,70 +3,75 @@
 @tailwind utilities;
 
 :root {
-  /* Vision UI Core Colors (WholesaleOS Brand) */
-  --bg-dark: #0B1F33;
-  /* Midnight Navy global bg */
-  --bg-primary: #122842;
-  /* Lighter container bg */
-  --bg-secondary: #081726;
-  /* Deepest Navy almost black */
-  --bg-tertiary: #1C3555;
-  --bg-surface: rgba(18, 40, 66, 0.7);
-  /* Custom Surface */
+  /* Semantic Theme Tokens - Base Defaults */
+  --color-bg-primary: #0B1F33;
+  --color-bg-secondary: #142b45;
+  --color-bg-surface: #1b3554;
 
-  /* Accent Colors */
-  --accent-primary: #19A974;
-  /* Emerald Green */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #718096;
+
+  --color-accent: #19A974;
+  --color-warning: #F2B705;
+
+  /* Legacy Maps - Keeping for backwards compatibility until full purge */
+  --bg-dark: var(--color-bg-primary);
+  --bg-primary: var(--color-bg-secondary);
+  --bg-secondary: var(--color-bg-surface);
+  --bg-tertiary: var(--color-bg-surface);
+  --bg-surface: rgba(27, 53, 84, 0.7);
+
+  --accent-primary: var(--color-accent);
   --accent-primary-hover: #148C60;
-  --accent-secondary: #F2B705;
-  /* Deal Gold */
+  --accent-secondary: var(--color-warning);
   --accent-secondary-hover: #D19F04;
 
-  /* Typography Colors */
-  --text-primary: #FFFFFF;
-  --text-secondary: #A0AEC0;
-  /* Vision UI Gray styling */
-  --text-muted: #718096;
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
 
-  /* Functional Colors */
   --border-color: #2E3A46;
-  /* Slate Gray */
   --border-light: rgba(255, 255, 255, 0.08);
 
   --danger: #E53E3E;
-  --warning: #F2B705;
-  /* Deal Gold */
-  --success: #19A974;
-  /* Emerald Green */
+  --warning: var(--color-warning);
+  --success: var(--color-accent);
   --info: #3182CE;
 
   /* Glow Effects */
   --shadow-glow: 0 0 20px rgba(25, 169, 116, 0.4);
-  /* Emerald Glow */
   --shadow-glow-success: 0 0 20px rgba(25, 169, 116, 0.4);
   --shadow-glow-gold: 0 0 20px rgba(242, 183, 5, 0.4);
   --bg-glass: linear-gradient(127.09deg, rgba(11, 31, 51, 0.94) 19.41%, rgba(11, 31, 51, 0.49) 76.65%);
-  /* Vision UI Gradient */
   --hover-bg: rgba(255, 255, 255, 0.05);
 }
 
-/* Light Mode Core Colors (Optional/Future) */
 :root.light {
-  --bg-dark: #f1f5f9;
-  --bg-primary: #f8fafc;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f5f9;
-  --bg-surface: #e2e8f0;
+  /* Semantic Theme Tokens - Light Mode Overrides */
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #f1f5f9;
+  --color-bg-surface: #ffffff;
 
-  --text-primary: #0f1115;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-muted: #64748b;
+
+  --color-accent: #19A974;
+  --color-warning: #F2B705;
+
+  /* Legacy Maps */
+  --bg-dark: var(--color-bg-primary);
+  --bg-primary: var(--color-bg-secondary);
+  --bg-secondary: var(--color-bg-surface);
+  --bg-tertiary: #f1f5f9;
+  --bg-surface: rgba(255, 255, 255, 0.9);
 
   --border-color: #cbd5e1;
   --border-light: rgba(0, 0, 0, 0.08);
 
-  --shadow-glow: 0 4px 15px rgba(79, 70, 229, 0.15);
-  --shadow-glow-success: 0 4px 15px rgba(16, 185, 129, 0.15);
+  --shadow-glow: 0 4px 15px rgba(25, 169, 116, 0.2);
+  --shadow-glow-success: 0 4px 15px rgba(25, 169, 116, 0.2);
   --bg-glass: rgba(255, 255, 255, 0.85);
   --hover-bg: rgba(0, 0, 0, 0.05);
 }
@@ -123,8 +128,8 @@
 
 body {
   font-family: var(--font-family);
-  background-color: var(--bg-dark);
-  color: var(--text-primary);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -174,12 +179,12 @@ h3 {
 
 /* Glassmorphism Utilities (Vision UI Style) */
 .glass-panel {
-  background: linear-gradient(127.09deg, rgba(11, 31, 51, 0.94) 19.41%, rgba(11, 31, 51, 0.49) 76.65%);
-  -webkit-backdrop-filter: blur(120px) saturate(200%);
-  backdrop-filter: blur(120px) saturate(200%);
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  backdrop-filter: blur(40px) saturate(200%);
   border: 1px solid var(--border-light);
   border-radius: 8px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: var(--shadow-md);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
@@ -242,14 +247,14 @@ button {
 }
 
 .btn-secondary {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: var(--hover-bg);
   color: var(--text-primary);
   border: 1px solid var(--border-light);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: var(--border-color);
+  background-color: rgba(25, 169, 116, 0.1);
+  border-color: var(--color-accent);
 }
 
 .btn-success {
@@ -280,7 +285,7 @@ button {
 }
 
 .form-input {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   padding: var(--spacing-3) var(--spacing-4);
@@ -291,9 +296,9 @@ button {
 }
 
 .form-input:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-  background-color: rgba(0, 0, 0, 0.4);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(25, 169, 116, 0.2);
+  background-color: var(--bg-tertiary);
 }
 
 /* Typography Helpers - Modern utility classes since Tailwind is failing */
@@ -322,7 +327,7 @@ button {
 }
 
 .text-white {
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
 }
 
 .bg-primary {
@@ -368,7 +373,7 @@ table {
 }
 
 th {
-  background-color: rgba(11, 31, 51, 0.8);
+  background-color: var(--bg-tertiary);
   color: var(--text-muted);
   font-size: var(--font-size-xs);
   font-weight: 700;
@@ -380,14 +385,14 @@ th {
 
 td {
   padding: var(--spacing-3) var(--spacing-4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-light);
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   transition: background-color var(--transition-fast);
 }
 
 tr:hover td {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: var(--hover-bg);
 }
 
 tr:last-child td {

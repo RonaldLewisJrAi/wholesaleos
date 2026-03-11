@@ -19,7 +19,7 @@
 
 .tier-selector {
     display: flex;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-light);
     border-radius: 8px;
     padding: 4px;
@@ -48,7 +48,7 @@
 }
 
 .rehab-input {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-light);
     color: var(--text-light);
     padding: 6px 10px;
@@ -60,7 +60,7 @@
 .rehab-input:focus {
     outline: none;
     border-color: var(--accent-primary);
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--bg-tertiary);
 }
 
 .rehab-input::-webkit-outer-spin-button,

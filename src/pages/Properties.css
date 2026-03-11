@@ -78,7 +78,7 @@
     font-size: var(--font-size-xs);
     font-weight: 600;
     color: white;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--bg-tertiary);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.2);
