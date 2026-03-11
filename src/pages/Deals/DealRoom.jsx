@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { MapPin, FileText, CheckCircle, Clock, ShieldCheck, Download, Edit3, Loader2, AlertTriangle, CreditCard, X, Activity, User, UploadCloud, Calendar, Building, ExternalLink, Zap, Users, Send } from 'lucide-react';
-import './DealRoom.css';
+import { MapPin, FileText, CheckCircle, Clock, ShieldCheck, Download, Edit3, Loader2, AlertTriangle, CreditCard, X, Activity, User, UploadCloud, Calendar, Building, ExternalLink, Zap, Users, Send, Target, ChevronLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/useAuth';
 import { dealDocumentService } from '../../services/dealDocumentService';
-import { distributionService } from '../../services/distributionService'; // Added this import
+import { distributionService } from '../../services/distributionService';
 import { dealBlastEngine } from '../../services/dealBlastEngine';
 
 const ProgressIndicator = ({ status }) => {
@@ -27,15 +26,29 @@ const ProgressIndicator = ({ status }) => {
     if (status === 'ASSIGNED') currentIndex = 5;
 
     return (
-        <div className="progress-indicator">
-            {steps.map((step, idx) => (
-                <div key={idx} className={`progress-step ${idx <= currentIndex ? 'completed' : ''} ${idx === currentIndex ? 'active' : ''}`}>
-                    <div className="step-circle">
-                        {idx < currentIndex ? <CheckCircle size={14} /> : <span>{idx + 1}</span>}
+        <div className="flex flex-col relative pl-4 border-l border-blue-900/40 ml-2 mb-2 font-mono">
+            {steps.map((step, idx) => {
+                const isCompleted = idx < currentIndex;
+                const isActive = idx === currentIndex;
+
+                let textColor = 'text-gray-500';
+                let dotClass = 'bg-[#050816] border-blue-900/40';
+
+                if (isCompleted) {
+                    textColor = 'text-emerald-400';
+                    dotClass = 'bg-emerald-500 border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]';
+                } else if (isActive) {
+                    textColor = 'text-blue-400 font-bold';
+                    dotClass = 'bg-blue-500 border-blue-500 shadow-[0_0_10px_rgba(78,123,255,0.6)]';
+                }
+
+                return (
+                    <div key={idx} className={`flex items-center gap-4 py-3 relative z-10 ${isActive ? 'bg-blue-900/10 rounded-r-lg border-l-2 border-blue-500 -ml-[1px]' : ''}`}>
+                        <div className={`absolute -left-[22px] w-3 h-3 rounded-full border-2 ${dotClass}`}></div>
+                        <span className={`text-xs uppercase tracking-widest ${textColor}`}>{step.label}</span>
                     </div>
-                    <span className="step-label">{step.label}</span>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 };
@@ -47,12 +60,13 @@ export const DealRoom = () => {
     const [deal, setDeal] = useState(null);
 
     const getTrustTier = (score = 50) => {
-        if (score >= 90) return { label: 'Elite Closer', class: 'bg-success text-bg-darker' };
-        if (score >= 75) return { label: 'Verified Pro', class: 'bg-primary text-bg-darker' };
-        if (score >= 50) return { label: 'Active Trader', class: 'bg-secondary text-white' };
-        if (score >= 25) return { label: 'New Participant', class: 'bg-warning text-bg-darker' };
-        return { label: 'High Risk', class: 'bg-danger text-white' };
+        if (score >= 90) return { label: 'Elite Closer', class: 'text-emerald-400 border-emerald-500/30 bg-emerald-900/10' };
+        if (score >= 75) return { label: 'Verified Pro', class: 'text-blue-400 border-blue-500/30 bg-blue-900/10' };
+        if (score >= 50) return { label: 'Active Trader', class: 'text-gray-300 border-gray-600/30 bg-gray-800/20' };
+        if (score >= 25) return { label: 'New Participant', class: 'text-amber-400 border-amber-500/30 bg-amber-900/10' };
+        return { label: 'High Risk', class: 'text-red-400 border-red-500/30 bg-red-900/10' };
     };
+
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     const [signing, setSigning] = useState(false);
@@ -66,39 +80,35 @@ export const DealRoom = () => {
         { id: '1', type: 'DEAL_CREATED', user: 'System', time: new Date(Date.now() - 86400000).toISOString(), note: 'Deal generated from property CRM' }
     ]);
 
-    // Document Vault State (Phase 17)
+    // Document Vault State
     const [vaultDocuments, setVaultDocuments] = useState([]);
     const [uploadingDoc, setUploadingDoc] = useState(false);
 
-    // Phase 20 - Priority Deal Blast State
+    // Priority Deal Blast State
     const [isPriorityBlast, setIsPriorityBlast] = useState(false);
 
-
-
-    // Mock initial fetch if database is empty
     useEffect(() => {
         const fetchDeal = async () => {
             setLoading(true);
             try {
-                // We use properties to mock the deals base data
                 const { data } = await supabase.from('properties').select('*').eq('id', id).single();
                 if (data) {
-                    setDeal({ ...data, status: 'Lead' });
+                    setDeal({ ...data, status: 'Lead', score: 88 });
                 } else {
-                    // Fallback stub
                     setDeal({
                         id,
                         address: '349 Rayon Dr, Old Hickory, TN 37138',
                         arv: '$260,000',
                         mao: '$180,000',
                         rehab: '$45,000',
+                        score: 88,
                         image: 'https://photos.zillowstatic.com/fp/8a5840d24e54e42ba7ed03c2faeb9e7a-p_e.jpg',
                         status: 'Lead',
                         closing_code: null,
                         signed_wholesaler: false,
                         signed_investor: false,
                         wholesaler: {
-                            trust_score: 95 // Simulated fallback value
+                            trust_score: 95
                         }
                     });
                 }
@@ -110,8 +120,6 @@ export const DealRoom = () => {
         };
         fetchDeal();
     }, [id]);
-
-
 
     useEffect(() => {
         const fetchVaultDocs = async () => {
@@ -133,7 +141,6 @@ export const DealRoom = () => {
         if (res.success) {
             setVaultDocuments(prev => [res.document, ...prev]);
             setActivityLog(prev => [{ id: Date.now().toString(), type: 'PROOF_OF_CONTROL_UPLOADED', user: 'Wholesaler', time: new Date().toISOString(), note: `${type.replace(/_/g, ' ')} uploaded for verification.` }, ...prev]);
-            alert("Document uploaded successfully and is pending admin verification.");
         } else {
             alert("Failed to upload document: " + (res.error || "Unknown Error"));
         }
@@ -146,7 +153,6 @@ export const DealRoom = () => {
             setDeal(prev => ({ ...prev, status: 'Generated', document_generated: true }));
             setActivityLog(prev => [{ id: Date.now().toString(), type: 'ASSIGNMENT_GENERATED', user: 'Wholesaler', time: new Date().toISOString(), note: 'Standard Assignment Agreement Created' }, ...prev]);
             setGenerating(false);
-            alert("Assignment Agreement PDF automatically generated and attached to the deal.");
         }, 1500);
     };
 
@@ -187,7 +193,6 @@ export const DealRoom = () => {
 
     const submitReservation = () => {
         setIsReserving(true);
-        // Simulate Stripe Escrow processing
         setTimeout(() => {
             setDeal(prev => ({
                 ...prev,
@@ -198,75 +203,106 @@ export const DealRoom = () => {
             setActivityLog(prev => [{ id: Date.now().toString(), type: 'DEAL_RESERVED', user: 'Investor', time: new Date().toISOString(), note: '$250 Deposit Secured (24h Exclusivity)' }, ...prev]);
             setIsReserving(false);
             setIsReserveModalOpen(false);
-
-            alert("Reservation Successful! $250 deposit secured. The Wholesaler has been notified to generate the Assignment Agreement.");
         }, 1500);
     };
 
-    if (loading) return <div className="dealroom-loading"><Loader2 className="animate-spin text-primary" size={32} /></div>;
-    if (!deal) return <div className="dealroom-loading">Deal Not Found</div>;
+    if (loading) return (
+        <div className="flex justify-center items-center min-h-[60vh]">
+            <Loader2 className="animate-spin text-blue-500" size={32} />
+        </div>
+    );
+
+    if (!deal) return <div className="text-center text-white p-6">Deal Not Found</div>;
 
     const bothSigned = deal.signed_wholesaler && deal.signed_investor;
 
     return (
-        <div className="dealroom-container animate-fade-in">
-            <div className="dealroom-header glass-panel">
-                <button className="btn btn-secondary back-btn" onClick={() => navigate(-1)}>← Back to Marketplace</button>
-                <div className="header-title">
-                    <h1>{deal.address}</h1>
-                    <div className="deal-badges">
-                        <span className="badge bg-primary">Deal Score: 88</span>
+        <div className="p-6 max-w-[1400px] mx-auto animate-fade-in relative">
+            {/* Header */}
+            <div className="mb-8 flex flex-col gap-4 border-b border-blue-900/40 pb-6 relative overflow-hidden">
+                <button
+                    className="self-start flex items-center gap-1 text-sm text-blue-400 hover:text-white transition-colors"
+                    onClick={() => navigate(-1)}
+                >
+                    <ChevronLeft size={16} /> Back to Grid
+                </button>
 
-                        {/* Wholesaler Trust Badge */}
-                        {(() => {
-                            const trustScore = deal.wholesaler?.trust_score || deal.wholesaler_trust_score || 50;
-                            const tier = getTrustTier(trustScore);
-                            return (
-                                <span className={`badge ${tier.class} font-bold px-3 py-1`} title={`Trust Score: ${trustScore}/100`}>
-                                    <ShieldCheck size={14} className="inline mr-1" /> {tier.label}
+                <div className="flex justify-between items-end">
+                    <div>
+                        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">{deal.address}</h1>
+                        <div className="flex gap-3 items-center">
+                            <span className="px-3 py-1 rounded border border-blue-500/30 bg-blue-900/10 text-blue-400 text-xs font-mono font-bold tracking-widest flex items-center gap-1">
+                                <Activity size={12} />
+                                SCORE: {deal.score || 88}
+                            </span>
+
+                            {(() => {
+                                const trustScore = deal.wholesaler?.trust_score || deal.wholesaler_trust_score || 50;
+                                const tier = getTrustTier(trustScore);
+                                return (
+                                    <span className={`px-3 py-1 rounded border text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1 ${tier.class}`} title={`Trust Score: ${trustScore}/100`}>
+                                        <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
+                                    </span>
+                                );
+                            })()}
+
+                            {deal.status === 'ASSIGNED' && (
+                                <span className="px-3 py-1 rounded border border-emerald-500/30 bg-emerald-900/10 text-emerald-400 text-xs font-mono font-bold tracking-widest flex items-center gap-1">
+                                    <CheckCircle size={12} /> SECURED
                                 </span>
-                            );
-                        })()}
-
-                        {deal.status === 'ASSIGNED' && <span className="badge bg-success"><ShieldCheck size={14} /> Secured</span>}
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="dealroom-layout">
-                {/* LEFT COLUMN: Data & Documents */}
-                <div className="dealroom-left">
-                    <div className="deal-gallery" style={{ backgroundImage: `url(${deal.image})` }}></div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-                    <div className="deal-analytics glass-panel">
-                        <h3>Financial Breakdown</h3>
-                        <div className="analytics-grid">
-                            <div className="stat-box">
-                                <label>ARV</label>
-                                <span>{deal.arv}</span>
+                {/* LEFT COLUMN: Data & Documents */}
+                <div className="lg:col-span-2 flex flex-col gap-6">
+                    <div
+                        className="h-80 rounded-xl bg-cover bg-center border border-blue-900/40 relative shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+                        style={{ backgroundImage: `url(${deal.image})` }}
+                    >
+                        <div className="absolute inset-0 bg-blue-900/20 mix-blend-overlay rounded-xl pointer-events-none"></div>
+                    </div>
+
+                    {/* Intelligence Summary */}
+                    <div className="glass-card p-6 group transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_25px_rgba(78,123,255,0.15)]">
+                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-blue-900/30 pb-2">
+                            <Target className="text-blue-400" size={18} /> Deal Intelligence
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="bg-black/40 border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
+                                <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">ARV</label>
+                                <span className="text-xl font-mono font-bold text-white">{deal.arv}</span>
                             </div>
-                            <div className="stat-box highlight text-success">
-                                <label>Asking Price</label>
-                                <span>{deal.mao}</span>
+                            <div className="bg-emerald-900/10 border border-emerald-500/30 rounded-lg p-4 shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-colors transform group-hover:-translate-y-0.5 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-emerald-500/5 pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+                                <label className="text-[10px] text-emerald-400 uppercase tracking-widest font-mono mb-1 block relative z-10">Asking Price</label>
+                                <span className="text-2xl font-mono font-bold text-emerald-400 relative z-10">{deal.mao}</span>
                             </div>
-                            <div className="stat-box">
-                                <label>Est. Rehab</label>
-                                <span>{deal.rehab || 'TBD'}</span>
+                            <div className="bg-black/40 border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
+                                <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">Est. Rehab</label>
+                                <span className="text-xl font-mono font-bold text-amber-400">{deal.rehab || 'TBD'}</span>
                             </div>
-                            <div className="stat-box">
-                                <label>Est. ROI</label>
-                                <span>22.4%</span>
+                            <div className="bg-black/40 border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
+                                <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">Est. ROI</label>
+                                <span className="text-xl font-mono font-bold text-blue-400">22.4%</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="document-vault glass-panel">
-                        <div className="flex-between mb-4 border-b border-[var(--border-light)] pb-4">
-                            <h3 className="m-0 flex items-center gap-2"><ShieldCheck size={18} className="text-primary" /> Proof of Control Vault</h3>
+                    {/* Document Vault */}
+                    <div className="glass-card p-6 group transition-all duration-300 hover:border-blue-500/50">
+                        <div className="flex justify-between items-center mb-4 border-b border-blue-900/30 pb-4">
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2 m-0">
+                                <ShieldCheck size={18} className="text-emerald-400" /> Proof of Control Vault
+                            </h3>
                             {(!user || user.primaryPersona === 'WHOLESALER') && (
-                                <label className="btn btn-primary btn-sm m-0 cursor-pointer">
-                                    {uploadingDoc ? <Loader2 className="animate-spin inline mr-2" size={14} /> : <UploadCloud className="inline mr-2" size={14} />}
-                                    Upload Contract
+                                <label className="cursor-pointer bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white px-4 py-2 rounded-lg text-xs font-mono tracking-widest transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)] flex items-center gap-2">
+                                    {uploadingDoc ? <Loader2 className="animate-spin" size={14} /> : <UploadCloud size={14} />}
+                                    UPLOAD CONTRACT
                                     <input
                                         type="file"
                                         className="hidden"
@@ -279,28 +315,28 @@ export const DealRoom = () => {
                         </div>
 
                         {vaultDocuments.length === 0 ? (
-                            <div className="empty-docs">
-                                <p className="text-muted text-sm m-0">No Proof of Control documents have been uploaded for this deal.</p>
-                                {(!user || user.primaryPersona === 'WHOLESALER') && <p className="text-xs text-warning mt-2">Uploading verified contracts boosts your platform Trust Score.</p>}
+                            <div className="p-8 text-center bg-black/40 border border-dashed border-blue-900/50 rounded-lg">
+                                <p className="text-gray-500 text-sm m-0 font-mono">No Proof of Control documents uploaded.</p>
+                                {(!user || user.primaryPersona === 'WHOLESALER') && <p className="text-[10px] text-amber-400 tracking-widest font-mono uppercase mt-2">Uploading verified contracts boosts platform Trust Score.</p>}
                             </div>
                         ) : (
                             <div className="flex flex-col gap-3">
                                 {vaultDocuments.map((doc) => (
-                                    <div key={doc.id} className="active-doc p-3 border border-[rgba(255,255,255,0.1)] rounded-lg bg-[rgba(0,0,0,0.2)] flex justify-between items-center">
-                                        <div className="flex items-center gap-3">
-                                            <FileText size={20} className={doc.status === 'VERIFIED' ? 'text-success' : doc.status === 'REJECTED' ? 'text-danger' : 'text-warning'} />
+                                    <div key={doc.id} className="p-4 border border-blue-900/40 rounded-lg bg-[#050816]/60 flex justify-between items-center hover:border-blue-500/30 transition-colors">
+                                        <div className="flex items-center gap-4">
+                                            <FileText size={20} className={doc.status === 'VERIFIED' ? 'text-emerald-400' : doc.status === 'REJECTED' ? 'text-red-400' : 'text-amber-400'} />
                                             <div>
-                                                <p className="m-0 font-bold text-sm tracking-wide">{doc.document_type.replace(/_/g, ' ')}</p>
-                                                <p className="m-0 text-xs text-muted font-mono">{new Date(doc.created_at).toLocaleDateString()}</p>
+                                                <p className="m-0 font-bold text-white text-sm tracking-wide">{doc.document_type.replace(/_/g, ' ')}</p>
+                                                <p className="m-0 text-[10px] text-gray-500 font-mono tracking-widest">{new Date(doc.created_at).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className={`badge font-bold text-[10px] ${doc.status === 'VERIFIED' ? 'bg-success text-bg-darker' : doc.status === 'REJECTED' ? 'bg-danger text-white' : 'bg-warning text-bg-darker'}`}>
+                                        <div className="flex items-center gap-4">
+                                            <span className={`px-2 py-1 rounded text-[10px] font-mono font-bold tracking-widest uppercase ${doc.status === 'VERIFIED' ? 'bg-emerald-900/20 text-emerald-400 border border-emerald-500/30' : doc.status === 'REJECTED' ? 'bg-red-900/20 text-red-400 border border-red-500/30' : 'bg-amber-900/20 text-amber-400 border border-amber-500/30'}`}>
                                                 {doc.status}
                                             </span>
                                             {doc.status === 'VERIFIED' && (
-                                                <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="icon-btn text-muted hover:text-white" title="View Document">
-                                                    <Download size={14} />
+                                                <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-400 transition-colors" title="View Document">
+                                                    <Download size={16} />
                                                 </a>
                                             )}
                                         </div>
@@ -310,48 +346,56 @@ export const DealRoom = () => {
                         )}
                     </div>
 
-                    <div className="deal-documents glass-panel">
-                        <h3><FileText size={18} className="text-primary mr-2 inline" /> Document Control & Assignment</h3>
+                    {/* Document Control */}
+                    <div className="glass-card p-6 group transition-all duration-300 hover:border-blue-500/50">
+                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-blue-900/30 pb-2">
+                            <FileText size={18} className="text-amber-400" /> Document Control & Assignment
+                        </h3>
 
-                        <div className="document-list">
+                        <div className="mb-6">
                             {!deal.document_generated ? (
-                                <div className="empty-docs">
-                                    <p className="text-muted text-sm mb-3">No Assignment Agreement has been generated for this deal yet.</p>
-                                    <button className="btn btn-primary" onClick={handleGenerateAgreement} disabled={generating}>
-                                        {generating ? <Loader2 className="animate-spin inline" size={16} /> : 'Generate Assignment Agreement'}
+                                <div className="p-8 text-center bg-black/40 border border-dashed border-blue-900/50 rounded-lg">
+                                    <p className="text-gray-500 text-sm mb-4 font-mono">No Assignment Agreement generated.</p>
+                                    <button
+                                        className="bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white px-6 py-2 rounded-lg text-sm font-mono tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)] flex items-center gap-2 mx-auto"
+                                        onClick={handleGenerateAgreement}
+                                        disabled={generating}
+                                    >
+                                        {generating ? <Loader2 className="animate-spin" size={16} /> : <FileText size={16} />}
+                                        Generate Assignment Agreement
                                     </button>
                                 </div>
                             ) : (
-                                <div className="active-doc">
-                                    <div className="doc-info">
-                                        <FileText size={24} className="text-primary" />
+                                <div className="p-4 border border-blue-900/40 rounded-lg bg-[#050816]/60 flex justify-between items-center hover:border-blue-500/30 transition-colors">
+                                    <div className="flex items-center gap-4">
+                                        <FileText size={24} className="text-blue-400" />
                                         <div>
-                                            <h4>Standard Assignment Agreement.pdf</h4>
-                                            <span className="text-xs text-muted">Generated Today • 124KB</span>
+                                            <h4 className="m-0 font-bold text-white text-sm">Standard Assignment Agreement.pdf</h4>
+                                            <span className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">Generated Today • 124KB</span>
                                         </div>
                                     </div>
-                                    <button className="icon-btn" title="Download Document"><Download size={18} /></button>
+                                    <button className="text-gray-500 hover:text-blue-400 transition-colors" title="Download Document"><Download size={18} /></button>
                                 </div>
                             )}
                         </div>
 
                         {deal.document_generated && (
-                            <div className="signature-block mt-4">
-                                <h4 className="text-sm font-bold uppercase tracking-wide text-muted mb-3">Digital Signatures Required</h4>
+                            <div className="mt-4 pt-4 border-t border-blue-900/30">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-400/70 font-mono mb-4">Digital Signatures Required</h4>
                                 <div className="flex gap-4">
                                     <button
-                                        className={`btn flex-1 ${deal.signed_wholesaler ? 'btn-success bg-opacity-20 text-success' : 'btn-secondary'}`}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold tracking-wide transition-all border ${deal.signed_wholesaler ? 'bg-emerald-900/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-[#050816]/80 border-blue-900/50 text-gray-300 hover:bg-blue-900/30 hover:border-blue-500/40 hover:text-white'}`}
                                         onClick={() => handleSignAgreement('wholesaler')}
                                         disabled={deal.signed_wholesaler || signing}
                                     >
-                                        {deal.signed_wholesaler ? <><CheckCircle size={16} className="mr-2" /> Wholesaler Signed</> : <><Edit3 size={16} className="mr-2" /> Sign as Wholesaler</>}
+                                        {deal.signed_wholesaler ? <><CheckCircle size={16} /> Wholesaler Signed</> : <><Edit3 size={16} /> Sign as Wholesaler</>}
                                     </button>
                                     <button
-                                        className={`btn flex-1 ${deal.signed_investor ? 'btn-success bg-opacity-20 text-success' : 'btn-primary'}`}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold tracking-wide transition-all border ${deal.signed_investor ? 'bg-emerald-900/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/40 hover:text-white shadow-[0_0_15px_rgba(78,123,255,0.2)]'}`}
                                         onClick={() => handleSignAgreement('investor')}
                                         disabled={deal.signed_investor || signing}
                                     >
-                                        {deal.signed_investor ? <><CheckCircle size={16} className="mr-2" /> Investor Signed</> : <><Edit3 size={16} className="mr-2" /> Sign as Investor</>}
+                                        {deal.signed_investor ? <><CheckCircle size={16} /> Investor Signed</> : <><Edit3 size={16} /> Sign as Investor</>}
                                     </button>
                                 </div>
                             </div>
@@ -359,65 +403,68 @@ export const DealRoom = () => {
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: Sticky Transaction Panel */}
-                <div className="dealroom-right">
-                    <div className="transaction-panel glass-panel sticky top-24">
-                        <h2 className="panel-title">Transaction Status</h2>
+                {/* RIGHT COLUMN: Sticky Transaction Panel & Timeline */}
+                <div className="lg:col-span-1 flex flex-col gap-6">
+                    <div className="glass-card p-6 group transition-all duration-300 hover:shadow-[0_0_25px_rgba(78,123,255,0.2)] sticky top-[100px] z-20">
+                        <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2 border-b border-blue-900/30 pb-2">
+                            <Activity className="text-blue-400" size={18} /> Transaction Status
+                        </h2>
 
-                        <div className="progress-wrapper mb-6">
+                        <div className="mb-8">
                             <ProgressIndicator status={deal.status} />
                         </div>
 
-                        <div className="status-metrics flex flex-col gap-4 mb-6">
-                            <div className="status-row flex-between">
-                                <span className="text-muted">Escrow Status:</span>
+                        <div className="flex flex-col gap-4 mb-6 pt-4 border-t border-blue-900/30">
+                            <div className="flex justify-between items-center text-sm font-mono tracking-wide">
+                                <span className="text-gray-500 uppercase text-[10px]">Escrow Status</span>
                                 {deal.escrow_status === 'CONFIRMED' ? (
-                                    <span className="text-success font-bold flex items-center gap-1"><CheckCircle size={14} /> Confirmed</span>
+                                    <span className="text-emerald-400 font-bold flex items-center gap-1"><CheckCircle size={14} /> Confirmed</span>
                                 ) : bothSigned ? (
-                                    <span className="text-warning flex items-center gap-1"><Clock size={14} /> Pending Transfer</span>
+                                    <span className="text-amber-400 flex items-center gap-1"><Clock size={14} /> Pending Transfer</span>
                                 ) : (
-                                    <span>Awaiting Signatures</span>
+                                    <span className="text-gray-400">Awaiting Sigs</span>
                                 )}
                             </div>
-                            <div className="status-row flex-between">
-                                <span className="text-muted">Title Verification:</span>
+                            <div className="flex justify-between items-center text-sm font-mono tracking-wide border-b border-blue-900/30 pb-4">
+                                <span className="text-gray-500 uppercase text-[10px]">Title Verification</span>
                                 {deal.title_status === 'CLEAR' ? (
-                                    <span className="text-success font-bold flex items-center gap-1"><CheckCircle size={14} /> Clear</span>
+                                    <span className="text-emerald-400 font-bold flex items-center gap-1"><CheckCircle size={14} /> Clear</span>
                                 ) : bothSigned ? (
-                                    <span className="text-warning flex items-center gap-1"><Clock size={14} /> In Review</span>
+                                    <span className="text-amber-400 flex items-center gap-1"><Clock size={14} /> In Review</span>
                                 ) : (
-                                    <span>Awaiting Signatures</span>
+                                    <span className="text-gray-400">Awaiting Sigs</span>
                                 )}
                             </div>
                         </div>
 
                         {deal.closing_code && (
-                            <div className="closing-code-box bg-success bg-opacity-10 border border-success border-opacity-30 rounded-lg p-4 mb-6 text-center">
-                                <div className="text-xs uppercase tracking-widest text-success mb-1 font-bold">Secure Closing Code</div>
-                                <div className="text-2xl font-mono text-white tracking-[0.2em]">{deal.closing_code}</div>
-                                <div className="text-[10px] text-muted mt-2">Provide this code to the Title Company.</div>
+                            <div className="bg-emerald-900/10 border border-emerald-500/30 rounded-lg p-5 mb-6 text-center shadow-[0_0_20px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                                <div className="absolute inset-0 bg-emerald-500/5 pulse-animation pointer-events-none"></div>
+                                <div className="text-[10px] uppercase tracking-widest text-emerald-400 mb-2 font-mono font-bold flex items-center justify-center gap-1"><ShieldCheck size={14} /> Secure Closing Code</div>
+                                <div className="text-3xl font-mono text-white tracking-[0.25em] font-bold">{deal.closing_code}</div>
+                                <div className="text-[9px] text-gray-400 mt-2 font-mono uppercase tracking-widest">Provide this code to the Title Company</div>
                             </div>
                         )}
 
-                        <div className="panel-actions flex flex-col gap-3">
+                        <div className="flex flex-col gap-3">
                             {(!user || user.primaryPersona === 'WHOLESALER') ? (
                                 <>
                                     {deal.status === 'Lead' || deal.status === 'DRAFT' ? (
-                                        <label className="flex items-center gap-2 cursor-pointer mb-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg hover:bg-yellow-500/20 transition-all">
+                                        <label className="flex items-start gap-3 cursor-pointer mb-2 p-3 bg-amber-900/10 border border-amber-500/30 rounded-lg hover:border-amber-400/50 transition-all">
                                             <input
                                                 type="checkbox"
-                                                className="accent-yellow-500"
+                                                className="mt-1 accent-amber-500"
                                                 checked={isPriorityBlast}
                                                 onChange={(e) => setIsPriorityBlast(e.target.checked)}
                                             />
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-yellow-500 flex items-center gap-1"><Zap size={14} /> Priority Deal Blast</span>
-                                                <span className="text-xs text-muted">Bypass basic filters and send immediate SMS alerts to Top Buyers. (Limits apply: 3/day)</span>
+                                                <span className="text-xs font-mono font-bold tracking-widest uppercase text-amber-400 flex items-center gap-1"><Zap size={12} /> Priority Deal Blast</span>
+                                                <span className="text-[10px] text-gray-400 leading-relaxed mt-1">Bypass basic filters and send immediate SMS alerts to Top Buyers. (Limits apply: 3/day)</span>
                                             </div>
                                         </label>
                                     ) : null}
                                     <button
-                                        className={`btn w-full py-3 text-lg font-bold ${deal.status === 'Lead' || deal.status === 'DRAFT' ? 'btn-primary' : 'btn-secondary text-muted'}`}
+                                        className={`w-full py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all shadow-lg ${deal.status === 'Lead' || deal.status === 'DRAFT' ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/50' : 'bg-[#050816] border border-blue-900/50 text-gray-500 cursor-not-allowed'}`}
                                         onClick={async () => {
                                             const hasVerified = vaultDocuments.some(d => d.status === 'VERIFIED');
                                             if (!hasVerified) {
@@ -425,7 +472,6 @@ export const DealRoom = () => {
                                                 return;
                                             }
 
-                                            // Update state visually
                                             setDeal(prev => ({ ...prev, status: 'Active' }));
                                             setActivityLog(prev => [{ id: Date.now().toString(), type: 'DEAL_PUBLISHED', user: 'Wholesaler', time: new Date().toISOString(), note: 'Deal approved and pushed to LIVE Marketplace.' }, ...prev]);
 
@@ -434,19 +480,16 @@ export const DealRoom = () => {
                                                 let matchCount = 0;
 
                                                 if (isPriorityBlast) {
-                                                    // Phase 20: Expanded Audience Targeting
                                                     const result = await dealBlastEngine.executePriorityBlast({ ...deal, priority: true }, wholesalerId);
                                                     if (!result.success) {
                                                         alert(result.error);
-                                                        return; // Abort push if quota violated
+                                                        return;
                                                     }
                                                     matchCount = result.count;
                                                 } else {
-                                                    // Phase 19: Standard Buy-Box Matchmaking
                                                     const result = await distributionService.distributeDeal(deal, wholesalerId);
                                                     matchCount = result.matches?.length || 0;
                                                 }
-
 
                                                 alert(`✅ Deal successfully pushed Live! Alert dispatched to ${matchCount} targeted Investors.`);
                                             } catch (e) {
@@ -456,35 +499,38 @@ export const DealRoom = () => {
                                         }}
                                         disabled={deal.status !== 'Lead' && deal.status !== 'DRAFT'}
                                     >
-                                        {deal.status === 'Lead' || deal.status === 'DRAFT' ? 'Publish to Marketplace' : deal.status === 'RESERVED' ? 'Deal Lock Activated' : 'Deal is Active / Syndicated'}
+                                        {deal.status === 'Lead' || deal.status === 'DRAFT' ? 'Publish to Marketplace' : deal.status === 'RESERVED' ? 'Deal Lock Activated' : 'Deal is Syndicated'}
                                     </button>
                                 </>
                             ) : (
                                 <button
-                                    className={`btn w-full py-3 text-lg font-bold ${deal.status === 'Active' || deal.status === 'Marketing' ? 'btn-primary' : 'btn-secondary text-muted'}`}
+                                    className={`w-full py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all shadow-lg ${deal.status === 'Active' || deal.status === 'Marketing' ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/50 border border-blue-400/50' : 'bg-[#050816] border border-blue-900/50 text-gray-500 cursor-not-allowed'}`}
                                     onClick={handleReserveClick}
                                     disabled={deal.status !== 'Active' && deal.status !== 'Marketing'}
                                 >
-                                    {deal.status === 'Active' || deal.status === 'Marketing' ? 'Request Deal ($250 Deposit)' : deal.status === 'RESERVED' ? 'Deal Reserved (24h Lock)' : 'Verification Pending'}
+                                    {deal.status === 'Active' || deal.status === 'Marketing' ? 'Request Deal ($250 Lock)' : deal.status === 'RESERVED' ? 'Deal Reserved (24h Lock)' : 'Verification Pending'}
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    {/* Activity Ledger inserted below the sticky panel */}
-                    <div className="platform-events-timeline glass-panel mt-6">
-                        <h2 className="panel-title flex items-center gap-2"><Activity size={18} className="text-primary" /> Activity Ledger</h2>
-                        <div className="timeline-container">
+                    {/* Timeline Log */}
+                    <div className="glass-card p-6 group transition-all duration-300">
+                        <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2 border-b border-blue-900/30 pb-2">
+                            <Activity size={18} className="text-purple-400" /> Platform Event Log
+                        </h2>
+                        <div className="relative pl-6 flex flex-col gap-4">
+                            <div className="absolute top-1 bottom-1 left-[5px] w-[1px] bg-blue-900/30"></div>
                             {activityLog.map((log) => (
-                                <div key={log.id} className="timeline-item">
-                                    <div className="timeline-dot"></div>
-                                    <div className="timeline-content border border-[var(--border-light)] rounded-lg p-3 bg-white bg-opacity-5">
-                                        <div className="flex-between mb-1">
-                                            <span className="text-xs font-bold text-primary">{log.type.replace(/_/g, ' ')}</span>
-                                            <span className="text-[10px] text-muted">{new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                <div key={log.id} className="relative z-10 group/timeline">
+                                    <div className={`absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full border border-[rgba(5,8,22,1)] ${log.type.includes('VERIFIED') || log.type.includes('PUBLISHED') ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-blue-500 shadow-[0_0_8px_rgba(78,123,255,0.4)]'}`}></div>
+                                    <div className="bg-black/40 border border-blue-900/40 rounded-lg p-3 group-hover/timeline:border-blue-500/40 transition-colors">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-[10px] font-bold text-blue-400 font-mono tracking-widest uppercase">{log.type.replace(/_/g, ' ')}</span>
+                                            <span className="text-[9px] text-gray-500 font-mono tracking-wider">{new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         </div>
-                                        <p className="text-xs text-muted mb-2">{log.note}</p>
-                                        <div className="text-[10px] flex items-center gap-1 opacity-70">
+                                        <p className="text-xs text-gray-300 mb-2 leading-relaxed font-sans">{log.note}</p>
+                                        <div className="text-[9px] flex items-center gap-1 text-gray-500 font-mono tracking-widest uppercase">
                                             <User size={10} /> {log.user}
                                         </div>
                                     </div>
@@ -497,31 +543,31 @@ export const DealRoom = () => {
 
             {/* Reservation Modal */}
             {isReserveModalOpen && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '500px', width: '90%', padding: '32px', position: 'relative' }}>
-                        <div className="flex-between mb-4 border-b border-[var(--border-light)] pb-4">
-                            <h2 className="text-xl font-bold flex items-center gap-2"><CreditCard size={24} className="text-primary" /> Secure Deal Reservation</h2>
-                            <button className="icon-btn-small" onClick={() => setIsReserveModalOpen(false)} disabled={isReserving}><X size={20} /></button>
+                <div className="fixed inset-0 bg-[#050816]/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                    <div className="glass-card max-w-lg w-full p-8 relative animate-fade-in shadow-[0_0_50px_rgba(78,123,255,0.15)]">
+                        <div className="flex justify-between items-center mb-6 border-b border-blue-900/30 pb-4">
+                            <h2 className="text-xl font-bold flex items-center gap-2 text-white"><CreditCard size={24} className="text-blue-400" /> Secure Terminal Lock</h2>
+                            <button className="text-gray-500 hover:text-white transition-colors" onClick={() => setIsReserveModalOpen(false)} disabled={isReserving}><X size={20} /></button>
                         </div>
 
-                        <div className="bg-warning bg-opacity-10 border border-warning border-opacity-20 rounded-lg p-4 mb-6 flex gap-3">
-                            <AlertTriangle size={20} className="text-warning flex-shrink-0 mt-0.5" />
-                            <div className="text-sm">
-                                <p className="font-bold text-warning mb-1">Non-Refundable $250 Deposit Required</p>
-                                <p className="text-muted leading-relaxed">Locking this deal requires a <strong>$250 reservation deposit</strong> via Stripe. This grants you a 24-hour exclusive window to sign the Assignment Agreement.</p>
+                        <div className="bg-amber-900/10 border border-amber-500/30 rounded-lg p-4 mb-6 flex gap-3 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+                            <AlertTriangle size={20} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                            <div className="text-sm border-l border-amber-500/20 pl-3">
+                                <p className="font-bold text-amber-400 mb-1 font-mono tracking-wide uppercase">Non-Refundable $250 Deposit</p>
+                                <p className="text-gray-300 leading-relaxed font-sans">Locking this deal requires an immediate <strong>$250 reservation deposit</strong> via Stripe. This grants you a 24-hour exclusive terminal command window to execute the Assignment Agreement.</p>
                             </div>
                         </div>
 
-                        <ul className="text-sm text-muted mb-8 space-y-3 pl-2 border-l-2 border-primary border-opacity-30">
+                        <ul className="text-xs text-gray-400 mb-8 space-y-3 pl-3 border-l-2 border-blue-500/40 font-mono">
                             <li>• The deposit will apply toward your final WholesaleOS platform fee.</li>
-                            <li>• If you back out without cause, the deposit goes to the Wholesaler.</li>
+                            <li>• If you abort the sequence without cause, the deposit goes to the Wholesaler.</li>
                             <li>• If the Wholesaler fails to provide the Assignment Agreement within 24 hours, you receive a full refund.</li>
                         </ul>
 
                         <div className="flex gap-4">
-                            <button className="btn btn-secondary flex-1" onClick={() => setIsReserveModalOpen(false)} disabled={isReserving}>Cancel</button>
-                            <button className="btn btn-primary flex-1 py-3 text-lg" onClick={submitReservation} disabled={isReserving}>
-                                {isReserving ? <Loader2 className="animate-spin mx-auto" /> : 'Pay $250 & Lock Deal'}
+                            <button className="flex-1 py-3 bg-[#050816] border border-blue-900/50 hover:bg-blue-900/20 text-gray-300 rounded-lg text-sm font-mono tracking-widest uppercase transition-all" onClick={() => setIsReserveModalOpen(false)} disabled={isReserving}>Abort</button>
+                            <button className="flex-1 py-3 border border-blue-400/50 bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_20px_rgba(78,123,255,0.3)] rounded-lg text-sm font-mono tracking-widest uppercase font-bold transition-all flex items-center justify-center gap-2" onClick={submitReservation} disabled={isReserving}>
+                                {isReserving ? <Loader2 className="animate-spin" size={16} /> : 'Pay $250 & Lock Deal'}
                             </button>
                         </div>
                     </div>
