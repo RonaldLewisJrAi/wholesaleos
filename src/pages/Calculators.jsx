@@ -15,7 +15,7 @@ const Calculators = () => {
     const mao = calculateMAO();
 
     return (
-        <div className="calculators-container animate-fade-in">
+        <div className="calculators-container animate-fade-in max-w-7xl mx-auto w-full">
             <div className="page-header flex-between">
                 <div>
                     <h1 className="page-title">Wholesale Calculators</h1>

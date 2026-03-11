@@ -26,6 +26,8 @@ const Documents = React.lazy(() => import('./pages/Documents'));
 const Calculators = React.lazy(() => import('./pages/Calculators'));
 const Compliance = React.lazy(() => import('./pages/Compliance'));
 const Radar = React.lazy(() => import('./pages/Radar'));
+const AcademyDashboard = React.lazy(() => import('./pages/Academy/AcademyDashboard'));
+const DealSimulator = React.lazy(() => import('./pages/Academy/DealSimulator'));
 import CalendarView from './pages/CalendarView';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
@@ -110,6 +112,8 @@ function App() {
                     <Route path="compliance" element={<Compliance />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="spreadsheets" element={<Spreadsheets />} />
+                    <Route path="academy" element={<AcademyDashboard />} />
+                    <Route path="simulator" element={<DealSimulator />} />
 
                     {/* Phase 35: Inter-Persona Placeholder Routes */}
                     <Route path="match-feed" element={<ProxyComponent moduleName="Deal Match Feed" />} />

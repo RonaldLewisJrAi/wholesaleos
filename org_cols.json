@@ -1,0 +1,23 @@
+[
+  "id",
+  "name",
+  "created_at",
+  "updated_at",
+  "subscription_tier",
+  "enabled_personas",
+  "team_seat_limit",
+  "account_status",
+  "subscription_status",
+  "data_retention_until",
+  "pause_requested_at",
+  "canceled_at",
+  "terminated_at",
+  "pending_subscription_change",
+  "tos_accepted",
+  "tos_accepted_at",
+  "tos_version",
+  "stripe_customer_id",
+  "billing_cycle",
+  "plan_limits",
+  "stripe_subscription_id"
+]
