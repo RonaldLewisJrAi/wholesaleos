@@ -71,7 +71,7 @@ const Layout = () => {
         <div className="layout-container dark-vision-ui">
             <GlobalStatusBanner />
             <Sidebar />
-            <div className={`main-wrapper ${isAssistantOpen ? 'assistant-open' : ''}`}>
+            <div className={`main-wrapper flex-1 min-w-0 overflow-hidden ${isAssistantOpen ? 'assistant-open' : ''}`}>
                 <VerifiedClosingTicker />
                 <Header />
                 <div className="main-content p-4 min-h-screen flex flex-col items-center">

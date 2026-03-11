@@ -64,7 +64,7 @@ export default function VerifiedClosingTicker() {
     const currentDate = new Date().toISOString();
 
     return (
-        <div className="bg-emerald-900/40 border-y border-emerald-500/30 overflow-hidden py-1.5 flex items-center shadow-[0_0_15px_rgba(16,185,129,0.15)] relative z-20 marquee-paused">
+        <div className="bg-emerald-900/40 border-y border-emerald-500/30 overflow-hidden w-full max-w-full min-w-0 py-1.5 flex items-center shadow-[0_0_15px_rgba(16,185,129,0.15)] relative z-20 marquee-paused">
             <div className="bg-[#050816] px-4 py-1.5 flex items-center gap-2 border-r border-emerald-500/50 relative z-20 shadow-[10px_0_15px_rgba(5,8,22,1)] shrink-0">
                 <ShieldCheck size={14} className="text-emerald-400" />
                 <span className="text-[10px] font-bold text-white uppercase tracking-widest font-mono whitespace-nowrap text-shadow-glow-emerald">Verified Closings</span>
