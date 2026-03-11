@@ -34,6 +34,7 @@ import AuthCallback from './components/AuthCallback';
 import ProxyComponent from './pages/Workstations/ProxyComponent';
 import Spreadsheets from './pages/Workstations/Spreadsheets';
 import DealRoom from './pages/Deals/DealRoom';
+import MarketplaceFeed from './pages/MarketplaceFeed';
 
 function App() {
   return (
@@ -76,7 +77,7 @@ function App() {
                   <Route path="spreadsheets" element={<Spreadsheets />} />
 
                   {/* Phase 35: Inter-Persona Placeholder Routes */}
-                  <Route path="match-feed" element={<ProxyComponent moduleName="Deal Match Feed" />} />
+                  <Route path="match-feed" element={<MarketplaceFeed />} />
                   <Route path="criteria" element={<ProxyComponent moduleName="Investor Buy Box" />} />
                   <Route path="saved" element={<ProxyComponent moduleName="Saved Properties" />} />
                   <Route path="offers" element={<ProxyComponent moduleName="Offer Manager" />} />
