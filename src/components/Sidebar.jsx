@@ -20,6 +20,7 @@ const Sidebar = () => {
             { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
             { name: 'Properties', path: '/properties', icon: <Map size={20} /> },
             { name: 'Opportunity Radar', path: '/radar', icon: <Activity size={20} /> },
+            { name: 'Foreclosure Intel', path: '/deal-radar/foreclosures', icon: <Target size={20} /> },
             { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> },
             { name: 'Pipeline', path: '/pipeline', icon: <KanbanSquare size={20} /> },
             { name: 'CRM (Leads & Buyers)', path: '/crm', icon: <Users size={20} /> },
@@ -70,6 +71,7 @@ const Sidebar = () => {
         'ACQUISITION': [
             { name: 'Acquisition Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
             { name: 'Lead Pipeline', path: '/pipeline', icon: <Users size={20} /> },
+            { name: 'Foreclosure Intel', path: '/deal-radar/foreclosures', icon: <Target size={20} /> },
             { name: 'Deal Analyzer', path: '/analyzer', icon: <Calculator size={20} /> },
             { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
         ],

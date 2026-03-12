@@ -39,6 +39,7 @@ import DealAnalyzer from './pages/DealAnalyzer';
 import AcademyDashboard from './pages/Academy/AcademyDashboard';
 import AcademyModule from './pages/Academy/AcademyModule';
 import DealSimulator from './pages/Academy/DealSimulator';
+import { DealRadarDashboard } from './pages/DealRadar/DealRadarDashboard';
 
 function App() {
   return (
@@ -97,6 +98,7 @@ function App() {
                   <Route path="academy" element={<AcademyDashboard />} />
                   <Route path="academy/:moduleId" element={<AcademyModule />} />
                   <Route path="simulator" element={<DealSimulator />} />
+                  <Route path="deal-radar/foreclosures" element={<DealRadarDashboard />} />
                   <Route path="terms" element={<TermsOfService />} />
                   <Route path="privacy" element={<PrivacyPolicy />} />
                 </Route>
