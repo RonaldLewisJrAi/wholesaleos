@@ -28,3 +28,15 @@ dist-ssr
 
 .env*
 
+# Application Artifacts
+build
+.cache
+uploads
+documents
+tmp
+coverage
+datasets
+contracts/
+ocr/
+analysis_outputs/
+lint-output.txt

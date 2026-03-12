@@ -1,0 +1,168 @@
+.intelligence-map-container {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.map-layers-panel {
+    position: absolute;
+    top: 16px;
+    right: 56px;
+    /* Offset from Mapbox navigation controls */
+    z-index: 10;
+    background: rgba(11, 15, 25, 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    width: 240px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.map-layers-panel:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+.layer-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background-color 0.2s;
+    border-radius: 4px;
+}
+
+.layer-toggle-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.layer-toggle-row:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.layer-toggle-row.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.layer-label-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Custom Checkbox Styling to match the application theme */
+.custom-checkbox {
+    appearance: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    margin: 0;
+    font: inherit;
+    color: currentColor;
+    width: 1.15em;
+    height: 1.15em;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.15em;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-checkbox::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em var(--primary-color, #4f46e5);
+    background-color: var(--primary-color, #4f46e5);
+    transform-origin: center;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.custom-checkbox:checked {
+    border-color: var(--primary-color, #4f46e5);
+}
+
+.custom-checkbox:checked::before {
+    transform: scale(1);
+}
+
+/* Interactive Mapbox Popups override */
+.intelligence-popup .mapboxgl-popup-content {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    padding: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    font-family: inherit;
+}
+
+.intelligence-popup .mapboxgl-popup-tip {
+    border-top-color: var(--bg-surface);
+    border-bottom-color: var(--bg-surface);
+}
+
+/* Map Markers */
+.marker-core {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border: 2px solid white;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+.marker-core:hover {
+    transform: scale(1.3);
+}
+
+.marker-deal {
+    background-color: #3b82f6;
+    /* Blue 500 */
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+}
+
+.marker-foreclosure {
+    background-color: #f59e0b;
+    /* Amber 500 */
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+    animation: slow-pulse 3s infinite alternate;
+}
+
+.marker-demand {
+    background-color: #a855f7;
+    /* Purple 500 */
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+}
+
+.marker-closing {
+    background-color: #10b981;
+    /* Emerald 500 */
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+}
+
+@keyframes slow-pulse {
+    0% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
+    }
+}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X, AlertCircle, DollarSign, RefreshCw, ZoomIn, Lock, Activity } from 'lucide-react';
-import HeatMap from '../components/HeatMap';
+import { IntelligenceMap } from '../components/map/IntelligenceMap';
 import { useSubscription } from '../contexts/useSubscription';
 
 const Radar = () => {
@@ -236,8 +236,8 @@ const Radar = () => {
                     </div>
                 </>
             ) : (
-                <div className="animate-fade-in">
-                    <HeatMap />
+                <div className="animate-fade-in h-[600px] w-full mt-4">
+                    <IntelligenceMap initialLayers={{ showForeclosures: true }} />
                 </div>
             )}
         </div>

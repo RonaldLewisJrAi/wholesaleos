@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+uploads
+documents
+datasets
+.cache
+tmp
+contracts/
+ocr/
+analysis_outputs/
+lint-output.txt

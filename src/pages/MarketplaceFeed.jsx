@@ -4,7 +4,7 @@ import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability
 import { matchDealToInvestors, mockLiquidityInvestors } from '../services/liquidityEngine';
 import { useAuth } from '../contexts/useAuth';
 import { supabase } from '../lib/supabase';
-import { DealRadarMap } from '../components/radar/DealRadarMap';
+import { IntelligenceMap } from '../components/map/IntelligenceMap';
 
 const mockDeals = [
     {
@@ -173,7 +173,7 @@ const MarketplaceFeed = () => {
 
             {viewMode === 'radar' ? (
                 <div className="h-[700px] w-full mt-4">
-                    <DealRadarMap />
+                    <IntelligenceMap initialLayers={{ showDeals: true, showLiquidity: true }} />
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

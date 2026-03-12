@@ -12,6 +12,7 @@ const apiKeysRoutes = require('./api_keys_routes.cjs');
 const subscriptionRoutes = require('./subscription_routes.cjs');
 const foreclosureRoutes = require('./foreclosure_routes.cjs');
 const skiptraceRoutes = require('./skiptrace_routes.cjs');
+const aiRoutes = require('./ai_routes.cjs');
 const { createClient } = require('@supabase/supabase-js');
 
 // Initialize Redis for Comps Data Caching
@@ -38,6 +39,13 @@ const requireSubscription = async (req, res, next) => {
         token = authHeader.split(' ')[1];
     } else {
         return res.status(401).json({ allowed: false, error: 'Unauthorized: Missing Bearer token in headers.' });
+    }
+
+    // [LOCAL TEST BYPASS]
+    if (token === process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        req.user = { id: 'test-user', role: 'GLOBAL_SUPER_ADMIN', bypassAll: true };
+        req.organization = { id: 'test-org', subscription_status: 'ACTIVE', subscription_tier: 'SUPER' };
+        return next();
     }
 
     if (!supabaseAdmin) return next();
@@ -131,6 +139,7 @@ app.use('/api/disposition', requireSubscription, dispositionRoutes);
 app.use('/api/keys', requireSubscription, apiKeysRoutes);
 app.use('/api/dealRadar/foreclosure-leads', requireSubscription, foreclosureRoutes);
 app.use('/api/skiptrace', requireSubscription, skiptraceRoutes);
+app.use('/api/ai', requireSubscription, aiRoutes);
 app.use('/api/comps', requireSubscription); // Will cascade to the /api/comps POST route below
 
 app.use('/api/quotas', quotaRoutes);

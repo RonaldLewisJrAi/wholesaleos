@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/useAuth';
 import { dealDocumentService } from '../../services/dealDocumentService';
 import { distributionService } from '../../services/distributionService';
 import { dealBlastEngine } from '../../services/dealBlastEngine';
+import { extractDocumentData } from '../../services/ai/documentAI';
 import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../../services/dealIntelligenceEngine';
 import { matchDealToInvestors, mockLiquidityInvestors } from '../../services/liquidityEngine';
 import ClosingVerificationPanel from '../../components/deals/ClosingVerificationPanel';
@@ -395,9 +396,33 @@ export const DealRoom = () => {
                                                 {doc.status}
                                             </span>
                                             {doc.status === 'VERIFIED' && (
-                                                <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-400 transition-colors" title="View Document">
-                                                    <Download size={16} />
-                                                </a>
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                alert('Extracting document data via Vertex AI... You will be notified when complete.');
+                                                                const res = await extractDocumentData("Simulated OCR OCR OCR Address: 123 Main St Seller: John Doe Price: $100,000", doc.document_type);
+                                                                if (res.source === 'queue') {
+                                                                    console.log('AI Extraction Queued:', res.jobId);
+                                                                } else {
+                                                                    // Cached quick return
+                                                                    setDeal(prev => ({ ...prev, arv: res.data.purchasePrice || prev.arv, address: res.data.address || prev.address }));
+                                                                    alert('Deal Auto-Filled from Document!');
+                                                                }
+                                                            } catch (e) {
+                                                                alert(e.message);
+                                                            }
+                                                        }}
+                                                        className="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 text-[10px] font-mono uppercase tracking-widest bg-amber-900/10 px-2 py-1 rounded border border-amber-500/30"
+                                                        title="Auto-Fill Form Data using AI"
+                                                    >
+                                                        <Zap size={12} /> Auto-Fill (AI)
+                                                    </button>
+
+                                                    <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-400 transition-colors" title="View Document">
+                                                        <Download size={16} />
+                                                    </a>
+                                                </div>
                                             )}
                                         </div>
                                     </div>

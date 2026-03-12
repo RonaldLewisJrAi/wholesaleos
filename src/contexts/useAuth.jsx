@@ -14,50 +14,36 @@ export const AuthProvider = ({ children }) => {
             return;
         }
 
-        const getSession = async () => {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (!error && session) {
-                // Fetch augmented user data
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('*, organization_id')
-                    .eq('id', session.user.id)
-                    .single();
+        // Remove redundant getSession() call to prevent GoTrue token lock contention (AbortError)
+        // onAuthStateChange already fires an 'INITIAL_SESSION' event automatically on mount.
 
-                const augmentedUser = {
-                    ...session.user,
-                    primary_persona: profile?.primary_persona || 'WHOLESALER',
-                    organization_id: profile?.organization_id || null,
-                    tier: profile?.tier || 'none'
-                };
-
-                setUser(augmentedUser);
-            }
-            setLoadingAuth(false);
-        };
-
-        getSession();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 if (session) {
-                    // Refetch augmentation
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('*, organization_id')
-                        .eq('id', session.user.id)
-                        .single();
+                    try {
+                        // Refetch augmentation
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('*, organization_id')
+                            .eq('id', session.user.id)
+                            .single();
 
-                    const augmentedUser = {
-                        ...session.user,
-                        primary_persona: profile?.primary_persona || 'WHOLESALER',
-                        organization_id: profile?.organization_id || null,
-                        tier: profile?.tier || 'none'
-                    };
-                    setUser(augmentedUser);
+                        const augmentedUser = {
+                            ...session.user,
+                            primary_persona: profile?.primary_persona || 'WHOLESALER',
+                            organization_id: profile?.organization_id || null,
+                            tier: profile?.tier || 'none'
+                        };
+                        setUser(augmentedUser);
+                    } catch (err) {
+                        console.error("Profile fetch error:", err);
+                        setUser(session.user);
+                    }
                 } else {
                     setUser(null);
                 }
+                setLoadingAuth(false);
             }
         );
 
