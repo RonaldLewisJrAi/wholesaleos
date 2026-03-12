@@ -40,16 +40,28 @@ router.post('/track', async (req, res) => {
             return res.status(404).json({ allowed: false, error: 'User profile not found.' });
         }
 
-        const tier = profile.subscription_tier || 'BASIC';
+        const tier = profile.subscription_tier || 'PROFESSIONAL';
         let limit = 0;
 
         if (type === 'lead') {
-            if (tier === 'BASIC') limit = 25;
+            if (tier === 'PROFESSIONAL') limit = 25;
             else limit = 999999;
         } else if (type === 'scrape') {
-            if (tier === 'BASIC') limit = 5;
+            if (tier === 'PROFESSIONAL') limit = 5;
             else if (tier === 'ADVANCED' || tier === 'PRO') limit = 25;
             else limit = 999999;
+        } else if (type === 'skiptrace') {
+            if (tier === 'PROFESSIONAL') limit = 0;
+            else if (tier === 'PRO') limit = 5;
+            else if (tier === 'ELITE') limit = 50;
+            else if (tier === 'ENTERPRISE') limit = 999999;
+            else limit = 0;
+        } else if (type === 'foreclosure_conversion') {
+            if (tier === 'PROFESSIONAL') limit = 0; // Not allowed to access radar conversions on Professional
+            else if (tier === 'PRO') limit = 1;
+            else if (tier === 'ELITE') limit = 10;
+            else if (tier === 'ENTERPRISE') limit = 999999;
+            else limit = 1; // Default
         }
 
         const currentMonth = new Date().toISOString().slice(0, 7);

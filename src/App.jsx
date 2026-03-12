@@ -40,6 +40,28 @@ import AcademyDashboard from './pages/Academy/AcademyDashboard';
 import AcademyModule from './pages/Academy/AcademyModule';
 import DealSimulator from './pages/Academy/DealSimulator';
 import { DealRadarDashboard } from './pages/DealRadar/DealRadarDashboard';
+import { useAuth } from './contexts/useAuth';
+
+const RoleBasedRedirect = () => {
+  const { user, loadingAuth } = useAuth();
+
+  if (loadingAuth) return <div className="p-8 text-white font-mono animate-pulse">Initializing Matrix...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+
+  const role = user.primary_persona || 'WHOLESALER';
+
+  switch (role) {
+    case 'WHOLESALER': return <Navigate to="/pipeline" replace />;
+    case 'INVESTOR': return <Navigate to="/match-feed" replace />;
+    case 'REALTOR': return <Navigate to="/referrals" replace />;
+    case 'ACQUISITION': return <Navigate to="/lead-intake" replace />;
+    case 'DISPOSITION': return <Navigate to="/buyer-matching" replace />;
+    case 'VIRTUAL_ASSISTANT': return <Navigate to="/task-queue" replace />;
+    case 'TEAM_MEMBER': return <Navigate to="/dashboard" replace />;
+    case 'TITLE_COMPANY': return <Navigate to="/title-portal" replace />;
+    default: return <Navigate to="/dashboard" replace />;
+  }
+};
 
 function App() {
   return (
@@ -68,7 +90,7 @@ function App() {
                 </Route>
 
                 <Route path="/" element={<Layout />}>
-                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route index element={<RoleBasedRedirect />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="properties/*" element={<Properties />} />
                   <Route path="pipeline" element={<Pipeline />} />
@@ -88,6 +110,10 @@ function App() {
                   <Route path="saved" element={<ProxyComponent moduleName="Saved Properties" />} />
                   <Route path="offers" element={<ProxyComponent moduleName="Offer Manager" />} />
                   <Route path="referrals" element={<ProxyComponent moduleName="Referral Inbox" />} />
+                  <Route path="lead-intake" element={<ProxyComponent moduleName="Lead Intake & Qualification" />} />
+                  <Route path="buyer-matching" element={<ProxyComponent moduleName="Buyer Matching Matrix" />} />
+                  <Route path="task-queue" element={<ProxyComponent moduleName="Global Task Queue" />} />
+                  <Route path="title-portal" element={<ProxyComponent moduleName="Title Verification Portal" />} />
                   <Route path="listings" element={<ProxyComponent moduleName="Active Listings" />} />
                   <Route path="cma" element={<ProxyComponent moduleName="CMA Generation Tool" />} />
                   <Route path="dialer" element={<ProxyComponent moduleName="Auto-Dialer & Scripts" />} />

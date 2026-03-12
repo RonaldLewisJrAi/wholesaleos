@@ -69,13 +69,13 @@ const Pricing = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
 
-                    {/* BASIC TIER */}
+                    {/* PROFESSIONAL TIER */}
                     <div className="glass-panel p-8 rounded-2xl border border-white/10 flex flex-col relative animate-fade-in-up hover:border-white/20 transition-all duration-300">
                         <div className="mb-6">
-                            <h3 className="text-2xl font-bold flex items-center gap-2 mb-2"><Shield className="text-gray-400" /> BASIC</h3>
-                            <div className="text-gray-400 mb-4 h-12">The essential sandbox to evaluate the operating system.</div>
+                            <h3 className="text-2xl font-bold flex items-center gap-2 mb-2"><Shield className="text-gray-400" /> PROFESSIONAL</h3>
+                            <div className="text-gray-400 mb-4 h-12">The essential real estate transaction operating system.</div>
                             <div className="text-4xl font-extrabold mb-1">$100<span className="text-xl text-gray-500 font-normal"> /mo</span></div>
-                            <div className="text-sm text-gray-500">Free forever. No credit card required.</div>
+                            <div className="text-sm text-gray-500">Industry-standard transaction tools.</div>
                         </div>
 
                         <div className="flex-grow">
@@ -91,19 +91,19 @@ const Pricing = () => {
 
                         {!user ? (
                             <button className="btn btn-secondary w-full py-3 border-gray-600 hover:bg-white/5" onClick={() => navigate('/signup')}>
-                                Create Free Account
+                                Create Account
                             </button>
-                        ) : subscriptionTier === 'BASIC' ? (
+                        ) : subscriptionTier === 'PROFESSIONAL' ? (
                             <button className="btn btn-secondary w-full py-3 border-gray-600 opacity-50 cursor-not-allowed">
                                 Current Plan
                             </button>
                         ) : (
                             <button
                                 className="btn btn-secondary w-full py-3 border-gray-600 hover:bg-white/5"
-                                onClick={() => handleUpgrade('BASIC')}
+                                onClick={() => handleUpgrade('PROFESSIONAL')}
                                 disabled={isCheckoutLoading}
                             >
-                                {isCheckoutLoading ? 'Initializing...' : 'Upgrade to BASIC'}
+                                {isCheckoutLoading ? 'Initializing...' : 'Upgrade to PROFESSIONAL'}
                             </button>
                         )}
                     </div>
@@ -121,7 +121,7 @@ const Pricing = () => {
                         </div>
 
                         <div className="flex-grow">
-                            <p className="font-bold text-sm text-indigo-300 mb-4 uppercase tracking-wider">Everything in Basic, plus:</p>
+                            <p className="font-bold text-sm text-indigo-300 mb-4 uppercase tracking-wider">Everything in Professional, plus:</p>
                             <ul className="space-y-4 mb-8">
                                 <li className="flex items-start gap-3"><CheckCircle2 className="text-primary shrink-0" size={20} /> <span className="text-white font-medium">Unlocked Comps Engine (Live Data)</span></li>
                                 <li className="flex items-start gap-3"><CheckCircle2 className="text-primary shrink-0" size={20} /> <span className="text-white">Live Opportunity Radar Maps</span></li>

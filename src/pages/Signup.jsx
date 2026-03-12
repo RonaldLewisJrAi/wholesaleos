@@ -151,9 +151,14 @@ const Signup = () => {
                             <label className="block text-xs font-medium text-gray-400 mb-1">Primary Operation Persona</label>
                             <select name="persona" value={formData.persona} onChange={handleChange}
                                 className="w-full bg-[#0B0F19] border border-gray-700 rounded-md px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm">
-                                <option value="WHOLESALER">Wholesaler (Default Pipeline)</option>
-                                <option value="INVESTOR">Investor (Buy Box Matrix)</option>
-                                <option value="REALTOR">Realtor (Listings & Comps)</option>
+                                <option value="WHOLESALER">Wholesaler</option>
+                                <option value="INVESTOR">Investor</option>
+                                <option value="REALTOR">Realtor</option>
+                                <option value="ACQUISITION">Acquisition Agent</option>
+                                <option value="DISPOSITION">Disposition Manager</option>
+                                <option value="VIRTUAL_ASSISTANT">Virtual Assistant</option>
+                                <option value="TEAM_MEMBER">Real Estate Team Member</option>
+                                <option value="TITLE_COMPANY">Title Company</option>
                             </select>
                         </div>
 

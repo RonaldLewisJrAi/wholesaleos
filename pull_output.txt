@@ -1,0 +1,157 @@
+﻿node.exe : Initialising login 
+role...
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (Initialis  
+  ing login role...:String)   
+  [], RemoteException
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+Connecting to remote 
+database...
+Skipping migration phase_10_di
+sposition_automation.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_11_co
+mp_intelligence.sql... (file 
+name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_12_ma
+ster_schema_alignment.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_15_ar
+chitecture_overhaul.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_30_ti
+er_gated_personas.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_31_5_
+subscription_lifecycle.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_31_in
+tegrations_infrastructure.sql.
+.. (file name must match 
+pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_32_en
+terprise_hardening.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration 
+phase_33_1_super_admin.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_33_id
+entity_and_theming.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_33_ma
+ster_admin_elevation.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration 
+phase_34_remediation.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_35_1_
+global_super_admin.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_36_pe
+rsona_enforcement.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration 
+phase_37_relax_persona.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_38_5_
+tier_enforcement.sql... (file 
+name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration 
+phase_38_demo_enum.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_38_mu
+ltitenant_core.sql... (file 
+name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_38_re
+cover_profile_schema.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_38_re
+cover_role_schema.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_39_1_
+fix_rls_recursion.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_39_wo
+rkflow_triggers.sql... (file 
+name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_40_wo
+rkflow_contract_triggers.sql..
+. (file name must match 
+pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_41_in
+telligent_compliance.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_42_sp
+readsheet_ingestion.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_43_op
+erational_intelligence.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration phase_9_acq
+uisition_intelligence.sql... 
+(file name must match pattern 
+"<timestamp>_name.sql")
+The remote database's 
+migration history does not 
+match local files in 
+supabase\migrations directory.
+
+Make sure your local git repo 
+is up-to-date. If the error 
+persists, try repairing the 
+migration history table:
+supabase migration repair 
+--status reverted 
+20271231001000
+supabase migration repair 
+--status reverted 
+20271231001100
+supabase migration repair 
+--status reverted 
+20271231001200
+supabase migration repair 
+--status applied 
+20261123000000
+supabase migration repair 
+--status applied 
+20261125000000
+supabase migration repair 
+--status applied 
+20261126000000
+

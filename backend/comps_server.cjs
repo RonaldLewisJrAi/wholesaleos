@@ -11,6 +11,7 @@ const quotaRoutes = require('./quota_routes.cjs');
 const apiKeysRoutes = require('./api_keys_routes.cjs');
 const subscriptionRoutes = require('./subscription_routes.cjs');
 const foreclosureRoutes = require('./foreclosure_routes.cjs');
+const skiptraceRoutes = require('./skiptrace_routes.cjs');
 const { createClient } = require('@supabase/supabase-js');
 
 // Initialize Redis for Comps Data Caching
@@ -129,6 +130,7 @@ app.use('/api/documents', requireSubscription, documentRoutes);
 app.use('/api/disposition', requireSubscription, dispositionRoutes);
 app.use('/api/keys', requireSubscription, apiKeysRoutes);
 app.use('/api/dealRadar/foreclosure-leads', requireSubscription, foreclosureRoutes);
+app.use('/api/skiptrace', requireSubscription, skiptraceRoutes);
 app.use('/api/comps', requireSubscription); // Will cascade to the /api/comps POST route below
 
 app.use('/api/quotas', quotaRoutes);

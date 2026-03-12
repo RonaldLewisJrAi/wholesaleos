@@ -2,15 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Radar, ShieldAlert, Navigation, Search, AlertOctagon, TrendingUp, Filter } from 'lucide-react';
 import { LeadDetailsPanel } from './LeadDetailsPanel';
+import { useAuth } from '../../contexts/useAuth';
 
 export const DealRadarDashboard = () => {
+    const { user } = useAuth();
     const [leads, setLeads] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [initialLoad, setInitialLoad] = useState(true);
     const [selectedLead, setSelectedLead] = useState<any | null>(null);
     const [filterCounty, setFilterCounty] = useState('');
 
     useEffect(() => {
-        fetchLeads();
+        const timer = setTimeout(() => {
+            fetchLeads().finally(() => setInitialLoad(false));
+        }, 500); // 500ms debounce
+        return () => clearTimeout(timer);
     }, [filterCounty]);
 
     const fetchLeads = async () => {
@@ -37,7 +43,23 @@ export const DealRadarDashboard = () => {
     };
 
     const handleConvertToDeal = async (lead: any) => {
-        // Logic to push this lead into the deals pipeline
+        // Quota Check
+        try {
+            const res = await fetch('http://localhost:3001/api/quotas/track', { // Using absolute local proxy path for dev
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user?.id, type: 'foreclosure_conversion' })
+            });
+            const data = await res.json();
+
+            if (!data.allowed) {
+                alert(data.error || "Monthly Foreclosure Lead Limit Reached.");
+                return;
+            }
+        } catch (e) {
+            console.error("Quota ping failed", e);
+        }
+
         console.log("Converting lead to deal:", lead);
         try {
             const { error } = await supabase!.from('properties').insert({
@@ -65,7 +87,7 @@ export const DealRadarDashboard = () => {
         }
     };
 
-    if (loading && leads.length === 0) {
+    if (initialLoad) {
         return <div className="p-8 text-center text-gray-500 animate-pulse">Scanning Deal Radar Frequencies...</div>;
     }
 
@@ -140,7 +162,14 @@ export const DealRadarDashboard = () => {
                                 </td>
                             </tr>
                         ))}
-                        {leads.length === 0 && !loading && (
+                        {loading && !initialLoad && (
+                            <tr>
+                                <td colSpan={5} className="p-12 text-center text-gray-500 font-mono animate-pulse">
+                                    Fetching radar signals...
+                                </td>
+                            </tr>
+                        )}
+                        {leads.length === 0 && !loading && !initialLoad && (
                             <tr>
                                 <td colSpan={5} className="p-12 text-center text-gray-500 font-mono">
                                     No active foreclosures detected on radar.

@@ -26,5 +26,5 @@ export function scheduleRadarAgent() {
         } catch (e) {
             console.error("[Scheduler] Cycle failed:", e);
         }
-    }, 24 * 60 * 60 * 1000);
+    }, 60 * 60 * 1000); // 1 hour interval
 }

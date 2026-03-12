@@ -1,7 +1,35 @@
-import React from 'react';
-import { X, FileText, Zap, ChevronRight, Hash, Calendar, AlertOctagon } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, FileText, Zap, ChevronRight, Hash, Calendar, AlertOctagon, UserSearch, Phone, Mail } from 'lucide-react';
+import { skipTraceOwner } from '../../services/skipTraceService';
 
 export const LeadDetailsPanel = ({ lead, onClose, onConvert }: { lead: any, onClose: any, onConvert: any }) => {
+    const [tracing, setTracing] = useState(false);
+    const [traceResult, setTraceResult] = useState<any>(null);
+    const [traceError, setTraceError] = useState('');
+
+    const handleSkipTrace = async () => {
+        setTracing(true);
+        setTraceError('');
+        try {
+            const res = await skipTraceOwner(
+                lead.id,
+                lead.address,
+                lead.city,
+                lead.state || 'TX',
+                lead.zip || '00000',
+                ''
+            );
+            if (res.success && res.contact) {
+                setTraceResult(res.contact);
+            } else {
+                setTraceError('Failed to retrieve contact data.');
+            }
+        } catch (err: any) {
+            setTraceError(err.message || 'Error occurred during trace.');
+        } finally {
+            setTracing(false);
+        }
+    };
     return (
         <div className="fixed inset-0 z-50 flex justify-end">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
@@ -67,6 +95,78 @@ export const LeadDetailsPanel = ({ lead, onClose, onConvert }: { lead: any, onCl
                             <div className="text-gray-400 font-mono text-xs leading-relaxed max-h-48 overflow-y-auto w-full p-2 bg-black/50 rounded border border-gray-800">
                                 {lead.source_doc || "No raw OCR text cached for this lead."}
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="border border-blue-900/40 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                        <div className="bg-gradient-to-r from-blue-900/20 to-transparent px-4 py-3 border-b border-blue-900/40 flex justify-between items-center">
+                            <h3 className="text-sm font-bold text-blue-300 font-mono flex items-center gap-2">
+                                <UserSearch size={16} /> Owner Intelligence
+                            </h3>
+                            {traceResult && (
+                                <span className={`text-[10px] tracking-wider font-mono px-2 py-0.5 rounded border ${traceResult.confidence_score === 'HIGH' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                                        'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                    }`}>
+                                    {traceResult.confidence_score} CONFIDENCE
+                                </span>
+                            )}
+                        </div>
+                        <div className="p-4 bg-[var(--bg-secondary)]">
+                            {!traceResult && !tracing && (
+                                <div className="text-center py-4">
+                                    <p className="text-gray-400 text-sm mb-4">No contact information cached for this property.</p>
+                                    <button
+                                        onClick={handleSkipTrace}
+                                        className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/50 text-blue-300 rounded-lg text-sm font-mono transition-colors flex items-center gap-2 mx-auto"
+                                    >
+                                        <Zap size={14} /> Run Skip Trace (1 Credit)
+                                    </button>
+                                    {traceError && <p className="text-red-400 text-xs mt-3">{traceError}</p>}
+                                </div>
+                            )}
+
+                            {tracing && (
+                                <div className="text-center py-6 flex flex-col items-center justify-center">
+                                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                                    <p className="text-blue-400 text-sm font-mono animate-pulse">Querying national databases...</p>
+                                </div>
+                            )}
+
+                            {traceResult && (
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-3 p-3 bg-black/30 rounded border border-gray-800">
+                                        <div className="p-2 bg-blue-500/10 rounded-full text-blue-400">
+                                            <UserSearch size={16} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-mono mb-1">RECORDED OWNER</p>
+                                            <p className="text-white font-bold">{traceResult.owner_name}</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="flex items-start gap-3 p-3 bg-black/30 rounded border border-gray-800">
+                                            <div className="p-2 bg-green-500/10 rounded-full text-green-400">
+                                                <Phone size={16} />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500 font-mono mb-1">PHONE NUMBERS</p>
+                                                {traceResult.phone_number.split(',').map((phone: string, i: number) => (
+                                                    <p key={i} className="text-white text-sm">{phone.trim()}</p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3 p-3 bg-black/30 rounded border border-gray-800">
+                                            <div className="p-2 bg-purple-500/10 rounded-full text-purple-400">
+                                                <Mail size={16} />
+                                            </div>
+                                            <div className="overflow-hidden">
+                                                <p className="text-xs text-gray-500 font-mono mb-1">EMAIL ADDRESS</p>
+                                                <p className="text-white text-sm truncate">{traceResult.email}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 

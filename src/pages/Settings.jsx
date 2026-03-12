@@ -93,12 +93,20 @@ const Settings = () => {
                 <div className="w-full md:w-64 flex-shrink-0">
                     <div className="card glass-panel flex flex-col overflow-hidden">
                         {!isSuperAdmin && (
-                            <button
-                                className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'billing' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
-                                onClick={() => setActiveTab('billing')}
-                            >
-                                <CreditCard size={16} /> Billing & Plan
-                            </button>
+                            <>
+                                <button
+                                    className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'billing' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
+                                    onClick={() => setActiveTab('billing')}
+                                >
+                                    <CreditCard size={16} /> Billing & Plan
+                                </button>
+                                <button
+                                    className={`p-4 text-left font-bold border-l-4 transition-colors flex items-center gap-2 ${activeTab === 'team' ? 'border-primary bg-[var(--surface-light)]' : 'border-transparent hover:bg-white/5'}`}
+                                    onClick={() => setActiveTab('team')}
+                                >
+                                    <UsersIcon size={16} /> Team & Roles
+                                </button>
+                            </>
                         )}
                         {isSuperAdmin && (
                             <>
@@ -139,6 +147,69 @@ const Settings = () => {
 
                 {/* Main Content Area */}
                 <div className="flex-1">
+
+                    {/* TEAM TAB */}
+                    {activeTab === 'team' && (
+                        <div className="space-y-6 animate-fade-in">
+                            <div className="card glass-panel p-6 border-t-4 border-primary">
+                                <div className="flex-between mb-6">
+                                    <div>
+                                        <h3 className="text-xl font-bold flex items-center gap-2"><UsersIcon className="text-primary" /> Organization Team</h3>
+                                        <p className="text-sm text-muted mt-1">Manage role-based access for your team members.</p>
+                                    </div>
+                                    <button className="btn btn-primary" onClick={() => alert("Invite Member modal triggered (Mock)")}>
+                                        + Invite Member
+                                    </button>
+                                </div>
+
+                                <div className="bg-[var(--surface-dark)] border border-[var(--border-light)] rounded overflow-hidden">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-[var(--surface-light)]">
+                                            <tr>
+                                                <th className="p-4">User</th>
+                                                <th className="p-4">Role / Persona</th>
+                                                <th className="p-4">Status</th>
+                                                <th className="p-4">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-[var(--border-light)]">
+                                            <tr>
+                                                <td className="p-4">
+                                                    <div className="font-bold">You (Owner)</div>
+                                                    <div className="text-xs text-muted">owner@example.com</div>
+                                                </td>
+                                                <td className="p-4">
+                                                    <span className="badge bg-primary/20 text-primary border border-primary/50 text-xs">WHOLESALER</span>
+                                                </td>
+                                                <td className="p-4">
+                                                    <span className="text-success text-xs font-bold flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-success"></div> Active</span>
+                                                </td>
+                                                <td className="p-4">
+                                                    <button className="text-muted cursor-not-allowed text-xs uppercase" disabled>Locked</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td className="p-4">
+                                                    <div className="font-bold">Pending Invite</div>
+                                                    <div className="text-xs text-muted">assistant@example.com</div>
+                                                </td>
+                                                <td className="p-4">
+                                                    <span className="badge bg-info/20 text-info border border-info/50 text-xs">VIRTUAL_ASSISTANT</span>
+                                                </td>
+                                                <td className="p-4">
+                                                    <span className="text-warning text-xs font-bold flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-warning"></div> Pending</span>
+                                                </td>
+                                                <td className="p-4 flex gap-3">
+                                                    <button className="text-primary text-xs hover:underline">Resend</button>
+                                                    <button className="text-danger text-xs hover:underline">Revoke</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* BILLING TAB */}
                     {activeTab === 'billing' && (
