@@ -12,7 +12,7 @@ export default function TrustGraph({ score = 85, closings = 12 }) {
     ];
 
     return (
-        <div className="bg-[#050816] border border-blue-900/50 rounded-xl p-6 relative overflow-hidden group">
+        <div className="bg-[var(--bg-secondary)] border border-blue-900/50 rounded-xl p-6 relative overflow-hidden group">
             <div className="absolute inset-0 bg-blue-900/10 mix-blend-screen pointer-events-none group-hover:bg-blue-900/20 transition-all"></div>
 
             <div className="flex justify-between items-start mb-6 relative z-10">
@@ -28,7 +28,7 @@ export default function TrustGraph({ score = 85, closings = 12 }) {
                 </div>
             </div>
 
-            <div className="h-48 relative border border-blue-900/30 rounded-lg bg-black/40 mb-4 overflow-hidden mask-fade-edges">
+            <div className="h-48 relative border border-blue-900/30 rounded-lg bg-[var(--bg-tertiary)] mb-4 overflow-hidden mask-fade-edges">
                 {/* Connections */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none">
                     <line x1="20%" y1="30%" x2="50%" y2="80%" stroke="rgba(16, 185, 129, 0.3)" strokeWidth="2" strokeDasharray="4 4" className="animate-pulse" />

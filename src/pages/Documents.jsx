@@ -10,7 +10,7 @@ const SignatureBlock = ({ label, printedNameValue, defaultNameValue, printedName
     const value = printedNameValue !== undefined ? printedNameValue : defaultNameValue;
     return (
         <div className="sig-block flex-1" style={{ minWidth: '200px', maxWidth: '300px' }}>
-            <div style={{ position: 'relative', width: '100%', height: '100px', backgroundColor: 'rgba(0, 0, 0, 0.25)', border: '2px dashed rgba(255, 255, 255, 0.5)', borderRadius: '8px', marginBottom: '8px', overflow: 'hidden' }}>
+            <div style={{ position: 'relative', width: '100%', height: '100px', backgroundColor: 'var(--bg-secondary)', border: '2px dashed rgba(255, 255, 255, 0.5)', borderRadius: '8px', marginBottom: '8px', overflow: 'hidden' }}>
                 <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 'bold', pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap', zIndex: 1 }}>
                     Draw Signature Here
                 </span>

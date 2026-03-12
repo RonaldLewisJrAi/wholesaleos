@@ -116,13 +116,13 @@ const DocumentGenerator = ({ dealData, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-tertiary)] backdrop-blur-sm p-4 overflow-y-auto">
             <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl w-full max-w-5xl shadow-2xl my-8 relative flex flex-col md:flex-row">
 
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-muted hover:text-white z-10 p-2 bg-black/50 rounded-full"
+                    className="absolute top-4 right-4 text-muted hover:text-white z-10 p-2 bg-[var(--bg-tertiary)] rounded-full"
                 >
                     <X size={24} />
                 </button>

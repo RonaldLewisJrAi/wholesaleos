@@ -36,7 +36,7 @@ const ProgressIndicator = ({ status }) => {
                 const isActive = idx === currentIndex;
 
                 let textColor = 'text-gray-500';
-                let dotClass = 'bg-[#050816] border-blue-900/40';
+                let dotClass = 'bg-[var(--bg-secondary)] border-blue-900/40';
 
                 if (isCompleted) {
                     textColor = 'text-emerald-400';
@@ -333,7 +333,7 @@ export const DealRoom = () => {
                             <Target className="text-blue-400" size={18} /> Deal Intelligence
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-black/40 border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
+                            <div className="bg-[var(--bg-tertiary)] border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
                                 <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">ARV</label>
                                 <span className="text-xl font-mono font-bold text-white">{deal.arv}</span>
                             </div>
@@ -342,11 +342,11 @@ export const DealRoom = () => {
                                 <label className="text-[10px] text-emerald-400 uppercase tracking-widest font-mono mb-1 block relative z-10">Asking Price</label>
                                 <span className="text-2xl font-mono font-bold text-emerald-400 relative z-10">{deal.mao}</span>
                             </div>
-                            <div className="bg-black/40 border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
+                            <div className="bg-[var(--bg-tertiary)] border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
                                 <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">Est. Rehab</label>
                                 <span className="text-xl font-mono font-bold text-amber-400">{deal.rehab || 'TBD'}</span>
                             </div>
-                            <div className="bg-black/40 border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
+                            <div className="bg-[var(--bg-tertiary)] border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
                                 <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">Est. ROI</label>
                                 <span className="text-xl font-mono font-bold text-blue-400">22.4%</span>
                             </div>
@@ -375,14 +375,14 @@ export const DealRoom = () => {
                         </div>
 
                         {vaultDocuments.length === 0 ? (
-                            <div className="p-8 text-center bg-black/40 border border-dashed border-blue-900/50 rounded-lg">
+                            <div className="p-8 text-center bg-[var(--bg-tertiary)] border border-dashed border-blue-900/50 rounded-lg">
                                 <p className="text-gray-500 text-sm m-0 font-mono">No Proof of Control documents uploaded.</p>
                                 {(!user || user.primaryPersona === 'WHOLESALER') && <p className="text-[10px] text-amber-400 tracking-widest font-mono uppercase mt-2">Uploading verified contracts boosts platform Trust Score.</p>}
                             </div>
                         ) : (
                             <div className="flex flex-col gap-3">
                                 {vaultDocuments.map((doc) => (
-                                    <div key={doc.id} className="p-4 border border-blue-900/40 rounded-lg bg-[#050816]/60 flex justify-between items-center hover:border-blue-500/30 transition-colors">
+                                    <div key={doc.id} className="p-4 border border-blue-900/40 rounded-lg bg-[var(--bg-tertiary)] flex justify-between items-center hover:border-blue-500/30 transition-colors">
                                         <div className="flex items-center gap-4">
                                             <FileText size={20} className={doc.status === 'VERIFIED' ? 'text-emerald-400' : doc.status === 'REJECTED' ? 'text-red-400' : 'text-amber-400'} />
                                             <div>
@@ -414,7 +414,7 @@ export const DealRoom = () => {
 
                         <div className="mb-6">
                             {!deal.document_generated ? (
-                                <div className="p-8 text-center bg-black/40 border border-dashed border-blue-900/50 rounded-lg">
+                                <div className="p-8 text-center bg-[var(--bg-tertiary)] border border-dashed border-blue-900/50 rounded-lg">
                                     <p className="text-gray-500 text-sm mb-4 font-mono">No Assignment Agreement generated.</p>
                                     <button
                                         className={`bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 hover:text-white px-6 py-2 rounded-lg text-sm font-mono tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(78,123,255,0.2)] flex items-center gap-2 mx-auto ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-blue-600/20 hover:text-blue-300' : ''}`}
@@ -427,7 +427,7 @@ export const DealRoom = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="p-4 border border-blue-900/40 rounded-lg bg-[#050816]/60 flex justify-between items-center hover:border-blue-500/30 transition-colors">
+                                <div className="p-4 border border-blue-900/40 rounded-lg bg-[var(--bg-tertiary)] flex justify-between items-center hover:border-blue-500/30 transition-colors">
                                     <div className="flex items-center gap-4">
                                         <FileText size={24} className="text-blue-400" />
                                         <div>
@@ -445,7 +445,7 @@ export const DealRoom = () => {
                                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-400/70 font-mono mb-4">Digital Signatures Required</h4>
                                 <div className="flex gap-4">
                                     <button
-                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold tracking-wide transition-all border ${deal.signed_wholesaler ? 'bg-emerald-900/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-[#050816]/80 border-blue-900/50 text-gray-300 hover:bg-blue-900/30 hover:border-blue-500/40 hover:text-white'} ${isTitleCompany ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold tracking-wide transition-all border ${deal.signed_wholesaler ? 'bg-emerald-900/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-[var(--bg-tertiary)] border-blue-900/50 text-gray-300 hover:bg-blue-900/30 hover:border-blue-500/40 hover:text-white'} ${isTitleCompany ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={() => handleSignAgreement('wholesaler')}
                                         disabled={deal.signed_wholesaler || signing || isTitleCompany}
                                         title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
@@ -477,11 +477,11 @@ export const DealRoom = () => {
                         </h2>
 
                         <div className="grid grid-cols-2 gap-3 mb-6">
-                            <div className="bg-black/40 border border-blue-900/30 rounded p-3">
+                            <div className="bg-[var(--bg-tertiary)] border border-blue-900/30 rounded p-3">
                                 <span className="text-[9px] text-gray-500 uppercase tracking-widest font-mono block mb-1">Liquidity Signal</span>
                                 <span className={`text-sm font-bold font-mono tracking-widest ${aiLiquidity === 'HIGH' ? 'text-blue-400' : 'text-amber-400'}`}>{aiLiquidity}</span>
                             </div>
-                            <div className="bg-black/40 border border-emerald-900/30 rounded p-3">
+                            <div className="bg-[var(--bg-tertiary)] border border-emerald-900/30 rounded p-3">
                                 <span className="text-[9px] text-gray-500 uppercase tracking-widest font-mono block mb-1">Close Probability</span>
                                 <span className={`text-sm font-bold font-mono tracking-widest ${closeProb >= 80 ? 'text-emerald-400' : 'text-amber-400'}`}>{closeProb}%</span>
                             </div>
@@ -525,7 +525,7 @@ export const DealRoom = () => {
 
                         <div className="flex flex-col gap-3">
                             {(!user || user.primaryPersona === 'WHOLESALER') && (deal.status === 'Lead' || deal.status === 'DRAFT') && (
-                                <div className="bg-[#050816]/80 border border-blue-900/50 rounded-lg p-4 mb-2 shadow-lg">
+                                <div className="bg-[var(--bg-tertiary)] border border-blue-900/50 rounded-lg p-4 mb-2 shadow-lg">
                                     <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 text-blue-400 mb-3 border-b border-blue-900/30 pb-2">
                                         <Users size={12} /> Recommended Buyers (Liquidity AI)
                                     </h4>
@@ -560,7 +560,7 @@ export const DealRoom = () => {
                                         </label>
                                     ) : null}
                                     <button
-                                        className={`w-full py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all shadow-lg ${deal.status === 'Lead' || deal.status === 'DRAFT' ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/50' : 'bg-[#050816] border border-blue-900/50 text-gray-500 cursor-not-allowed'}`}
+                                        className={`w-full py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all shadow-lg ${deal.status === 'Lead' || deal.status === 'DRAFT' ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/50' : 'bg-[var(--bg-secondary)] border border-blue-900/50 text-gray-500 cursor-not-allowed'}`}
                                         onClick={async () => {
                                             const hasVerified = vaultDocuments.some(d => d.status === 'VERIFIED');
                                             if (!hasVerified) {
@@ -601,7 +601,7 @@ export const DealRoom = () => {
                             ) : (
                                 <>
                                     <button
-                                        className={`w-full py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all shadow-lg ${deal.status === 'Active' || deal.status === 'Marketing' ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/50 border border-blue-400/50' : 'bg-[#050816] border border-blue-900/50 text-gray-500 cursor-not-allowed'} ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-blue-600' : ''}`}
+                                        className={`w-full py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all shadow-lg ${deal.status === 'Active' || deal.status === 'Marketing' ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/50 border border-blue-400/50' : 'bg-[var(--bg-secondary)] border border-blue-900/50 text-gray-500 cursor-not-allowed'} ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-blue-600' : ''}`}
                                         onClick={handleReserveClick}
                                         disabled={deal.status !== 'Active' && deal.status !== 'Marketing' || isTitleCompany}
                                         title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
@@ -633,7 +633,7 @@ export const DealRoom = () => {
                             {activityLog.map((log) => (
                                 <div key={log.id} className="relative z-10 group/timeline">
                                     <div className={`absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full border border-[rgba(5,8,22,1)] ${log.type.includes('VERIFIED') || log.type.includes('PUBLISHED') ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-blue-500 shadow-[0_0_8px_rgba(78,123,255,0.4)]'}`}></div>
-                                    <div className="bg-black/40 border border-blue-900/40 rounded-lg p-3 group-hover/timeline:border-blue-500/40 transition-colors">
+                                    <div className="bg-[var(--bg-tertiary)] border border-blue-900/40 rounded-lg p-3 group-hover/timeline:border-blue-500/40 transition-colors">
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-[10px] font-bold text-blue-400 font-mono tracking-widest uppercase">{log.type.replace(/_/g, ' ')}</span>
                                             <span className="text-[9px] text-gray-500 font-mono tracking-wider">{new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -652,7 +652,7 @@ export const DealRoom = () => {
 
             {/* Reservation Modal */}
             {isReserveModalOpen && (
-                <div className="fixed inset-0 bg-[#050816]/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-[var(--bg-tertiary)] backdrop-blur-md flex items-center justify-center z-50 p-4">
                     <div className="glass-card max-w-lg w-full p-8 relative animate-fade-in shadow-[0_0_50px_rgba(78,123,255,0.15)]">
                         <div className="flex justify-between items-center mb-6 border-b border-blue-900/30 pb-4">
                             <h2 className="text-xl font-bold flex items-center gap-2 text-white"><CreditCard size={24} className="text-blue-400" /> Secure Terminal Lock</h2>
@@ -674,7 +674,7 @@ export const DealRoom = () => {
                         </ul>
 
                         <div className="flex gap-4">
-                            <button className="flex-1 py-3 bg-[#050816] border border-blue-900/50 hover:bg-blue-900/20 text-gray-300 rounded-lg text-sm font-mono tracking-widest uppercase transition-all" onClick={() => setIsReserveModalOpen(false)} disabled={isReserving}>Abort</button>
+                            <button className="flex-1 py-3 bg-[var(--bg-secondary)] border border-blue-900/50 hover:bg-blue-900/20 text-gray-300 rounded-lg text-sm font-mono tracking-widest uppercase transition-all" onClick={() => setIsReserveModalOpen(false)} disabled={isReserving}>Abort</button>
                             <button className="flex-1 py-3 border border-blue-400/50 bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_20px_rgba(78,123,255,0.3)] rounded-lg text-sm font-mono tracking-widest uppercase font-bold transition-all flex items-center justify-center gap-2" onClick={submitReservation} disabled={isReserving}>
                                 {isReserving ? <Loader2 className="animate-spin" size={16} /> : 'Pay $250 & Lock Deal'}
                             </button>

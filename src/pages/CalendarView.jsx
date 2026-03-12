@@ -169,7 +169,7 @@ const CalendarView = () => {
             </div>
 
             {isEventModalOpen && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'var(--bg-surface)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div className="modal-content glass-panel animate-fade-in shadow-2xl" style={{ maxWidth: '500px', width: '90%', padding: '0', position: 'relative', overflow: 'hidden' }}>
 
                         <div className="flex-between p-5 border-b border-[var(--border-light)] bg-[rgba(0,0,0,0.2)]">

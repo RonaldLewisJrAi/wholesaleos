@@ -13,10 +13,10 @@ const mockProperties = [
 ];
 
 const getTrustTier = (score = 50) => {
-    if (score >= 90) return { label: 'Elite', class: 'bg-success text-bg-darker' };
-    if (score >= 75) return { label: 'Verified Pro', class: 'bg-primary text-bg-darker' };
+    if (score >= 90) return { label: 'Elite', class: 'bg-success text-bg-[var(--bg-primary)]er' };
+    if (score >= 75) return { label: 'Verified Pro', class: 'bg-primary text-bg-[var(--bg-primary)]er' };
     if (score >= 50) return { label: 'Active Trader', class: 'bg-secondary text-white' };
-    if (score >= 25) return { label: 'New', class: 'bg-warning text-bg-darker' };
+    if (score >= 25) return { label: 'New', class: 'bg-warning text-bg-[var(--bg-primary)]er' };
     return { label: 'High Risk', class: 'bg-danger text-white' };
 };
 
@@ -325,7 +325,7 @@ const Properties = () => {
             </div>
 
             {isZillowModalOpen && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'var(--bg-surface)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '600px', width: '90%', padding: '24px', position: 'relative' }}>
                         <div className="flex-between mb-4 pb-4 border-b border-[var(--border-light)]">
                             <h2 className="text-xl font-bold flex items-center gap-2"><Database size={24} className="text-primary" /> Zillow Direct Import</h2>
@@ -365,7 +365,7 @@ const Properties = () => {
             )}
 
             {isLiveFinderModalOpen && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'var(--bg-surface)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '600px', width: '90%', padding: '24px', position: 'relative' }}>
                         <div className="flex-between mb-4 pb-4 border-b border-[var(--border-light)]">
                             <h2 className="text-xl font-bold flex items-center gap-2"><Database size={24} className="text-primary" /> Live Finder Engine</h2>

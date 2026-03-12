@@ -96,7 +96,7 @@ const GlobalStatusBanner = () => {
             {bannerConfig.actionLabel && (
                 <button
                     onClick={() => window.location.href = bannerConfig.actionPath}
-                    className={`ml-2 px-3 py-1 text-xs rounded uppercase tracking-wider font-bold transition-transform hover:scale-105 ${subscriptionStatus === 'PAST_DUE' ? 'bg-white text-danger' : 'bg-black/20 hover:bg-black/30'}`}
+                    className={`ml-2 px-3 py-1 text-xs rounded uppercase tracking-wider font-bold transition-transform hover:scale-105 ${subscriptionStatus === 'PAST_DUE' ? 'bg-white text-danger' : 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-tertiary)]'}`}
                 >
                     {bannerConfig.actionLabel}
                 </button>

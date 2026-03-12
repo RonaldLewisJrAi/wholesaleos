@@ -7,7 +7,7 @@ export const OSCARHeader: React.FC<{ isExpanded: boolean; onToggleExpand: () => 
 }) => {
     return (
         <div
-            className={`flex items-center justify-between p-3 border-b border-blue-900/30 bg-[#050816]/90 rounded-t-[16px] cursor-pointer transition-colors ${!isExpanded ? 'h-full flex-col justify-start py-6' : ''}`}
+            className={`flex items-center justify-between p-3 border-b border-blue-900/30 bg-[var(--bg-tertiary)] rounded-t-[16px] cursor-pointer transition-colors ${!isExpanded ? 'h-full flex-col justify-start py-6' : ''}`}
             onClick={onToggleExpand}
         >
             <div className={`flex items-center gap-3 ${!isExpanded ? 'flex-col' : ''}`}>

@@ -4,22 +4,25 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/useAuth';
 import DealCard from '../../components/ui/DealCard';
 import TrustGraph from '../../components/ui/TrustGraph';
-const ModuleWrapper = ({ title, icon: Icon, children, className = "" }) => (
-    <div className={`glass-card p-6 flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.2)] ${className}`}>
-        <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-blue-900/30 pb-3">
-            <Icon size={16} className="text-blue-400" /> {title}
-        </h3>
-        <div className="flex-1">
-            {children}
+import { DealRadarMap } from '../radar/DealRadarMap';
+import { RadarFeedPanel } from '../radar/RadarFeedPanel';
+
+const ModuleWrapper = ({ title, icon, children, className = "" }) => {
+    const IconComponent = icon;
+    return (
+        <div className={`glass-card p-6 flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.2)] ${className}`}>
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-blue-900/30 pb-3">
+                {IconComponent && <IconComponent size={16} className="text-blue-400" />} {title}
+            </h3>
+            <div className="flex-1">
+                {children}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const InvestorDashboard = () => {
     const { user } = useAuth();
-    const [loading, setLoading] = useState(true);
-    const [events, setEvents] = useState([]);
-
     const [matchedDeals, setMatchedDeals] = useState([]);
     const [loadingMatches, setLoadingMatches] = useState(true);
 
@@ -79,56 +82,7 @@ const InvestorDashboard = () => {
         fetchMatches();
     }, [user?.id]);
 
-    useEffect(() => {
-        // Fetch live platform events for Deal Radar
-        const fetchEvents = async () => {
-            if (supabase) {
-                try {
-                    const { data } = await supabase
-                        .from('platform_events')
-                        .select('*')
-                        .order('created_at', { ascending: false })
-                        .limit(8);
 
-                    if (data && data.length > 0) {
-                        setEvents(data);
-                    } else {
-                        setFallbackEvents();
-                    }
-                } catch {
-                    setFallbackEvents();
-                }
-            } else {
-                setFallbackEvents();
-            }
-            setLoading(false);
-        };
-
-        const setFallbackEvents = () => {
-            setEvents([
-                { id: 1, created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(), description: "New Deal Posted — Atlanta", event_type: "DEAL_PUBLISHED" },
-                { id: 2, created_at: new Date(Date.now() - 1000 * 60 * 18).toISOString(), description: "Liquidity Spike — Dallas", event_type: "MARKET_SIGNAL" },
-                { id: 3, created_at: new Date(Date.now() - 1000 * 60 * 35).toISOString(), description: "Deal Under Contract — Miami", event_type: "ESCROW_STARTED" },
-                { id: 4, created_at: new Date(Date.now() - 1000 * 60 * 47).toISOString(), description: "Buyer Offer Submitted — Tampa", event_type: "OFFER_MADE" }
-            ]);
-        };
-
-        fetchEvents();
-
-        // Optional: Subscription to real-time events if supported
-        if (supabase) {
-            const subscription = supabase
-                .channel('platform_events_changes')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'platform_events' }, payload => {
-                    setEvents(current => [payload.new, ...current].slice(0, 8));
-                })
-                .subscribe();
-
-            return () => {
-                supabase.removeChannel(subscription);
-            };
-        }
-    }, []);
 
     return (
         <div className="p-6 max-w-[1600px] mx-auto animate-fade-in pb-12">
@@ -177,28 +131,8 @@ const InvestorDashboard = () => {
 
                 {/* Module 2: Deal Flow Heat Map */}
                 <ModuleWrapper title="Deal Flow Heat Map" icon={Map}>
-                    <div className="flex flex-col h-full justify-between">
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center bg-blue-900/10 border border-blue-500/20 p-2.5 rounded">
-                                <span className="text-white font-mono text-sm">Dallas, TX</span>
-                                <span className="text-emerald-400 font-mono font-bold text-sm bg-emerald-900/20 px-2 py-0.5 rounded flex items-center gap-1"><TrendingUp size={12} /> 12 Deals</span>
-                            </div>
-                            <div className="flex justify-between items-center bg-blue-900/10 border border-blue-500/20 p-2.5 rounded">
-                                <span className="text-white font-mono text-sm">Atlanta, GA</span>
-                                <span className="text-emerald-400 font-mono font-bold text-sm bg-emerald-900/20 px-2 py-0.5 rounded flex items-center gap-1"><TrendingUp size={12} /> 9 Deals</span>
-                            </div>
-                            <div className="flex justify-between items-center bg-blue-900/10 border border-blue-500/20 p-2.5 rounded">
-                                <span className="text-white font-mono text-sm">Phoenix, AZ</span>
-                                <span className="text-blue-400 font-mono font-bold text-sm bg-blue-900/20 px-2 py-0.5 rounded flex items-center gap-1"><TrendingUp size={12} /> 7 Deals</span>
-                            </div>
-                            <div className="flex justify-between items-center bg-blue-900/10 border border-blue-500/20 p-2.5 rounded">
-                                <span className="text-white font-mono text-sm">Tampa, FL</span>
-                                <span className="text-blue-400 font-mono font-bold text-sm bg-blue-900/20 px-2 py-0.5 rounded flex items-center gap-1"><TrendingUp size={12} /> 6 Deals</span>
-                            </div>
-                        </div>
-                        <div className="mt-4 pt-3 border-t border-blue-900/30">
-                            <span className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">Map Visualization Layer Offline</span>
-                        </div>
+                    <div className="flex flex-col h-full justify-center min-h-[400px]">
+                        <DealRadarMap />
                     </div>
                 </ModuleWrapper>
 
@@ -257,27 +191,8 @@ const InvestorDashboard = () => {
                 </ModuleWrapper>
 
                 {/* Module 5: Deal Radar (Live Feed) */}
-                <ModuleWrapper title="Deal Radar" icon={Radar}>
-                    <div className="relative pl-6 flex flex-col gap-5 pt-2">
-                        <div className="absolute top-2 bottom-2 left-[5px] w-[1px] bg-blue-900/40"></div>
-                        {loading && events.length === 0 ? (
-                            <div className="text-center text-blue-500 font-mono text-sm tracking-widest py-8">SCANNING FREQUENCIES...</div>
-                        ) : (
-                            events.slice(0, 5).map((ev, i) => (
-                                <div key={ev.id || i} className="relative z-10 group/radar">
-                                    <div className={`absolute -left-[25px] top-1.5 w-2 h-2 rounded-full border border-[#050816] ${i === 0 ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]'}`}></div>
-                                    <div className="flex justify-between items-start gap-4">
-                                        <div className="flex-1">
-                                            <p className={`text-sm font-mono tracking-wide ${i === 0 ? 'text-white font-bold' : 'text-gray-300'}`}>{ev.description}</p>
-                                        </div>
-                                        <span className={`text-[10px] font-mono tracking-widest ${i === 0 ? 'text-emerald-400' : 'text-gray-500'}`}>
-                                            {new Date(ev.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
+                <ModuleWrapper title="Deal Radar" icon={Radar} className="h-[430px]">
+                    <RadarFeedPanel />
                 </ModuleWrapper>
 
                 {/* Module 6: Closing Activity */}

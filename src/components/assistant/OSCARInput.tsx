@@ -67,7 +67,7 @@ export const OSCARInput: React.FC<OSCARInputProps> = ({ onSubmit, isLoading }) =
     };
 
     return (
-        <form onSubmit={handleSubmit} className="p-3 bg-black/60 rounded-b-[16px] flex items-center gap-2 border-t border-blue-900/30">
+        <form onSubmit={handleSubmit} className="p-3 bg-[var(--bg-tertiary)] rounded-b-[16px] flex items-center gap-2 border-t border-blue-900/30">
             <span className="text-blue-500 font-mono font-bold">{'>'}</span>
 
             <input

@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { MapPin, User, DollarSign, Calendar, Maximize2, Activity } from 'lucide-react';
-// Fallback placeholder data
-const createPulseIcon = (color) => {
+
+const createThermalIcon = (type) => {
+    const hotGradient = 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,0,0.9) 20%, rgba(239,68,68,0.7) 40%, rgba(239,68,68,0) 70%)';
+    const warmGradient = 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,0,0.7) 20%, rgba(245,158,11,0.6) 40%, rgba(245,158,11,0) 70%)';
+
     return L.divIcon({
-        className: 'custom-pulse-icon',
-        html: `<div class="pulse-marker" style="background-color: ${color}; box-shadow: 0 0 0 0 rgba(${color === '#ef4444' ? '239, 68, 68' : '245, 158, 11'}, 0.7);"></div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        className: 'thermal-node bg-transparent border-none',
+        html: `<div style="width: 50px; height: 50px; border-radius: 50%; background: ${type === 'hot' ? hotGradient : warmGradient}; filter: blur(3px); mix-blend-mode: screen; transform: translate(-15px, -15px);"></div>`,
+        iconSize: [50, 50],
+        iconAnchor: [25, 25],
     });
 };
 
-const redPulse = createPulseIcon('#ef4444');
-const orangePulse = createPulseIcon('#f59e0b');
+const redPulse = createThermalIcon('hot');
+const orangePulse = createThermalIcon('warm');
 
 // Default coordinates for USA Center
 const defaultCenter = [39.8283, -98.5795];
@@ -95,7 +99,7 @@ const HeatMap = ({ data = [] }) => {
         <div className="heatmap-container glass-panel" style={{ height: '500px', width: '100%', borderRadius: '12px', overflow: 'hidden', position: 'relative' }}>
             {/* Header Overlay */}
             <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 1000, pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div className="glass-panel text-white px-4 py-2 flex flex-col gap-1" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+                <div className="glass-panel text-white px-4 py-2 flex flex-col gap-1" style={{ backgroundColor: 'var(--bg-surface)', backdropFilter: 'blur(8px)' }}>
                     <h3 className="font-bold text-lg flex items-center gap-2">
                         <MapPin size={18} className="text-warning" /> National Heat Map
                     </h3>

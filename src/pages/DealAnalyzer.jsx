@@ -125,7 +125,7 @@ const DealAnalyzer = () => {
                                         onChange={handleInputChange}
                                         disabled={isTitleCompany}
                                         title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
-                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-full bg-[var(--bg-tertiary)] border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -141,7 +141,7 @@ const DealAnalyzer = () => {
                                         onChange={handleInputChange}
                                         disabled={isTitleCompany}
                                         title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
-                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-full bg-[var(--bg-tertiary)] border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -157,7 +157,7 @@ const DealAnalyzer = () => {
                                         onChange={handleInputChange}
                                         disabled={isTitleCompany}
                                         title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
-                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-full bg-[var(--bg-tertiary)] border border-blue-900/50 rounded-md py-2 pl-8 pr-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all font-bold ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -172,7 +172,7 @@ const DealAnalyzer = () => {
                                         onChange={handleInputChange}
                                         disabled={isTitleCompany}
                                         title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
-                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 px-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all text-sm ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-full bg-[var(--bg-tertiary)] border border-blue-900/50 rounded-md py-2 px-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all text-sm ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                                 <div>
@@ -184,7 +184,7 @@ const DealAnalyzer = () => {
                                         onChange={handleInputChange}
                                         disabled={isTitleCompany}
                                         title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
-                                        className={`w-full bg-black/40 border border-blue-900/50 rounded-md py-2 px-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all text-sm ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-full bg-[var(--bg-tertiary)] border border-blue-900/50 rounded-md py-2 px-3 text-white font-mono focus:border-blue-500 focus:outline-none transition-all text-sm ${isTitleCompany ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -221,19 +221,19 @@ const DealAnalyzer = () => {
                             </h3>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-black/40 rounded-lg p-3 border border-blue-900/30">
+                                <div className="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-blue-900/30">
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1">Deal Score</div>
                                     <div className={`text-3xl font-mono font-bold ${dealScore >= 80 ? 'text-blue-400' : 'text-yellow-400'}`}>
                                         {dealScore}
                                     </div>
                                 </div>
-                                <div className="bg-black/40 rounded-lg p-3 border border-blue-900/30">
+                                <div className="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-blue-900/30">
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1">Liquidity</div>
                                     <div className={`text-xl font-mono font-bold mt-1 flex items-center gap-2 ${liquidityLabel === 'HIGH' ? 'text-blue-400' : 'text-amber-400'}`}>
                                         <Activity size={18} /> {liquidityLabel}
                                     </div>
                                 </div>
-                                <div className="bg-black/40 rounded-lg p-3 border border-blue-900/30 col-span-2">
+                                <div className="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-blue-900/30 col-span-2">
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 flex justify-between">
                                         <span>Close Probability</span>
                                         <span className={closeProb >= 80 ? 'text-emerald-400' : 'text-amber-400'}>{closeProb}%</span>
@@ -299,7 +299,7 @@ const DealAnalyzer = () => {
 
                         <div className="space-y-3">
                             {topBuyers.map((buyer, index) => (
-                                <div key={buyer.investorId} className="flex items-center justify-between p-3 bg-black/40 rounded-lg border border-white/5 hover:border-blue-500/30 transition-colors">
+                                <div key={buyer.investorId} className="flex items-center justify-between p-3 bg-[var(--bg-tertiary)] rounded-lg border border-white/5 hover:border-blue-500/30 transition-colors">
                                     <div className="flex items-center gap-3">
                                         <div className="w-6 h-6 rounded-full bg-blue-900/50 border border-blue-500/30 flex items-center justify-center text-xs font-bold text-blue-300 font-mono">
                                             {index + 1}
@@ -334,7 +334,7 @@ const DealAnalyzer = () => {
                         </h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                            <div className="bg-black/40 rounded-lg p-4 border border-white/5 flex flex-col justify-center">
+                            <div className="bg-[var(--bg-tertiary)] rounded-lg p-4 border border-white/5 flex flex-col justify-center">
                                 <div className="text-[10px] text-gray-400 uppercase tracking-widest font-mono mb-2">Gross Flip Profit</div>
                                 <div className="text-2xl font-mono text-white">
                                     {formatCurrency(grossProfit)}
@@ -348,7 +348,7 @@ const DealAnalyzer = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-black/40 rounded-lg p-4 border border-white/5 flex flex-col justify-center">
+                            <div className="bg-[var(--bg-tertiary)] rounded-lg p-4 border border-white/5 flex flex-col justify-center">
                                 <div className="text-[10px] text-gray-400 uppercase tracking-widest font-mono mb-2">Return on Investment (ROI)</div>
                                 <div className={`text-2xl font-mono font-bold ${roi >= 15 ? 'text-blue-400' : 'text-yellow-400'}`}>
                                     {roi.toFixed(1)}%

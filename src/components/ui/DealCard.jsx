@@ -3,10 +3,10 @@ import { MapPin, ShieldCheck, CheckCircle, GraduationCap, Award } from 'lucide-r
 import { useAuth } from '../../contexts/useAuth';
 
 const getTrustTier = (score = 50) => {
-    if (score >= 90) return { label: 'Elite', class: 'bg-success text-bg-darker' };
-    if (score >= 75) return { label: 'Verified Pro', class: 'bg-primary text-bg-darker' };
+    if (score >= 90) return { label: 'Elite', class: 'bg-success text-bg-[var(--bg-primary)]er' };
+    if (score >= 75) return { label: 'Verified Pro', class: 'bg-primary text-bg-[var(--bg-primary)]er' };
     if (score >= 50) return { label: 'Active Trader', class: 'bg-secondary text-white' };
-    if (score >= 25) return { label: 'New', class: 'bg-warning text-bg-darker' };
+    if (score >= 25) return { label: 'New', class: 'bg-warning text-bg-[var(--bg-primary)]er' };
     return { label: 'High Risk', class: 'bg-danger text-white' };
 };
 

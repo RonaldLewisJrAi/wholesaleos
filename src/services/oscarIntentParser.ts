@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 export type OSCARIntent =
@@ -12,6 +12,7 @@ export type OSCARIntent =
     | 'query_transaction_status'
     | 'query_intelligence'
     | 'query_investors'
+    | 'query_radar'
     | 'general_question'
     | 'unknown';
 
@@ -42,7 +43,9 @@ Choose ONE of the following intents:
     Parameters to extract: raw_query (string)
 8. query_investors: The user is asking about investor or wholesaler activity, leaderboards, or historical behavior (e.g., "Which investors closed the most deals this month").
     Parameters to extract: raw_query (string)
-9. general_question: The user is asking a conversational question, not executing an action or querying the database.
+9. query_radar: The user is asking about real-time radar, hottest markets, deal velocity, geographic activity, or demand spikes (e.g., "Show hottest markets", "Where are deals closing fastest").
+    Parameters to extract: raw_query (string)
+10. general_question: The user is asking a conversational question, not executing an action or querying the database.
 
 Output ONLY a valid JSON object matching this schema, with no markdown formatting:
 {

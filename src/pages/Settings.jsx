@@ -74,7 +74,7 @@ const Settings = () => {
     return (
         <div className="settings-container animate-fade-in max-w-6xl mx-auto">
             {integrationsLoading && (
-                <div className="fixed inset-0 bg-[var(--bg-dark)]/80 z-50 flex items-center justify-center backdrop-blur-sm">
+                <div className="fixed inset-0 bg-[var(--bg-[var(--bg-primary)])]/80 z-50 flex items-center justify-center backdrop-blur-sm">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
             )}
@@ -171,7 +171,7 @@ const Settings = () => {
                                         <div className="text-xl font-bold flex items-center gap-2">
                                             <UsersIcon size={20} className="text-info" /> 8 / 10 Used
                                         </div>
-                                        <div className="w-full bg-black/40 rounded h-2 mt-3 overflow-hidden">
+                                        <div className="w-full bg-[var(--bg-tertiary)] rounded h-2 mt-3 overflow-hidden">
                                             <div className="bg-info h-full w-[80%]"></div>
                                         </div>
                                     </div>

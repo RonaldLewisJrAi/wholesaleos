@@ -78,7 +78,7 @@ export default function DealSimulator() {
                             </div>
                             <div>
                                 <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Motivation</div>
-                                <div className="leading-relaxed bg-[#050816]/50 p-3 rounded border border-blue-900/30">{lead.motivation}</div>
+                                <div className="leading-relaxed bg-[var(--bg-tertiary)] p-3 rounded border border-blue-900/30">{lead.motivation}</div>
                             </div>
                             <div>
                                 <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Timeline</div>
@@ -129,7 +129,7 @@ export default function DealSimulator() {
                                     type="number"
                                     value={userArv}
                                     onChange={(e) => setUserArv(e.target.value)}
-                                    className="w-full bg-[#050816] border border-blue-900/50 text-white px-4 py-2 rounded focus:outline-none focus:border-emerald-500 font-mono transition-colors"
+                                    className="w-full bg-[var(--bg-secondary)] border border-blue-900/50 text-white px-4 py-2 rounded focus:outline-none focus:border-emerald-500 font-mono transition-colors"
                                     placeholder="240000"
                                 />
                                 <div className="text-[10px] text-gray-600 mt-1 italic">Tip: Comps show similar renovated homes nearby selling for $230k - $250k.</div>
@@ -141,7 +141,7 @@ export default function DealSimulator() {
                                     type="number"
                                     value={userRepairs}
                                     onChange={(e) => setUserRepairs(e.target.value)}
-                                    className="w-full bg-[#050816] border border-blue-900/50 text-white px-4 py-2 rounded focus:outline-none focus:border-emerald-500 font-mono transition-colors"
+                                    className="w-full bg-[var(--bg-secondary)] border border-blue-900/50 text-white px-4 py-2 rounded focus:outline-none focus:border-emerald-500 font-mono transition-colors"
                                     placeholder="45000"
                                 />
                             </div>
@@ -184,7 +184,7 @@ export default function DealSimulator() {
                         {results.passed ? 'Simulation Passed' : 'Simulation Failed'}
                     </p>
 
-                    <div className="bg-[#050816]/80 p-6 rounded-lg border border-blue-900/50 text-left space-y-4 font-mono text-sm">
+                    <div className="bg-[var(--bg-tertiary)] p-6 rounded-lg border border-blue-900/50 text-left space-y-4 font-mono text-sm">
                         <div className="text-xs text-gray-500 uppercase tracking-widest border-b border-blue-900/30 pb-2 mb-4">Post-Deal Breakdown</div>
                         {results.feedback.map((fb, idx) => (
                             <div key={idx} className="flex gap-3 text-gray-300">
@@ -197,7 +197,7 @@ export default function DealSimulator() {
                     <div className="mt-8 flex gap-4 justify-center">
                         <button
                             onClick={startSimulation}
-                            className="bg-[#050816] hover:bg-white/5 border border-blue-900/50 text-white px-6 py-2 rounded uppercase font-bold tracking-widest font-mono text-xs transition-colors"
+                            className="bg-[var(--bg-secondary)] hover:bg-white/5 border border-blue-900/50 text-white px-6 py-2 rounded uppercase font-bold tracking-widest font-mono text-xs transition-colors"
                         >
                             Play Again
                         </button>

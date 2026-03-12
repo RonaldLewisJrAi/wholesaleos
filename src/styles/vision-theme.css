@@ -9,6 +9,6 @@
     --vision-glow-light: #4E7BFF;
 
     /* Global Overrides */
-    background-color: var(--vision-bg-darkest);
+    /* background-color: var(--vision-bg-darkest); */
     color: white;
 }

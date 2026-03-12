@@ -105,7 +105,7 @@ const Radar = () => {
 
             {/* Advanced Filters Modal */}
             {showFilters && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'var(--bg-surface)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '500px', width: '90%', padding: '24px', position: 'relative' }}>
                         <div className="flex-between mb-4 pb-4 border-b border-[var(--border-light)]">
                             <h2 className="text-xl font-bold flex items-center gap-2"><Filter size={20} className="text-primary" /> Advanced Filters</h2>

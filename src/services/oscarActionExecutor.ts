@@ -1,6 +1,8 @@
 import { supabase } from '../lib/supabase';
 import { OSCARIntent, ParsedIntent } from './oscarIntentParser';
 import { handleOSCARQuery } from './oscarQueryService';
+import { dealRadarService } from './dealRadarService';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface ActionExecutionResult {
     success: boolean;
@@ -27,6 +29,8 @@ export async function executeAction(parsed: ParsedIntent): Promise<ActionExecuti
         case 'query_investors':
             const rawQuery = parameters?.raw_query || "Execute data query.";
             return await handleOSCARQuery(intent, rawQuery);
+        case 'query_radar':
+            return await executeQueryRadar(parameters);
         case 'general_question':
         case 'unknown':
         default:
@@ -127,4 +131,40 @@ async function executeOpenEscrow(params: any): Promise<ActionExecutionResult> {
         message: `Opening Escrow Command Center for ${address || 'Selected Property'}.`,
         navigationTarget: `/deals/room?address=${encodeURIComponent(address || '')}`
     };
+}
+
+async function executeQueryRadar(params: any): Promise<ActionExecutionResult> {
+    const rawQuery = params?.raw_query || "What is happening on the radar?";
+
+    // Pull the live 50-100 events from the deal radar service
+    const events = dealRadarService.eventsCache;
+    if (events.length === 0) {
+        return { success: true, message: "The Deal Radar is currently active but waiting for market signals to populate." };
+    }
+
+    try {
+        const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+        if (!apiKey) throw new Error("Missing Gemini key for radar synthesis");
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+        const prompt = `
+You are the WholesaleOS Intelligence Terminal (OSCAR). 
+The user asked: "${rawQuery}"
+
+Here is the RAW realtime Radar event stream (last ${events.length} signals):
+${JSON.stringify(events.slice(0, 20), null, 2)}
+
+Analyze this data. Summarize the hottest markets, demand spikes, or velocities accurately. Keep your response concise, sharp, and highly professional like a Bloomberg terminal. Use clear short sentences. Max 3 sentences.`;
+
+        const result = await model.generateContent(prompt);
+        return {
+            success: true,
+            message: result.response.text(),
+            navigationTarget: '/radar'
+        };
+    } catch (error) {
+        console.error("OSCAR Radar Synthesis Error", error);
+        return { success: false, message: "I am unable to synthesize the live radar data at this very moment." };
+    }
 }

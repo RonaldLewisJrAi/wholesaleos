@@ -372,7 +372,7 @@ const Pipeline = () => {
                 </div>
                 <div className="flex gap-3 mt-4 md:mt-0">
                     <button
-                        className={`bg-black/30 border border-blue-900/50 hover:bg-blue-900/30 text-gray-300 transition-colors px-4 py-2 rounded-lg text-xs font-mono tracking-widest uppercase flex items-center gap-2 ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-black/30' : ''}`}
+                        className={`bg-[var(--bg-tertiary)] border border-blue-900/50 hover:bg-blue-900/30 text-gray-300 transition-colors px-4 py-2 rounded-lg text-xs font-mono tracking-widest uppercase flex items-center gap-2 ${isTitleCompany ? 'opacity-50 cursor-not-allowed hover:bg-[var(--bg-tertiary)]' : ''}`}
                         onClick={handleCustomizeStages}
                         disabled={isTitleCompany}
                         title={isTitleCompany ? "Title companies have read-only access to this module." : ""}
@@ -421,7 +421,7 @@ const Pipeline = () => {
                                         draggable={!isTitleCompany}
                                         onDragStart={(e) => handleDragStart(e, deal, stage.id)}
                                         onDragEnd={handleDragEnd}
-                                        className={`glass-card bg-[#050816]/70 border-blue-900/50 p-4 ${isTitleCompany ? 'cursor-default' : 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.25)]'} transition-all duration-300 transform group relative overflow-hidden ${deal.tags?.includes('Hot') ? 'priority-gold' : ''}`}
+                                        className={`glass-card bg-[var(--bg-tertiary)] border-blue-900/50 p-4 ${isTitleCompany ? 'cursor-default' : 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(78,123,255,0.25)]'} transition-all duration-300 transform group relative overflow-hidden ${deal.tags?.includes('Hot') ? 'priority-gold' : ''}`}
                                     >
                                         {/* Card Highlight Strip */}
                                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -429,7 +429,7 @@ const Pipeline = () => {
                                         <div className="flex justify-between items-start mb-3">
                                             <span className="text-sm font-bold text-white tracking-tight break-words pr-2">{deal.address}</span>
                                             {!isTitleCompany && (
-                                                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-4 bg-[#050816]/90 p-1 rounded-lg border border-blue-900/50 shadow-lg">
+                                                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-4 bg-[var(--bg-tertiary)] p-1 rounded-lg border border-blue-900/50 shadow-lg">
                                                     <button className="text-emerald-400 hover:text-emerald-300 transition-colors p-1" onClick={() => handleCloseDeal(stage.id, deal)} title="Close Deal"><CheckCircle size={14} /></button>
                                                     <button className="text-blue-400 hover:text-blue-300 transition-colors p-1" onClick={() => handleEditDeal(stage.id, deal.id, deal.address, deal.value)} title="Edit Deal"><Edit2 size={14} /></button>
                                                     <button className="text-red-400 hover:text-red-300 transition-colors p-1" onClick={() => handleDeleteDeal(stage.id, deal.id, deal.address)} title="Delete Deal"><Trash2 size={14} /></button>

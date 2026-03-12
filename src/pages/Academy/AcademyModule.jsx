@@ -98,7 +98,7 @@ export default function AcademyModule() {
             </div>
 
             {/* Video Placeholder */}
-            <div className="w-full aspect-video bg-[#050816] border border-blue-900/50 rounded-xl mb-8 flex items-center justify-center relative group overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <div className="w-full aspect-video bg-[var(--bg-secondary)] border border-blue-900/50 rounded-xl mb-8 flex items-center justify-center relative group overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
                 <div className="absolute inset-0 bg-blue-900/20 group-hover:bg-blue-900/40 transition-colors"></div>
                 <div className="flex flex-col items-center z-10">
                     <PlayCircle size={64} className="text-blue-500 mb-4 group-hover:scale-110 transition-transform opacity-80" />
@@ -134,7 +134,7 @@ export default function AcademyModule() {
                         <button
                             key={i}
                             onClick={() => handlePromptOscar(prompt)}
-                            className="bg-[#050816] text-blue-300 border border-blue-900/50 hover:border-emerald-500/50 hover:text-emerald-400 px-4 py-2 rounded font-mono text-xs transition-colors shadow-sm"
+                            className="bg-[var(--bg-secondary)] text-blue-300 border border-blue-900/50 hover:border-emerald-500/50 hover:text-emerald-400 px-4 py-2 rounded font-mono text-xs transition-colors shadow-sm"
                         >
                             {prompt}
                         </button>

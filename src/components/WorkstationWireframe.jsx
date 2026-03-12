@@ -47,7 +47,7 @@ const WorkstationWireframe = ({
                 )}
 
                 <div className="flex items-start gap-4 mb-4 md:mb-0">
-                    <div className="p-3 bg-black/40 rounded-full border border-white/10 mt-1">
+                    <div className="p-3 bg-[var(--bg-tertiary)] rounded-full border border-white/10 mt-1">
                         {immediateAction?.urgency === 'critical' ? <AlertCircle size={24} /> : <Zap size={24} />}
                     </div>
                     <div>
@@ -91,7 +91,7 @@ const WorkstationWireframe = ({
             {/* EXPANDABLE REASONING PANE */}
             {
                 showReasoning && immediateAction?.reasoning && (
-                    <div className="glass-panel p-4 rounded-xl border border-white/10 animate-fade-in -mt-2 mx-2 bg-black/40">
+                    <div className="glass-panel p-4 rounded-xl border border-white/10 animate-fade-in -mt-2 mx-2 bg-[var(--bg-tertiary)]">
                         <h4 className="text-xs uppercase tracking-wider font-bold text-gray-400 mb-3 border-b border-white/10 pb-2">Intelligence Explainer</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {immediateAction.reasoning.map((r, idx) => (

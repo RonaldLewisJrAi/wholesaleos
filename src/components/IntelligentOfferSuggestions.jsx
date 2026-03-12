@@ -78,7 +78,7 @@ const IntelligentOfferSuggestions = ({ leadData, intelligentData }) => {
                     <button onClick={() => handleGenerateContract(aggressive_offer)} className="btn btn-secondary text-xs py-1.5 flex-1">Generate at Standard</button>
                 </div>
 
-                <div className="flex gap-2 items-center bg-black/40 p-2 rounded border border-white/10 mt-2">
+                <div className="flex gap-2 items-center bg-[var(--bg-tertiary)] p-2 rounded border border-white/10 mt-2">
                     <span className="text-xs text-muted font-bold ml-2">CUSTOM OFFER:</span>
                     <input
                         type="number"

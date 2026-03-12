@@ -111,10 +111,10 @@ export const OSCARPanel: React.FC = () => {
             />
 
             {isExpanded && (
-                <div className="flex flex-col flex-1 overflow-hidden h-full bg-black/80">
+                <div className="flex flex-col flex-1 overflow-hidden h-full bg-[var(--bg-tertiary)]">
 
                     {/* Voice Controls Bar */}
-                    <div className="bg-[#050816]/80 px-3 py-1.5 flex justify-between items-center border-b border-blue-900/40">
+                    <div className="bg-[var(--bg-tertiary)] px-3 py-1.5 flex justify-between items-center border-b border-blue-900/40">
                         <button
                             onClick={handleReplay}
                             className="text-gray-400 hover:text-blue-400 transition flex items-center gap-1 text-[10px] font-mono tracking-wider"

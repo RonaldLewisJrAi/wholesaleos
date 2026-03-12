@@ -61,11 +61,11 @@ export default function AcademyDashboard() {
                             <Target size={16} /> Learning Progress
                         </h3>
                         <div className="space-y-4 font-mono text-sm">
-                            <div className="flex justify-between items-center bg-[#050816]/50 p-3 rounded border border-blue-900/30">
+                            <div className="flex justify-between items-center bg-[var(--bg-tertiary)] p-3 rounded border border-blue-900/30">
                                 <span className="text-gray-400">Completed Stages</span>
                                 <span className="text-white font-bold">{completedCount} / 6</span>
                             </div>
-                            <div className="flex justify-between items-center bg-[#050816]/50 p-3 rounded border border-blue-900/30">
+                            <div className="flex justify-between items-center bg-[var(--bg-tertiary)] p-3 rounded border border-blue-900/30">
                                 <span className="text-gray-400">Simulator Score</span>
                                 <span className="text-amber-400 font-bold">Unranked</span>
                             </div>

@@ -79,7 +79,7 @@ const TitlePortal = () => {
                                 <p className="text-xs text-muted mt-2 text-center">Use <strong className="text-white">TEST-CLOSING-CODE</strong> to bypass database check in sandbox.</p>
                             </div>
                             {error && <p className="text-danger text-sm font-bold bg-danger/10 border border-danger/20 p-3 rounded text-center">{error}</p>}
-                            <button type="submit" className="w-full bg-primary text-bg-darker font-bold py-3 text-lg rounded-lg hover:brightness-110 flex items-center justify-center gap-2 disabled:opacity-50 transition-all" disabled={loading || !closingCode}>
+                            <button type="submit" className="w-full bg-primary text-bg-[var(--bg-primary)]er font-bold py-3 text-lg rounded-lg hover:brightness-110 flex items-center justify-center gap-2 disabled:opacity-50 transition-all" disabled={loading || !closingCode}>
                                 {loading ? 'Verifying Blockchain Registry...' : <><Search size={18} /> Locate Deal File</>}
                             </button>
                         </form>
@@ -117,17 +117,17 @@ const TitlePortal = () => {
 
                                 {/* Step 1: Escrow */}
                                 <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ${deal.escrow_status === 'CONFIRMED' ? 'bg-success border-success/30 text-bg-darker' : 'bg-[#131B2C] border-gray-700 text-gray-400'}`}>
+                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ${deal.escrow_status === 'CONFIRMED' ? 'bg-success border-success/30 text-bg-[var(--bg-primary)]er' : 'bg-[#131B2C] border-gray-700 text-gray-400'}`}>
                                         {deal.escrow_status === 'CONFIRMED' ? <Check size={18} /> : <span className="font-bold">1</span>}
                                     </div>
                                     <div className={`w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-xl border shadow-sm ${deal.escrow_status === 'CONFIRMED' ? 'bg-success/5 border-success/20' : 'bg-[#0B0F19] border-gray-800'}`}>
                                         <div className="flex items-center justify-between mb-2">
                                             <div className={`font-bold text-lg ${deal.escrow_status === 'CONFIRMED' ? 'text-success' : 'text-gray-200'}`}>Escrow Deposit</div>
-                                            {deal.escrow_status === 'CONFIRMED' ? <span className="text-[10px] uppercase tracking-wider bg-success text-bg-darker px-2 py-0.5 rounded font-bold">Confirmed</span> : <span className="text-[10px] uppercase tracking-wider bg-warning text-bg-darker px-2 py-0.5 rounded font-bold">Pending</span>}
+                                            {deal.escrow_status === 'CONFIRMED' ? <span className="text-[10px] uppercase tracking-wider bg-success text-bg-[var(--bg-primary)]er px-2 py-0.5 rounded font-bold">Confirmed</span> : <span className="text-[10px] uppercase tracking-wider bg-warning text-bg-[var(--bg-primary)]er px-2 py-0.5 rounded font-bold">Pending</span>}
                                         </div>
                                         <p className="text-xs text-gray-500 mb-4 leading-relaxed">Verify receipt of non-refundable EMD from the investor into your corporate trust account.</p>
                                         {deal.escrow_status !== 'CONFIRMED' && (
-                                            <button onClick={() => handleAction('ESCROW')} disabled={loading} className="text-xs font-bold py-2 px-4 bg-success text-bg-darker rounded hover:brightness-110 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
+                                            <button onClick={() => handleAction('ESCROW')} disabled={loading} className="text-xs font-bold py-2 px-4 bg-success text-bg-[var(--bg-primary)]er rounded hover:brightness-110 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
                                                 Confirm Receipt
                                             </button>
                                         )}
@@ -136,17 +136,17 @@ const TitlePortal = () => {
 
                                 {/* Step 2: Title */}
                                 <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mt-6">
-                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ${deal.title_status === 'CLEAR' ? 'bg-success border-success/30 text-bg-darker' : 'bg-[#131B2C] border-gray-700 text-gray-400'}`}>
+                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ${deal.title_status === 'CLEAR' ? 'bg-success border-success/30 text-bg-[var(--bg-primary)]er' : 'bg-[#131B2C] border-gray-700 text-gray-400'}`}>
                                         {deal.title_status === 'CLEAR' ? <Check size={18} /> : <span className="font-bold">2</span>}
                                     </div>
                                     <div className={`w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-xl border shadow-sm ${deal.title_status === 'CLEAR' ? 'bg-success/5 border-success/20' : 'bg-[#0B0F19] border-gray-800'}`}>
                                         <div className="flex items-center justify-between mb-2">
                                             <div className={`font-bold text-lg ${deal.title_status === 'CLEAR' ? 'text-success' : 'text-gray-200'}`}>Clear Title Search</div>
-                                            {deal.title_status === 'CLEAR' ? <span className="text-[10px] uppercase tracking-wider bg-success text-bg-darker px-2 py-0.5 rounded font-bold">Clear</span> : <span className="text-[10px] uppercase tracking-wider bg-warning text-bg-darker px-2 py-0.5 rounded font-bold">Pending</span>}
+                                            {deal.title_status === 'CLEAR' ? <span className="text-[10px] uppercase tracking-wider bg-success text-bg-[var(--bg-primary)]er px-2 py-0.5 rounded font-bold">Clear</span> : <span className="text-[10px] uppercase tracking-wider bg-warning text-bg-[var(--bg-primary)]er px-2 py-0.5 rounded font-bold">Pending</span>}
                                         </div>
                                         <p className="text-xs text-gray-500 mb-4 leading-relaxed">Verify property is free and clear of unresolvable liens, encumbrances, or chain of title defects.</p>
                                         {deal.title_status !== 'CLEAR' && (
-                                            <button onClick={() => handleAction('TITLE')} disabled={loading || deal.escrow_status !== 'CONFIRMED'} className="text-xs font-bold py-2 px-4 bg-primary text-bg-darker rounded hover:brightness-110 disabled:opacity-50 transition-all">
+                                            <button onClick={() => handleAction('TITLE')} disabled={loading || deal.escrow_status !== 'CONFIRMED'} className="text-xs font-bold py-2 px-4 bg-primary text-bg-[var(--bg-primary)]er rounded hover:brightness-110 disabled:opacity-50 transition-all">
                                                 Mark Title Clear
                                             </button>
                                         )}
@@ -155,13 +155,13 @@ const TitlePortal = () => {
 
                                 {/* Step 3: Close */}
                                 <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mt-6">
-                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ${deal.status === 'Closed' ? 'bg-success border-success/30 text-bg-darker' : 'bg-[#131B2C] border-gray-700 text-gray-400'}`}>
+                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ${deal.status === 'Closed' ? 'bg-success border-success/30 text-bg-[var(--bg-primary)]er' : 'bg-[#131B2C] border-gray-700 text-gray-400'}`}>
                                         {deal.status === 'Closed' ? <Check size={18} /> : <span className="font-bold">3</span>}
                                     </div>
                                     <div className={`w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-xl border shadow-sm ${deal.status === 'Closed' ? 'bg-success/5 border-success/20' : 'bg-[#0B0F19] border-gray-800'}`}>
                                         <div className="flex items-center justify-between mb-2">
                                             <div className={`font-bold text-lg ${deal.status === 'Closed' ? 'text-success' : 'text-gray-200'}`}>Final Transfer</div>
-                                            {deal.status === 'Closed' ? <span className="text-[10px] uppercase tracking-wider bg-success text-bg-darker px-2 py-0.5 rounded font-bold">Completed</span> : <span className="text-[10px] uppercase tracking-wider bg-gray-600 text-white px-2 py-0.5 rounded font-bold">Locked</span>}
+                                            {deal.status === 'Closed' ? <span className="text-[10px] uppercase tracking-wider bg-success text-bg-[var(--bg-primary)]er px-2 py-0.5 rounded font-bold">Completed</span> : <span className="text-[10px] uppercase tracking-wider bg-gray-600 text-white px-2 py-0.5 rounded font-bold">Locked</span>}
                                         </div>
                                         <p className="text-xs text-gray-500 mb-4 leading-relaxed">Execute final closing documents, disburse assignment fees to the wholesaler, and formalize transfer.</p>
                                         {deal.status !== 'Closed' && (

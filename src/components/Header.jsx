@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const Header = () => {
-    const { theme, toggleTheme } = useTheme();
     const { isAssistantOpen, toggleAssistant } = useGuidance();
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -76,9 +75,7 @@ const Header = () => {
                         <Bot size={18} className={isAssistantOpen ? "animate-pulse" : ""} />
                         <span className="font-mono text-xs font-bold tracking-widest hidden sm:inline-block">OSCAR</span>
                     </button>
-                    <button className="icon-btn" onClick={toggleTheme} title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                    </button>
+
                 </div>
 
                 <div className="dropdown-container">

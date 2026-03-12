@@ -47,7 +47,7 @@ const OrgHealthWidget = () => {
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                    <div className="p-4 border-t border-[var(--border-light)] bg-black/40 animate-fade-in">
+                    <div className="p-4 border-t border-[var(--border-light)] bg-[var(--bg-tertiary)] animate-fade-in">
                         <div className="grid grid-cols-2 gap-3 mb-4">
                             <div className="bg-[var(--surface-dark)] p-2 rounded border border-[var(--border-light)]">
                                 <div className="text-[10px] text-muted flex items-center gap-1"><Zap size={10} className="text-warning" /> Integrations</div>

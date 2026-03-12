@@ -144,17 +144,17 @@ export default function ClosingVerificationPanel({ dealId }) {
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 relative z-0">
-                <div className={`p-4 rounded-lg border ${wholesaler_status === 'VERIFIED' ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-[#050816]/50 border-blue-900/30'}`}>
+                <div className={`p-4 rounded-lg border ${wholesaler_status === 'VERIFIED' ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-[var(--bg-tertiary)] border-blue-900/30'}`}>
                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-2">Wholesaler</div>
                     <div className="font-bold text-lg mb-1">{renderStatusObj(wholesaler_status)}</div>
                 </div>
 
-                <div className={`p-4 rounded-lg border ${investor_status === 'VERIFIED' ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-[#050816]/50 border-blue-900/30'}`}>
+                <div className={`p-4 rounded-lg border ${investor_status === 'VERIFIED' ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-[var(--bg-tertiary)] border-blue-900/30'}`}>
                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-2">Investor</div>
                     <div className="font-bold text-lg mb-1">{renderStatusObj(investor_status)}</div>
                 </div>
 
-                <div className={`p-4 rounded-lg border ${title_status === 'VERIFIED' ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-[#050816]/50 border-blue-900/30'}`}>
+                <div className={`p-4 rounded-lg border ${title_status === 'VERIFIED' ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-[var(--bg-tertiary)] border-blue-900/30'}`}>
                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-2">Title Company</div>
                     <div className="font-bold text-lg mb-1">{renderStatusObj(title_status)}</div>
                 </div>
@@ -170,7 +170,7 @@ export default function ClosingVerificationPanel({ dealId }) {
                         <input
                             type="text"
                             placeholder="6-Digit Code"
-                            className="bg-[#050816] border border-blue-900/50 text-white px-4 py-2 rounded focus:outline-none focus:border-blue-500 font-mono flex-1 uppercase tracking-widest"
+                            className="bg-[var(--bg-secondary)] border border-blue-900/50 text-white px-4 py-2 rounded focus:outline-none focus:border-blue-500 font-mono flex-1 uppercase tracking-widest"
                             value={code}
                             onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6))}
                             maxLength={6}
