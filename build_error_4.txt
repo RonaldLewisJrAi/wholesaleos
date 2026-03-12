@@ -1,0 +1,55 @@
+﻿
+> frozen-halo@0.0.0 build
+> node --max_old_space_size=6144 node_modules/vite/bin/vite.js build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 1846 modules transformed.
+node.exe : [31mΓ£ù[39m 
+Build failed in 4.52s
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: ([31mΓ£ù  
+  [39m Build failed in 4.52   
+ s:String) [], RemoteExcep    
+tion
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+[31merror during build:
+[31mCould not resolve 
+"../radar/DealRadarMap" from "
+src/pages/Workstations/Investo
+rDashboard.jsx"[31m
+file: [36mC:/Users/ronal/.gem
+ini/antigravity/playground/fro
+zen-halo/src/pages/Workstation
+s/InvestorDashboard.jsx[31m
+    at getRollupError (file://
+/C:/Users/ronal/.gemini/antigr
+avity/playground/frozen-halo/n
+ode_modules/rollup/dist/es/sha
+red/parseAst.js:402:41)
+    at error (file:///C:/Users
+/ronal/.gemini/antigravity/pla
+yground/frozen-halo/node_modul
+es/rollup/dist/es/shared/parse
+Ast.js:398:42)
+    at ModuleLoader.handleInva
+lidResolvedId (file:///C:/User
+s/ronal/.gemini/antigravity/pl
+ayground/frozen-halo/node_modu
+les/rollup/dist/es/shared/node
+-entry.js:21710:24)
+    at file:///C:/Users/ronal/
+.gemini/antigravity/playground
+/frozen-halo/node_modules/roll
+up/dist/es/shared/node-entry.j
+s:21670:26[39m

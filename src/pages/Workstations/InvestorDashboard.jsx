@@ -4,8 +4,8 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/useAuth';
 import DealCard from '../../components/ui/DealCard';
 import TrustGraph from '../../components/ui/TrustGraph';
-import { DealRadarMap } from '../radar/DealRadarMap';
-import { RadarFeedPanel } from '../radar/RadarFeedPanel';
+import { DealRadarMap } from '../../components/radar/DealRadarMap';
+import { RadarFeedPanel } from '../../components/radar/RadarFeedPanel';
 
 const ModuleWrapper = ({ title, icon, children, className = "" }) => {
     const IconComponent = icon;

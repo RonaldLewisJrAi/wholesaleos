@@ -1,0 +1,87 @@
+﻿
+> frozen-halo@0.0.0 build
+> node --max_old_space_size=6144 node_modules/vite/bin/vite.js build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 1836 modules transformed.
+node.exe : [31mΓ£ù[39m 
+Build failed in 4.24s
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: ([31mΓ£ù  
+  [39m Build failed in 4.24   
+ s:String) [], RemoteExcep    
+tion
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+[31merror during build:
+[31m[commonjs--resolver] 
+Failed to resolve entry for 
+package "react-map-gl". The 
+package may have incorrect 
+main/module/exports specified 
+in its package.json: Missing 
+"." specifier in 
+"react-map-gl" package[31m
+    at packageEntryFailure (fi
+le:///C:/Users/ronal/.gemini/a
+ntigravity/playground/frozen-h
+alo/node_modules/vite/dist/nod
+e/chunks/config.js:32816:32)
+    at resolvePackageEntry (fi
+le:///C:/Users/ronal/.gemini/a
+ntigravity/playground/frozen-h
+alo/node_modules/vite/dist/nod
+e/chunks/config.js:32811:3)
+    at tryNodeResolve (file://
+/C:/Users/ronal/.gemini/antigr
+avity/playground/frozen-halo/n
+ode_modules/vite/dist/node/chu
+nks/config.js:32716:70)
+    at Object.handler (file://
+/C:/Users/ronal/.gemini/antigr
+avity/playground/frozen-halo/n
+ode_modules/vite/dist/node/chu
+nks/config.js:32555:16)
+    at Object.handler (file://
+/C:/Users/ronal/.gemini/antigr
+avity/playground/frozen-halo/n
+ode_modules/vite/dist/node/chu
+nks/config.js:33706:13)
+    at file:///C:/Users/ronal/
+.gemini/antigravity/playground
+/frozen-halo/node_modules/roll
+up/dist/es/shared/node-entry.j
+s:22571:40
+    at async PluginDriver.hook
+FirstAndGetPlugin (file:///C:/
+Users/ronal/.gemini/antigravit
+y/playground/frozen-halo/node_
+modules/rollup/dist/es/shared/
+node-entry.js:22453:28)
+    at async resolveId (file:/
+//C:/Users/ronal/.gemini/antig
+ravity/playground/frozen-halo/
+node_modules/rollup/dist/es/sh
+ared/node-entry.js:20912:26)
+    at async 
+ModuleLoader.resolveId (file:/
+//C:/Users/ronal/.gemini/antig
+ravity/playground/frozen-halo/
+node_modules/rollup/dist/es/sh
+ared/node-entry.js:21358:15)
+    at async Object.resolveId 
+(file:///C:/Users/ronal/.gemin
+i/antigravity/playground/froze
+n-halo/node_modules/vite/dist/
+node/chunks/config.js:4154:21)
+[39m
