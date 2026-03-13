@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Search, Settings, LogOut, User, Shield, Sun, Moon, Info, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
-import { useTheme } from '../contexts/ThemeContext';
 import { useGuidance } from '../contexts/GuidanceContext';
 import { useAuth } from '../contexts/useAuth';
 import { supabase } from '../lib/supabase';

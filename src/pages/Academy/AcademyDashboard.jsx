@@ -126,7 +126,7 @@ export default function AcademyDashboard() {
 
             <h2 className="text-xl font-bold text-white mb-6 tracking-tight">Curriculum Modules</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {MODULES.map((mod, idx) => (
+                {MODULES.map((mod) => (
                     <div
                         key={mod.id}
                         onClick={() => mod.status !== 'LOCKED' ? navigate(`/academy/${mod.id}`) : null}
