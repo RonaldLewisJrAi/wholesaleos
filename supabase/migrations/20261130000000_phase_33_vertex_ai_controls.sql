@@ -2,7 +2,7 @@
 -- description: Adds schema for Vertex AI telemetry, caching, and token budget gating.
 -- 1. AI Usage Tracking Table
 CREATE TABLE IF NOT EXISTS public.ai_usage (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE,
     feature TEXT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.ai_usage (
 CREATE INDEX IF NOT EXISTS idx_ai_usage_org_date ON public.ai_usage(organization_id, created_at);
 -- 2. AI Output Cache Table
 CREATE TABLE IF NOT EXISTS public.ai_cache (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     cache_key TEXT NOT NULL,
     feature TEXT NOT NULL,
     input_hash TEXT NOT NULL,
