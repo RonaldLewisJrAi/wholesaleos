@@ -45,10 +45,16 @@ import { useAuth } from './contexts/useAuth';
 const RoleBasedRedirect = () => {
   const { user, loadingAuth } = useAuth();
 
-  if (loadingAuth) return <div className="p-8 text-white font-mono animate-pulse">Initializing Matrix...</div>;
+  if (loadingAuth) return (
+    <div className="flex flex-col items-center justify-center h-screen bg-[#0B1F33] text-white font-mono gap-4 tracking-widest uppercase">
+      <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <div>Initializing Matrix Node...</div>
+    </div>
+  );
   if (!user) return <Navigate to="/login" replace />;
 
   const role = user.primary_persona || 'WHOLESALER';
+  console.info(`[ROUTER] Identity resolved. Routing persona: ${role}`);
 
   switch (role) {
     case 'WHOLESALER': return <Navigate to="/pipeline" replace />;
