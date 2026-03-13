@@ -39,29 +39,25 @@ export const SubscriptionProvider = ({ children }) => {
             try {
                 // Phase 37: Clean Auth -> Profile -> Org -> Role pipeline
 
-                // 1. Fetch Profile and Role Data
+                // 1. Fetch Profile and Role Data (Reliance on useAuth Boot Loader for guarantees)
                 const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
                     .select('organization_id, primary_persona, allowed_personas, system_role')
                     .eq('id', user.id)
-                    .single();
+                    .maybeSingle();
+
+                if (profileError) {
+                    setLoadingSub(false);
+                    throw new Error("CRITICAL IDENTITY FAILURE: Failed to fetch subscription profile. " + profileError.message);
+                }
+
+                if (!profileData) {
+                    console.warn("[useSubscription] Profile missing during subscription fetch. This indicates a desync with the Auth Boot Loader.");
+                    setLoadingSub(false);
+                    return;
+                }
 
                 let profileDataToUse = profileData;
-
-                if (profileError || !profileDataToUse) {
-                    console.warn("Bootstrap Protocol: Profile missing. Attempting auto-creation...");
-                    const { data: newProfile, error: createProfileErr } = await supabase
-                        .from('profiles')
-                        .insert({ id: user.id, system_role: 'ADMIN' })
-                        .select('organization_id, primary_persona, allowed_personas, system_role')
-                        .single();
-
-                    if (createProfileErr || !newProfile) {
-                        setLoadingSub(false);
-                        throw new Error("CRITICAL IDENTITY FAILURE: Failed to bootstrap identity profile. Diagnostics: " + (createProfileErr?.message || "Database rejected profile insertion."));
-                    }
-                    profileDataToUse = newProfile;
-                }
 
                 // 2. Global Super Admin Override (Absolute Bypass)
                 if (profileDataToUse.system_role === 'GLOBAL_SUPER_ADMIN') {
