@@ -223,9 +223,8 @@ const Radar = () => {
 
                                 <div className="flex gap-2 mt-auto">
                                     <button
-                                        className="btn btn-secondary flex-1"
-                                        style={{ justifyContent: 'center' }}
-                                        onClick={() => alert(`--- SKIP TRACE RESULTS: ${prop.owner} ---\n\nPhone: (615) 555-${Math.floor(1000 + Math.random() * 9000)} (Mobile)\nEmail: contact@${prop.owner.replace(/\s+/g, '').toLowerCase()}.com\nMailing: ${prop.address.split(',')[0]}, TN\n\n[Status: Premium Trace Delivered]`)}
+                                        className="btn btn-secondary w-full"
+                                        onClick={() => alert(`--- SKIP TRACE RESULTS: ${prop.owner || 'Unknown'} ---\n\nPhone: (615) 555-${Math.floor(1000 + Math.random() * 9000)} (Mobile)\nEmail: contact@${(prop.owner || 'owner').replace(/\s+/g, '').toLowerCase()}.com\nMailing: ${(prop.address || '').split(',')[0]}, TN\n\n[Status: Premium Trace Delivered]`)}
                                     >
                                         Skip Trace
                                     </button>

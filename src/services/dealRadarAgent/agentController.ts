@@ -22,6 +22,7 @@ let currentStateIndex = 0;
  */
 export async function runForeclosureScanCycle() {
     console.log('[DealRadar Agent] Starting Hourly Foreclosure Scan Cycle...');
+    fetch('/api/telemetry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: 'radar', level: 'info', message: 'Starting Hourly Foreclosure Scan Cycle' }) }).catch(() => { });
     const results: any[] = [];
 
     if (foreclosureSources.length === 0) return results;
@@ -35,6 +36,7 @@ export async function runForeclosureScanCycle() {
     }
 
     console.log(`[DealRadar Agent] Scanning 1 Source (Hourly rotation): ${source.name}`);
+    fetch('/api/telemetry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: 'radar', level: 'info', message: `Scanning Foreclosure Source`, metadata: { source: source.name } }) }).catch(() => { });
 
     try {
         // 1. Playwright Collects Documents
@@ -59,6 +61,7 @@ export async function runForeclosureScanCycle() {
 
                 if (existingSignal) {
                     console.log(`[DealRadar Agent] Skipping duplicate signal (Hash: ${sourceHash}): ${parsedLead.address}`);
+                    fetch('/api/telemetry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: 'radar', level: 'debug', message: `Skipping duplicate signal`, metadata: { sourceHash, address: parsedLead.address } }) }).catch(() => { });
                     continue; // Skip insertion
                 }
 
@@ -79,11 +82,13 @@ export async function runForeclosureScanCycle() {
                 results.push(parsedLead);
             }
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error(`[DealRadar Agent] Error processing source ${source.name}:`, error);
+        fetch('/api/telemetry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: 'radar', level: 'error', message: `Error processing source`, metadata: { source: source.name, error: error.message } }) }).catch(() => { });
     }
 
     console.log(`[DealRadar Agent] Scan Complete. Discovered ${results.length} valid foreclosure leads in ${source.state}.`);
+    fetch('/api/telemetry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: 'radar', level: 'info', message: `Scan Complete`, metadata: { leadsDiscovered: results.length, state: source.state } }) }).catch(() => { });
 
     // Increment rotation index for the next hour
     currentStateIndex = (currentStateIndex + 1) % foreclosureSources.length;

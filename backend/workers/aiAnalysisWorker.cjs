@@ -1,6 +1,7 @@
 const { Queue, Worker } = require('bullmq');
 const { executeAIQuery } = require('../ai/vertexClient.cjs');
 const { checkTokenBudget, saveToCache, logAIUsage } = require('../ai/aiUsageService.cjs');
+const { workerLogger } = require('../logging/logger.cjs');
 const Redis = require('ioredis');
 
 const redisConnection = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
@@ -27,14 +28,14 @@ const enqueueAITask = async (taskType, payload, priorityLevel = 5) => {
 // WORKER EXECUTION DAEMON
 // ==========================================================
 const aiWorker = new Worker('AI_Analysis_Queue', async job => {
-    console.log(`[BullMQ: AI Worker] Processing Job ID: ${job.id} | Type: ${job.name}`);
+    workerLogger.debug(`Processing worker job`, { jobId: job.id, type: job.name });
     const { payload, organizationId, userId } = job.data;
 
     try {
         // Enforce Token Budgets inside the worker
         const budget = await checkTokenBudget(organizationId, job.name);
         if (!budget.allowed) {
-            console.warn(`[BullMQ: AI Worker] Job ${job.id} Rejected: Budget Exceeded - ${budget.reason}`);
+            workerLogger.warn(`Job Rejected: Budget Exceeded`, { jobId: job.id, expectedQueue: job.name, reason: budget.reason });
             // Let the job fail permanently, do not retry
             throw new Error(`Quota Exceeded: ${budget.reason}`);
         }
@@ -49,18 +50,18 @@ const aiWorker = new Worker('AI_Analysis_Queue', async job => {
         }
 
     } catch (error) {
-        console.error(`[BullMQ: AI Worker] Job ${job.id} Failed:`, error.message);
+        workerLogger.error(`Worker execution failed`, { jobId: job.id, error: error.message, stack: error.stack });
         throw error;
     }
 
 }, { connection: redisConnection });
 
 aiWorker.on('completed', (job) => {
-    console.log(`[BullMQ: AI Worker] Job ${job.id} Completed successfully.`);
+    workerLogger.info(`Job Completed successfully`, { jobId: job.id });
 });
 
 aiWorker.on('failed', (job, err) => {
-    console.log(`[BullMQ: AI Worker] Job ${job.id} Failed: ${err.message}`);
+    workerLogger.error(`Job Failed hook triggered`, { jobId: job.id, error: err.message });
 });
 
 // ==========================================================

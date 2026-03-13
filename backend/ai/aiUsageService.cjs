@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
+const { aiLogger } = require('./logging/logger.cjs');
 
 // Initialize a backend-only admin client to bypass RLS and read quotas securely
 const supabaseAdmin = createClient(
@@ -55,6 +56,7 @@ const checkTokenBudget = async (organizationId, featureName) => {
 
         // 3. Check Feature Flags
         if (!limits.allowedFeatures.includes('ALL') && !limits.allowedFeatures.includes(featureName)) {
+            aiLogger.warn('AI Budget Check Failed: Feature not allowed on current tier', { organizationId, currentTier, featureName });
             return {
                 allowed: false,
                 reason: `The '${featureName}' feature requires a higher subscription tier. Upgrade your plan to access this AI capability.`
@@ -79,6 +81,7 @@ const checkTokenBudget = async (organizationId, featureName) => {
 
         // 5. Assert budget
         if (currentTokens >= limits.tokens || currentRequests >= limits.requests) {
+            aiLogger.warn('AI Budget Check Failed: Quota exceeded', { organizationId, currentTier, currentRequests, currentTokens, limitRequests: limits.requests, limitTokens: limits.tokens });
             return {
                 allowed: false,
                 reason: `AI usage limit reached for your subscription tier (${currentRequests}/${limits.requests} reqs, ${currentTokens}/${limits.tokens} tokens). Upgrade your plan to continue using advanced AI features.`
@@ -88,7 +91,7 @@ const checkTokenBudget = async (organizationId, featureName) => {
         return { allowed: true, remainingTokens: limits.tokens - currentTokens };
 
     } catch (err) {
-        console.error("AI Budget check failed:", err);
+        aiLogger.error("AI Budget check failed", { error: err.message, stack: err.stack, organizationId });
         return { allowed: false, error: "Internal telemetry verification error." };
     }
 };
@@ -120,12 +123,14 @@ const checkCache = async (featureName, inputPayload) => {
         const now = new Date();
         const expires = new Date(data.expires_at);
         if (now > expires) {
+            aiLogger.debug('AI Cache expired', { featureName, inputHash, expiresAt: data.expires_at });
             // Delete expired row asynchronously and return cache miss
             supabaseAdmin.from('ai_cache').delete().eq('feature', featureName).eq('input_hash', inputHash).then();
             return null;
         }
     }
 
+    aiLogger.info('AI Cache hit', { featureName, inputHash });
     return data.output; // Cache hit
 };
 
@@ -161,6 +166,8 @@ const logAIUsage = async (userId, organizationId, featureName, model, tokensInpu
     const COST_PER_1M_OUTPUT = model.includes('pro') ? 5.00 : 0.30;
 
     const estimatedCost = ((tokensInput / 1000000) * COST_PER_1M_INPUT) + ((tokensOutput / 1000000) * COST_PER_1M_OUTPUT);
+
+    aiLogger.debug('Logging AI telemetry', { organizationId, featureName, model, tokensTotal: tokensInput + tokensOutput, estimatedCost });
 
     await supabaseAdmin.from('ai_usage').insert({
         user_id: userId,

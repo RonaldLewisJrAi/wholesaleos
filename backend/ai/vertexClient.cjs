@@ -1,4 +1,5 @@
 const { VertexAI } = require('@google-cloud/vertexai');
+const { aiLogger } = require('../logging/logger.cjs');
 
 // Initialize Vertex with the project context
 const vertex_ai = new VertexAI({
@@ -43,6 +44,8 @@ const executeAIQuery = async (prompt, usePro = false, maxRetries = 3) => {
                 ],
             };
 
+            aiLogger.debug(`AI request initiated (${model.model})`, { attempt });
+
             const streamingResp = await model.generateContentStream(req);
             let fullText = '';
             for await (const chunk of streamingResp.stream) {
@@ -60,6 +63,12 @@ const executeAIQuery = async (prompt, usePro = false, maxRetries = 3) => {
                 totalTokenCount: 0
             };
 
+            aiLogger.info(`AI request completed successfully`, {
+                model: usePro ? 'gemini-2.0-pro' : 'gemini-2.0-flash',
+                tokens: tokenUsage.totalTokenCount,
+                attempt
+            });
+
             return {
                 success: true,
                 text: fullText.trim(),
@@ -72,8 +81,9 @@ const executeAIQuery = async (prompt, usePro = false, maxRetries = 3) => {
             };
 
         } catch (error) {
-            console.error(`Vertex AI Retry Attempt ${attempt + 1}/${maxRetries} Failed:`, error.message);
+            aiLogger.warn(`Vertex AI Retry Attempt ${attempt + 1}/${maxRetries} Failed`, { error: error.message });
             if (attempt === maxRetries) {
+                aiLogger.error("Vertex AI Explicit Failure", { error: error.message, stack: error.stack });
                 return {
                     success: false,
                     error: `Vertex AI explicitly failed after ${maxRetries} retries: ${error.message}`,

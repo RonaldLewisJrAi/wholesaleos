@@ -198,10 +198,10 @@ const SuperAdminDashboard = () => {
                                             <div className="text-xs text-success font-bold mt-1">{org.revenue}</div>
                                         </td>
                                         <td>
-                                            <span className={`tier-badge tier-${org.tier.toLowerCase()}`}>{org.tier}</span>
+                                            <span className={`tier-badge tier-${(org.tier || '').toLowerCase()}`}>{org.tier}</span>
                                         </td>
                                         <td>
-                                            <span className={`status-badge status-${org.status.toLowerCase()} mb-1 inline-block`}>{org.status}</span>
+                                            <span className={`status-badge status-${(org.status || '').toLowerCase()} mb-1 inline-block`}>{org.status}</span>
                                             <div className="text-xs text-muted flex items-center gap-1"><RefreshCw size={10} /> {org.stripeSync}</div>
                                         </td>
                                         <td>

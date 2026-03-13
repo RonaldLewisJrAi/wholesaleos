@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
         // Remove redundant getSession() call to prevent GoTrue token lock contention (AbortError)
         // onAuthStateChange already fires an 'INITIAL_SESSION' event automatically on mount.
 
+        // MOCK AUTH BYPASS FOR BLACK SCREEN DEBUGGING (Removed - Normal Auth Restored)
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {

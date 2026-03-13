@@ -441,8 +441,8 @@ const Properties = () => {
                     <div className="text-muted p-4">Loading properties...</div>
                 ) : (
                     properties.filter(prop =>
-                        prop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        prop.status.toLowerCase().includes(searchQuery.toLowerCase())
+                        (prop.address || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (prop.status || '').toLowerCase().includes(searchQuery.toLowerCase())
                     ).filter(prop => showVerifiedOnly ? prop.poc_verified === true : true).map(prop => (
                         <PropertyCard
                             key={prop.id}

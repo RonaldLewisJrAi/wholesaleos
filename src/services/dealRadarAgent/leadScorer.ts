@@ -5,6 +5,7 @@ export function generateDealScore(leadData: any): number {
     let score = 50; // Baseline score for any discovered foreclosure
 
     console.log(`[Lead Scorer] Evaluating opportunity for Parcel ${leadData.parcel_id}`);
+    fetch('/api/telemetry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: 'radar', level: 'debug', message: 'Evaluating opportunity for Parcel', metadata: { parcelId: leadData.parcel_id } }) }).catch(() => { });
 
     // Type weightings
     if (leadData.notice_type === 'Notice of Default') {

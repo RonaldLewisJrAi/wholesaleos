@@ -7,6 +7,7 @@ import { parseForeclosureData } from './foreclosureParser';
  */
 export async function processDocumentWithGemini(document: any) {
     console.log(`[OCR Processor] Analyzing document: ${document.filename}`);
+    fetch('/api/telemetry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: 'radar', level: 'info', message: 'Analyzing foreclosure document', metadata: { filename: document.filename, isMock: document.isMock } }) }).catch(() => { });
 
     // If mock, bypass the API call to save tokens during dev
     if (document.isMock) {
@@ -32,8 +33,9 @@ export async function processDocumentWithGemini(document: any) {
 
         return parseForeclosureData(extractedText);
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("[OCR Processor] Failed to process document via Gemini:", error);
+        fetch('/api/telemetry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: 'radar', level: 'error', message: 'Failed to process document via Gemini', metadata: { filename: document.filename, error: error.message } }) }).catch(() => { });
         return null;
     }
 }

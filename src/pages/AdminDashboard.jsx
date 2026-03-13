@@ -137,8 +137,8 @@ const AdminDashboard = () => {
                                     </td>
                                     <td>
                                         <div className="flex flex-col gap-1 items-start">
-                                            <span className={`tier-badge tier-${user.tier.toLowerCase()}`}>{user.tier}</span>
-                                            <span className={`status-badge status-${user.status.toLowerCase()}`}>{user.status}</span>
+                                            <span className={`tier-badge tier-${(user.tier || '').toLowerCase()}`}>{user.tier}</span>
+                                            <span className={`status-badge status-${(user.status || '').toLowerCase()}`}>{user.status}</span>
                                         </div>
                                     </td>
                                     <td>

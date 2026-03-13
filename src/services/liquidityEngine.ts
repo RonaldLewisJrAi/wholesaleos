@@ -31,11 +31,14 @@ export function matchDealToInvestors(deal: LiquidityDeal, investors: LiquidityIn
         let score = 0;
         const reasons: string[] = [];
 
+        const investorMarketId = investor.market ? String(investor.market).toLowerCase() : "";
+        const dealMarketId = deal.market ? String(deal.market).toLowerCase() : "";
+
         // Location Check
-        if (investor.market && deal.market && investor.market.toLowerCase() === deal.market.toLowerCase()) {
+        if (investorMarketId && dealMarketId && investorMarketId === dealMarketId) {
             score += 30;
             reasons.push("Market Match");
-        } else if (investor.market && deal.market && deal.market.toLowerCase().includes(investor.market.toLowerCase())) {
+        } else if (investorMarketId && dealMarketId && dealMarketId.includes(investorMarketId)) {
             // Partial match (e.g. "TX" matches "Dallas, TX")
             score += 15;
             reasons.push("Partial Market Match");

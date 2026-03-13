@@ -537,3 +537,18 @@ tr:last-child td {
 .demo-mode-active {
   padding-top: 32px;
 }
+
+.diagnostic-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: darkred;
+  color: white;
+  z-index: 999999;
+  display: none;
+  padding: 2rem;
+  overflow: auto;
+  font-family: monospace;
+}
