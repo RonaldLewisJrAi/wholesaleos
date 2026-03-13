@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WholesaleOS</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Theme Initialization Script -->
+  <script>
+    (function () {
+      try {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        localStorage.setItem('theme_preference', 'dark');
+      } catch (e) { }
+    })();
+  </script>
+  <script type="module" crossorigin src="/assets/index-hVrVVP2F.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-OvXVS5lI.js">
+  <link rel="modulepreload" crossorigin href="/assets/ui-C_Z9S59e.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CI1GbYaO.css">
+</head>
+
+<body class="bg-dark text-white">
+  <!-- Diagnostic Trap for Black Screen -->
+  <div id="diagnostic-error-trap" class="diagnostic-overlay">
+    <h2>CRASH DETECTED</h2>
+    <pre id="diagnostic-message"></pre>
+  </div>
+  <script>
+    window.onerror = function (msg, url, line, col, error) {
+      document.getElementById('diagnostic-error-trap').style.display = 'block';
+      document.getElementById('diagnostic-message').textContent += '\n' + msg + '\n' + (error ? error.stack : '');
+    };
+    window.addEventListener("unhandledrejection", function (event) {
+      document.getElementById('diagnostic-error-trap').style.display = 'block';
+      document.getElementById('diagnostic-message').textContent += '\nPromise Rejection: ' + (event.reason && event.reason.stack ? event.reason.stack : event.reason);
+    });
+  </script>
+  <div id="root"></div>
+</body>
+
+</html>
