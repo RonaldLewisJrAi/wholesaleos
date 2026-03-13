@@ -440,76 +440,85 @@ const Pipeline = () => {
 
                                         <div className="flex flex-col gap-2">
                                             {(() => {
-                                                const feePrediction = calculateAssignmentFeeRange(deal.arv || 250000, deal.purchasePrice || 180000, deal.repairs || 25000);
-                                                const intelligenceData = {
-                                                    arv: deal.arv || 250000,
-                                                    purchase_price: deal.purchasePrice || 180000,
-                                                    repairs: deal.repairs || 25000,
-                                                    buyerDemand: deal.bdiMatches || (deal.tags?.includes('Hot') ? 8 : 4),
-                                                    escrowStatus: deal.tags?.includes('EMD Cleared') ? 'ACTIVE' : 'PENDING'
-                                                };
-                                                const aiScore = calculateDealScore(intelligenceData);
-                                                const closeProb = calculateCloseProbability(intelligenceData);
-                                                const { label: liqLabel } = calculateLiquiditySignal(intelligenceData);
+                                                try {
+                                                    const feePrediction = calculateAssignmentFeeRange(deal.arv || 250000, deal.purchasePrice || 180000, deal.repairs || 25000);
+                                                    const intelligenceData = {
+                                                        arv: deal.arv || 250000,
+                                                        purchase_price: deal.purchasePrice || 180000,
+                                                        repairs: deal.repairs || 25000,
+                                                        buyerDemand: deal.bdiMatches || ((deal.tags || []).includes('Hot') ? 8 : 4),
+                                                        escrowStatus: (deal.tags || []).includes('EMD Cleared') ? 'ACTIVE' : 'PENDING'
+                                                    };
+                                                    const aiScore = calculateDealScore(intelligenceData);
+                                                    const closeProb = calculateCloseProbability(intelligenceData);
+                                                    const { label: liqLabel } = calculateLiquiditySignal(intelligenceData);
 
-                                                // Liquidity Match Calculation
-                                                const rankedBuyers = matchDealToInvestors({
-                                                    id: deal.id,
-                                                    market: deal.zipCode || 'Dallas',
-                                                    purchase_price: deal.purchasePrice || 180000,
-                                                    property_type: deal.propertyType || 'Single Family',
-                                                    dealScore: aiScore
-                                                }, mockLiquidityInvestors);
-                                                const strongMatches = rankedBuyers.filter(b => b.matchScore >= 80).length;
+                                                    // Liquidity Match Calculation
+                                                    const rankedBuyers = matchDealToInvestors({
+                                                        id: deal.id,
+                                                        market: deal.zipCode || 'Dallas',
+                                                        purchase_price: deal.purchasePrice || 180000,
+                                                        property_type: deal.propertyType || 'Single Family',
+                                                        dealScore: aiScore
+                                                    }, mockLiquidityInvestors);
+                                                    const strongMatches = rankedBuyers.filter(b => b.matchScore >= 80).length;
 
-                                                let probColor = "text-red-400 border-red-500/30 bg-red-900/10";
-                                                if (closeProb > 75) probColor = "text-emerald-400 border-emerald-500/30 bg-emerald-900/10";
-                                                else if (closeProb > 50) probColor = "text-amber-400 border-amber-500/30 bg-amber-900/10";
+                                                    let probColor = "text-red-400 border-red-500/30 bg-red-900/10";
+                                                    if (closeProb > 75) probColor = "text-emerald-400 border-emerald-500/30 bg-emerald-900/10";
+                                                    else if (closeProb > 50) probColor = "text-amber-400 border-amber-500/30 bg-amber-900/10";
 
-                                                const aiScoreColor = aiScore >= 80 ? 'text-blue-400 bg-blue-900/20 border-blue-500/30' :
-                                                    aiScore >= 60 ? 'text-amber-400 bg-amber-900/20 border-amber-500/30' :
-                                                        'text-red-400 bg-red-900/20 border-red-500/30';
+                                                    const aiScoreColor = aiScore >= 80 ? 'text-blue-400 bg-blue-900/20 border-blue-500/30' :
+                                                        aiScore >= 60 ? 'text-amber-400 bg-amber-900/20 border-amber-500/30' :
+                                                            'text-red-400 bg-red-900/20 border-red-500/30';
 
-                                                return (
-                                                    <>
-                                                        <div className="flex justify-between items-center text-xs font-mono pb-2 border-b border-blue-900/20 mb-2 mt-1">
-                                                            <div className="flex items-center gap-1.5 bg-red-900/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-sm shadow-[0_0_10px_rgba(248,113,113,0.1)]">
-                                                                <Target size={10} className="text-red-500" />
-                                                                <span className="font-bold tracking-widest uppercase text-[10px]">{strongMatches} Strong Matches</span>
+                                                    return (
+                                                        <>
+                                                            <div className="flex justify-between items-center text-xs font-mono pb-2 border-b border-blue-900/20 mb-2 mt-1">
+                                                                <div className="flex items-center gap-1.5 bg-red-900/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-sm shadow-[0_0_10px_rgba(248,113,113,0.1)]">
+                                                                    <Target size={10} className="text-red-500" />
+                                                                    <span className="font-bold tracking-widest uppercase text-[10px]">{strongMatches} Strong Matches</span>
+                                                                </div>
+                                                                <span className="text-emerald-400 font-bold">{feePrediction.formatted}</span>
                                                             </div>
-                                                            <span className="text-emerald-400 font-bold">{feePrediction.formatted}</span>
-                                                        </div>
 
-                                                        <div className="grid grid-cols-2 gap-2 my-1">
-                                                            <div className={`flex items-center justify-between text-[10px] p-1.5 rounded-md border font-mono ${aiScoreColor}`}>
-                                                                <span className="flex items-center gap-1 uppercase"><Shield size={10} /> Score</span>
-                                                                <span className="font-bold">{aiScore}</span>
+                                                            <div className="grid grid-cols-2 gap-2 my-1">
+                                                                <div className={`flex items-center justify-between text-[10px] p-1.5 rounded-md border font-mono ${aiScoreColor}`}>
+                                                                    <span className="flex items-center gap-1 uppercase"><Shield size={10} /> Score</span>
+                                                                    <span className="font-bold">{aiScore}</span>
+                                                                </div>
+                                                                <div className={`flex items-center justify-between text-[10px] p-1.5 rounded-md border font-mono ${probColor}`}>
+                                                                    <span className="flex items-center gap-1 uppercase"><Target size={10} /> Prob</span>
+                                                                    <span className="font-bold">{closeProb}%</span>
+                                                                </div>
                                                             </div>
-                                                            <div className={`flex items-center justify-between text-[10px] p-1.5 rounded-md border font-mono ${probColor}`}>
-                                                                <span className="flex items-center gap-1 uppercase"><Target size={10} /> Prob</span>
-                                                                <span className="font-bold">{closeProb}%</span>
-                                                            </div>
-                                                        </div>
 
-                                                        {/* Escrow/Liquidity Status mapped from tags */}
-                                                        <div className="flex flex-wrap gap-1.5 mt-1">
-                                                            <span className={`text-[9px] uppercase tracking-widest font-mono font-bold px-1.5 py-0.5 rounded border border-blue-500/30 flex items-center gap-1 ${liqLabel === 'HIGH' ? 'bg-blue-900/20 text-blue-400' : liqLabel === 'MODERATE' ? 'bg-amber-900/20 text-amber-400' : 'bg-gray-800/40 text-gray-400'}`}>
-                                                                <Zap size={8} /> Liq: {liqLabel}
-                                                            </span>
-
-                                                            {deal.tags?.includes('EMD Cleared') && (
-                                                                <span className="text-[9px] uppercase tracking-widest font-mono font-bold px-1.5 py-0.5 rounded border bg-emerald-900/20 text-emerald-400 border-emerald-500/30 flex items-center gap-1">
-                                                                    <DollarSign size={8} /> Escrow
+                                                            {/* Escrow/Liquidity Status mapped from tags */}
+                                                            <div className="flex flex-wrap gap-1.5 mt-1">
+                                                                <span className={`text-[9px] uppercase tracking-widest font-mono font-bold px-1.5 py-0.5 rounded border border-blue-500/30 flex items-center gap-1 ${liqLabel === 'HIGH' ? 'bg-blue-900/20 text-blue-400' : liqLabel === 'MODERATE' ? 'bg-amber-900/20 text-amber-400' : 'bg-gray-800/40 text-gray-400'}`}>
+                                                                    <Zap size={8} /> Liq: {liqLabel}
                                                                 </span>
-                                                            )}
-                                                            {deal.tags?.includes('Hot') && (
-                                                                <span className="text-[9px] uppercase tracking-widest font-mono font-bold px-1.5 py-0.5 rounded border bg-amber-900/20 text-amber-400 border-amber-500/30 flex items-center gap-1">
-                                                                    <Activity size={8} /> Hot
-                                                                </span>
-                                                            )}
+
+                                                                {(deal.tags || []).includes('EMD Cleared') && (
+                                                                    <span className="text-[9px] uppercase tracking-widest font-mono font-bold px-1.5 py-0.5 rounded border bg-emerald-900/20 text-emerald-400 border-emerald-500/30 flex items-center gap-1">
+                                                                        <DollarSign size={8} /> Escrow
+                                                                    </span>
+                                                                )}
+                                                                {(deal.tags || []).includes('Hot') && (
+                                                                    <span className="text-[9px] uppercase tracking-widest font-mono font-bold px-1.5 py-0.5 rounded border bg-amber-900/20 text-amber-400 border-amber-500/30 flex items-center gap-1">
+                                                                        <Activity size={8} /> Hot
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </>
+                                                    );
+                                                } catch (evalError) {
+                                                    console.error("Deal Intelligence Render Error:", evalError, deal);
+                                                    return (
+                                                        <div className="text-[10px] text-red-500 border border-red-900 bg-red-950/30 p-2 rounded mt-2">
+                                                            Intelligence Engine Guardrail Activated: Data Evaluation Failed
                                                         </div>
-                                                    </>
-                                                )
+                                                    );
+                                                }
                                             })()}
                                         </div>
                                     </div>
