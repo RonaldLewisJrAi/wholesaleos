@@ -34,17 +34,21 @@ const InvestorDashboard = () => {
             }
             try {
                 // 1. Get User Preferences
-                const { data: prefData } = await supabase
+                const { data: prefData, error: prefErr } = await supabase
                     .from('investor_preferences')
                     .select('*')
                     .eq('user_id', user.id)
                     .single();
 
+                if (prefErr && prefErr.code !== 'PGRST116') throw prefErr;
+
                 // 2. Get Live Deals
-                const { data: deals } = await supabase
+                const { data: deals, error: dealErr } = await supabase
                     .from('properties')
                     .select('*')
                     .in('status', ['Active', 'Marketing', 'ASSIGNED']);
+
+                if (dealErr) throw dealErr;
 
                 if (deals && prefData) {
                     const matches = deals.filter(deal => {
@@ -76,8 +80,10 @@ const InvestorDashboard = () => {
                 }
             } catch (err) {
                 console.error("Failed to load match feed", err);
+                setMatchedDeals([]); // Fail safely
+            } finally {
+                setLoadingMatches(false);
             }
-            setLoadingMatches(false);
         };
         fetchMatches();
     }, [user?.id]);

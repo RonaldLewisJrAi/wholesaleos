@@ -98,7 +98,10 @@ export const DealRoom = () => {
         const fetchDeal = async () => {
             setLoading(true);
             try {
-                const { data } = await supabase.from('properties').select('*').eq('id', id).single();
+                const { data, error } = await supabase.from('properties').select('*').eq('id', id).single();
+
+                if (error && error.code !== 'PGRST116') throw error;
+
                 if (data) {
                     setDeal({ ...data, status: 'Lead', score: 88 });
                 } else {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building, MapPin, DollarSign, Percent, Save, Camera, Target, Calculator, Headphones, ShieldCheck, Activity, Sun, Moon } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
-import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
 import './Profile.css';
 
@@ -19,7 +18,6 @@ const Profile = () => {
     });
 
     const { subscriptionTier, allowedPersonas } = useSubscription();
-    const { user } = useAuth();
     // Investor Buy Box State
     const [buyBox, setBuyBox] = useState({
         targetMarkets: '',
@@ -131,17 +129,12 @@ const Profile = () => {
 
     const handleCheckout = async () => {
         setIsSaving(true);
-        let priceId = '';
-        if (subscriptionTier === 'BASIC') priceId = import.meta.env.VITE_STRIPE_BASIC_PRICE_ID;
-        if (subscriptionTier === 'ADVANCED') priceId = 'price_1T4jOFK2qPJKpuPcVKh0BG4W';
-        if (subscriptionTier === 'SUPER') priceId = import.meta.env.VITE_STRIPE_SUPER_PRICE_ID;
-
         try {
-            const response = await fetch('/api/stripe/create-checkout-session', {
+            const response = await fetch('/api/stripe/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    priceId: priceId,
+                    plan: subscriptionTier === 'BASIC' ? 'PRO' : 'SUPER',
                     userEmail: profile.email,
                     userId: userId || '00000000-0000-0000-0000-000000000000'
                 })

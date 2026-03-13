@@ -114,7 +114,6 @@ export const DealRadarMap = () => {
                 onMove={(evt: any) => setViewState(evt.viewState)}
                 mapStyle="mapbox://styles/mapbox/dark-v11"
                 mapboxAccessToken={MAPBOX_TOKEN}
-                interactiveLayerIds={['data']}
                 style={{ width: '100%', height: '100%' }}
             >
                 <FullscreenControl position="top-right" />

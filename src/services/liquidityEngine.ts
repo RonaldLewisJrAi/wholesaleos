@@ -27,6 +27,8 @@ export interface MatchResult {
  * Evaluates a deal against an array of investor profiles and returns them ranked by match probability.
  */
 export function matchDealToInvestors(deal: LiquidityDeal, investors: LiquidityInvestor[]): MatchResult[] {
+    if (!deal || !investors || !Array.isArray(investors)) return [];
+
     return investors.map((investor) => {
         let score = 0;
         const reasons: string[] = [];

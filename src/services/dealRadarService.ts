@@ -123,7 +123,7 @@ export const dealRadarService = {
             unsubscribe: () => {
                 this.listeners = this.listeners.filter(cb => cb !== callback);
                 if (this.listeners.length === 0) {
-                    supabase.removeChannel(subscription);
+                    supabase!.removeChannel(subscription);
                 }
             }
         };
@@ -134,6 +134,8 @@ export const dealRadarService = {
     },
 
     computeRadarSignals(events: RadarEvent[]): RadarSignal[] {
+        if (!events || !Array.isArray(events)) return [];
+
         return events.map(ev => {
             const city = ev.event_data?.city || 'Unknown';
             const state = ev.event_data?.state || 'US';

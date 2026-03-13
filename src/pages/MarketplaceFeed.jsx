@@ -107,17 +107,21 @@ const MarketplaceFeed = () => {
                 return;
             }
             try {
-                const { data } = await supabase.from('properties').select('*');
+                const { data, error } = await supabase.from('properties').select('*');
+
+                if (error) throw error;
+
                 if (data && data.length > 0) {
                     setDeals(data);
                 } else {
-                    setDeals(mockDeals); // Fallback if no db exists
+                    setDeals([]); // Safe empty fallback instead of crashing
                 }
             } catch (err) {
-                console.error("Failed fetching live market deals", err);
-                setDeals(mockDeals);
+                console.error("Failed fetching live market deals:", err);
+                setDeals([]); // Ensure state is always an array
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
 
         const handleOscarData = (event) => {
