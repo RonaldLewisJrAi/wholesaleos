@@ -1,13 +1,32 @@
 const { skipTraceLogger } = require('../logging/logger.cjs');
 
-// Ensure standard browser user agent to prevent 403s
-const BROWSER_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Connection': 'keep-alive',
-    'Upgrade-Insecure-Requests': '1'
-};
+/**
+ * OSINT Evasion: Request Randomizer
+ * Rotates User-Agents and HTTP headers to prevent immediate heuristic blocking from TruePeopleSearch and ZabaSearch.
+ */
+function getRandomHeaders() {
+    const agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
+    ];
+
+    const languages = [
+        "en-US,en;q=0.9",
+        "en-GB,en;q=0.8",
+        "en-US,en;q=0.9,es;q=0.8"
+    ];
+
+    return {
+        'User-Agent': agents[Math.floor(Math.random() * agents.length)],
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': languages[Math.floor(Math.random() * languages.length)],
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'max-age=0'
+    };
+}
 
 /**
  * Universal Regex Parsers
@@ -20,6 +39,14 @@ function parsePhoneNumbers(html) {
     return [...new Set(matches.map(num => {
         const cleaned = ('' + num).replace(/\D/g, '');
         if (cleaned.length !== 10) return null;
+
+        // RESULT VALIDATION: Reject Toll-Free / Advertisement Area Codes
+        const areaCode = cleaned.slice(0, 3);
+        const tollFreeCodes = ['800', '888', '877', '866', '855', '844', '833'];
+        if (tollFreeCodes.includes(areaCode)) {
+            return null;
+        }
+
         return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
     }).filter(Boolean))];
 }
@@ -75,7 +102,7 @@ async function truePeopleSearchLookup(ownerName, city, state) {
         const url = `https://www.truepeoplesearch.com/results?name=${encodeURIComponent(ownerName)}&citystatezip=${encodeURIComponent(city + ' ' + state)}`;
         skipTraceLogger.info(`[TruePeopleSearch] Scraping: ${url}`);
 
-        const response = await fetch(url, { headers: BROWSER_HEADERS });
+        const response = await fetch(url, { headers: getRandomHeaders() });
         if (!response.ok) return null;
 
         const html = await response.text();
@@ -107,7 +134,7 @@ async function zabaSearchLookup(ownerName, city, state) {
 
         skipTraceLogger.info(`[ZabaSearch] Scraping: ${url}`);
 
-        const response = await fetch(url, { headers: BROWSER_HEADERS });
+        const response = await fetch(url, { headers: getRandomHeaders() });
         if (!response.ok) return null;
 
         const html = await response.text();
@@ -139,7 +166,7 @@ async function thatsThemLookup(ownerName, city, state) {
 
         skipTraceLogger.info(`[ThatsThem] Scraping: ${url}`);
 
-        const response = await fetch(url, { headers: BROWSER_HEADERS });
+        const response = await fetch(url, { headers: getRandomHeaders() });
         if (!response.ok) return null;
 
         const html = await response.text();

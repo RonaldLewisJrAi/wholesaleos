@@ -42,8 +42,41 @@ router.post('/', async (req, res) => {
             return res.status(500).json({ success: false, error: 'Missing Supabase Admin context.' });
         }
 
-        skipTraceLogger.info("Skip trace requested", { userId, propertyId, ownerName });
+        // --- PHASE 51: TRACE CACHING (30-DAY GUARD) ---
+        // Check if a skip trace has been successfully run on this property in the last 30 days.
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+        const { data: existingTrace } = await supabaseAdmin
+            .from('owner_contacts')
+            .select('created_at, phone_number, email, confidence_score, source')
+            .eq('property_id', propertyId)
+            .gte('created_at', thirtyDaysAgo.toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (existingTrace) {
+            skipTraceLogger.info("Skip trace cache hit. Rejecting redundant scrape.", { propertyId });
+
+            // Format phones/emails back into arrays so the frontend parser works smoothly
+            const cachedPhones = (existingTrace.phone_number || '').split(',').map(p => ({ number: p.trim(), confidence: existingTrace.confidence_score }));
+            const cachedEmails = (existingTrace.email || '').split(',').map(e => ({ email: e.trim(), confidence: existingTrace.confidence_score }));
+
+            return res.status(200).json({
+                success: true,
+                message: "Retrieved from recent cache.",
+                contact: existingTrace,
+                phones: cachedPhones.filter(p => p.number),
+                emails: cachedEmails.filter(e => e.email),
+                provider: existingTrace.source,
+                confidenceAverage: existingTrace.confidence_score
+            });
+        }
+
+        skipTraceLogger.info("Skip trace requested. No cache found. Executing engine.", { userId, propertyId, ownerName });
+
+        // --- EXECUTE OSINT ENGINE ---
         const results = await runSkipTrace({ ownerName, address, city, state, zip });
 
         if (!results.phones || (results.phones.length === 0 && results.emails.length === 0)) {
