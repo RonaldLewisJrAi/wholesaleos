@@ -38,6 +38,7 @@
       document.getElementById('diagnostic-message').textContent += '\n' + msg + '\n' + (error ? error.stack : '');
     };
     window.addEventListener("unhandledrejection", function (event) {
+      if (event.reason && event.reason.name === "AbortError") return;
       document.getElementById('diagnostic-error-trap').style.display = 'block';
       document.getElementById('diagnostic-message').textContent += '\nPromise Rejection: ' + (event.reason && event.reason.stack ? event.reason.stack : event.reason);
     });
