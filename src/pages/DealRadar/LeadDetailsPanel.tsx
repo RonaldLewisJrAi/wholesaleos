@@ -1,11 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, FileText, Zap, ChevronRight, Hash, Calendar, AlertOctagon, UserSearch, Phone, Mail } from 'lucide-react';
 import { skipTraceOwner } from '../../services/skipTraceService';
+import { supabase } from '../../services/supabaseClient';
 
 export const LeadDetailsPanel = ({ lead, onClose, onConvert }: { lead: any, onClose: any, onConvert: any }) => {
     const [tracing, setTracing] = useState(false);
     const [traceResult, setTraceResult] = useState<any>(null);
     const [traceError, setTraceError] = useState('');
+
+    useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
+
+        // If tracing spins for 3 minutes without result, fail it out gracefully
+        if (tracing && !traceResult) {
+            timeoutId = setTimeout(() => {
+                setTracing(false);
+                setTraceError("Skip trace connection timed out after 3 minutes (No contacts found).");
+            }, 180000);
+        }
+
+        // Phase 53: Subscribe to the native Supabase webhook for this specific property's background completion
+        const skiptraceChannel = supabase.channel(`skiptrace-property-${lead.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'properties',
+                    filter: `id=eq.${lead.id}`
+                },
+                async (payload) => {
+                    const status = payload.new.skiptrace_status;
+
+                    if (status === 'complete') {
+                        // The background worker populated owner_contacts. Fetch them to the screen.
+                        const { data: contacts } = await supabase
+                            .from('owner_contacts')
+                            .select('*')
+                            .eq('property_id', lead.id)
+                            .order('created_at', { ascending: false })
+                            .limit(1)
+                            .maybeSingle();
+
+                        if (contacts) {
+                            setTraceResult(contacts);
+                            setTraceError('');
+                        } else {
+                            setTraceError('Failed to fetch background trace payload.');
+                        }
+                        setTracing(false);
+                    } else if (status === 'failed') {
+                        setTraceError('Background Skip Trace completed but found zero matches.');
+                        setTracing(false);
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+            supabase.removeChannel(skiptraceChannel);
+        };
+    }, [tracing, lead.id, traceResult]);
 
     const handleSkipTrace = async () => {
         setTracing(true);
@@ -23,9 +79,9 @@ export const LeadDetailsPanel = ({ lead, onClose, onConvert }: { lead: any, onCl
                 setTraceResult(res.contact);
                 setTracing(false);
             } else if (res.success && res.backgroundProcessing) {
-                // Job sent to BullMQ queue, no contact returned yet
-                setTraceError('Trace safely queued in the background! Please allow 2-3 minutes for the servers to finish building the report.');
-                // Keep tracing animation spinning to simulate working state or leave it pending
+                // Job sent to BullMQ queue, no contact returned yet. Supabase listener covers UI payloading.
+                setTraceError('Trace safely queued in the background! Please allow 10-20 seconds for databases to scan.');
+                // Tracing remains true to bind spinner while the socket waits for 'complete'
             } else {
                 setTraceError('Failed to retrieve contact data.');
                 setTracing(false);

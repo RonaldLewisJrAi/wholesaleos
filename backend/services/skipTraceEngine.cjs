@@ -1,4 +1,44 @@
+const fetch = require('node-fetch');
+const path = require('path');
+const fs = require('fs');
 const { skipTraceLogger } = require('../logging/logger.cjs');
+
+// --- PHASE 53: AREA CODE INTELLIGENCE PARSERS ---
+const STATE_AREA_CODES = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../data/stateAreaCodes.json'), 'utf8'));
+const NEIGHBOR_STATES = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../data/neighborStates.json'), 'utf8'));
+
+/**
+ * Extracts the 3-digit Area Code safely
+ */
+function getAreaCode(phone) {
+    // Phone must already be normalized as (XXX) XXX-XXXX by parsePhoneNumbers
+    const match = phone.match(/\((\d{3})\)/);
+    return match ? match[1] : null;
+}
+
+/**
+ * Calculates a dynamic confidence score checking local and neighbor state presence
+ */
+function scorePhone(phone, propertyState) {
+    const code = getAreaCode(phone);
+    if (!code) return 50; // Malformed boundary
+
+    const state = propertyState?.toUpperCase().trim();
+    if (!state) return 60; // Standard fallback OSINT baseline
+
+    // Exact State Match? (+15)
+    const validHomeCodes = STATE_AREA_CODES[state] || [];
+    if (validHomeCodes.includes(code)) return 75;
+
+    // Neighboring State Match? (+5)
+    const neighborStateCodes = NEIGHBOR_STATES[state] || [];
+    for (const neighbor of neighborStateCodes) {
+        const neighborCodes = STATE_AREA_CODES[neighbor] || [];
+        if (neighborCodes.includes(code)) return 65;
+    }
+
+    return 60; // Standard fallback OSINT baseline for out-of-state investors
+}
 
 /**
  * OSINT Evasion: Request Randomizer
@@ -112,7 +152,7 @@ async function truePeopleSearchLookup(ownerName, city, state) {
         if (uniquePhones.length === 0 && uniqueEmails.length === 0) return null;
 
         return {
-            phones: uniquePhones.map(p => ({ number: p, confidence: 60 })),
+            phones: uniquePhones.map(p => ({ number: p, confidence: scorePhone(p, state) })),
             emails: uniqueEmails.map(e => ({ email: e, confidence: 60 })),
             provider: 'truepeoplesearch'
         };
@@ -144,7 +184,7 @@ async function zabaSearchLookup(ownerName, city, state) {
         if (uniquePhones.length === 0 && uniqueEmails.length === 0) return null;
 
         return {
-            phones: uniquePhones.map(p => ({ number: p, confidence: 60 })),
+            phones: uniquePhones.map(p => ({ number: p, confidence: scorePhone(p, state) })),
             emails: uniqueEmails.map(e => ({ email: e, confidence: 60 })),
             provider: 'zabasearch'
         };
@@ -171,12 +211,12 @@ async function thatsThemLookup(ownerName, city, state) {
 
         const html = await response.text();
         const uniquePhones = parsePhoneNumbers(html);
-        const uniqueEmails = parseEmails(html).filter(e => !e.includes('thatsthem'));
+        const uniqueEmails = parseEmails(html);
 
         if (uniquePhones.length === 0 && uniqueEmails.length === 0) return null;
 
         return {
-            phones: uniquePhones.map(p => ({ number: p, confidence: 60 })),
+            phones: uniquePhones.map(p => ({ number: p, confidence: scorePhone(p, state) })),
             emails: uniqueEmails.map(e => ({ email: e, confidence: 60 })),
             provider: 'thatsthem'
         };
