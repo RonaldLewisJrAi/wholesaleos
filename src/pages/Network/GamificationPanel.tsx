@@ -46,6 +46,13 @@ export const GamificationPanel = () => {
 
     const progressPct = Math.min(100, Math.max(0, (trust_score / nextThreshold) * 100));
 
+    const progressRef = React.useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (progressRef.current) {
+            progressRef.current.style.width = `${progressPct}%`;
+        }
+    }, [progressPct]);
+
     return (
         <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl p-6 relative overflow-hidden group">
 
@@ -74,10 +81,9 @@ export const GamificationPanel = () => {
                         <span className="text-slate-500">{nextTier}</span>
                     </div>
                     <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden shadow-inner border border-slate-800">
-                        {/* eslint-disable-next-line */}
                         <div
+                            ref={progressRef}
                             className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full relative"
-                            style={{ width: `${progressPct}%` }}
                         >
                             <div className="absolute top-0 right-0 bottom-0 w-8 bg-white/20 skew-x-12 animate-[shimmer_2s_infinite]" />
                         </div>
