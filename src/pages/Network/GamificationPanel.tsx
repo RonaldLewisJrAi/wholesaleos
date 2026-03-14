@@ -74,6 +74,7 @@ export const GamificationPanel = () => {
                         <span className="text-slate-500">{nextTier}</span>
                     </div>
                     <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden shadow-inner border border-slate-800">
+                        {/* eslint-disable-next-line */}
                         <div
                             className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full relative"
                             style={{ width: `${progressPct}%` }}
