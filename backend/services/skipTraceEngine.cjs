@@ -1,7 +1,37 @@
 const { skipTraceLogger } = require('../logging/logger.cjs');
 
+// Ensure standard browser user agent to prevent 403s
+const BROWSER_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1'
+};
+
 /**
- * OpenSkip API Lookup (Free Tier)
+ * Universal Regex Parsers
+ */
+function parsePhoneNumbers(html) {
+    const phoneRegex = /\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})/g;
+    const matches = html.match(phoneRegex) || [];
+
+    // Clean and strictly format (XXX) XXX-XXXX
+    return [...new Set(matches.map(num => {
+        const cleaned = ('' + num).replace(/\D/g, '');
+        if (cleaned.length !== 10) return null;
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }).filter(Boolean))];
+}
+
+function parseEmails(html) {
+    const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+    const matches = html.match(emailRegex) || [];
+    return [...new Set(matches.map(e => e.toLowerCase()))];
+}
+
+/**
+ * OpenSkip API Lookup (Free Tier) - Primary Source
  */
 async function openSkipLookup(ownerName, address, city, state) {
     try {
@@ -19,30 +49,18 @@ async function openSkipLookup(ownerName, address, city, state) {
         skipTraceLogger.info(`[OpenSkip] Requesting: ${url.toString()}`);
 
         const response = await fetch(url.toString(), {
-            headers: {
-                "X-API-KEY": apiKey
-            }
+            headers: { "X-API-KEY": apiKey }
         });
 
-        if (!response.ok) {
-            skipTraceLogger.error('[OpenSkip] API Error', { status: response.status });
-            return null;
-        }
+        if (!response.ok) return null;
 
         const data = await response.json();
-
         const phones = (data.phones || []).map(p => ({ number: p, confidence: 80 }));
         const emails = (data.emails || []).map(e => ({ email: e, confidence: 80 }));
 
-        if (phones.length === 0 && emails.length === 0) {
-            return null;
-        }
+        if (phones.length === 0 && emails.length === 0) return null;
 
-        return {
-            phones,
-            emails,
-            provider: 'openskip'
-        };
+        return { phones, emails, provider: 'openskip' };
     } catch (err) {
         skipTraceLogger.error('[OpenSkip] Exception', { error: err.message });
         return null;
@@ -50,56 +68,21 @@ async function openSkipLookup(ownerName, address, city, state) {
 }
 
 /**
- * TruePeopleSearch Fallback Scraper
+ * Fallback Scraper: TruePeopleSearch
  */
 async function truePeopleSearchLookup(ownerName, city, state) {
     try {
-        if (!ownerName) {
-            skipTraceLogger.warn('[TruePeopleSearch] Owner name missing, aborting scraper.');
-            return null;
-        }
-
-        const nameParam = encodeURIComponent(ownerName);
-        const locParam = encodeURIComponent(`${city || ''} ${state || ''}`.trim());
-        const url = `https://www.truepeoplesearch.com/results?name=${nameParam}&citystatezip=${locParam}`;
-
+        const url = `https://www.truepeoplesearch.com/results?name=${encodeURIComponent(ownerName)}&citystatezip=${encodeURIComponent(city + ' ' + state)}`;
         skipTraceLogger.info(`[TruePeopleSearch] Scraping: ${url}`);
 
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1'
-            }
-        });
-
-        if (!response.ok) {
-            skipTraceLogger.error('[TruePeopleSearch] HTTP Error', { status: response.status });
-            return null;
-        }
+        const response = await fetch(url, { headers: BROWSER_HEADERS });
+        if (!response.ok) return null;
 
         const html = await response.text();
+        const uniquePhones = parsePhoneNumbers(html);
+        const uniqueEmails = parseEmails(html).filter(e => !e.includes('truepeoplesearch'));
 
-        // Exact phone matching ex: (555) 123-4567
-        const phoneRegex = /\(\d{3}\)\s?\d{3}-\d{4}/g;
-        // Basic email scraping
-        const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
-
-        const phonesMatch = html.match(phoneRegex) || [];
-        const emailsMatch = html.match(emailRegex) || [];
-
-        // Deduplicate
-        const uniquePhones = [...new Set(phonesMatch)];
-        // Filter out TruePeopleSearch's own links/emails
-        const uniqueEmails = [...new Set(emailsMatch)].filter(e => !e.toLowerCase().includes('truepeoplesearch'));
-
-        if (uniquePhones.length === 0 && uniqueEmails.length === 0) {
-            return null;
-        }
-
-        skipTraceLogger.info(`[TruePeopleSearch] Match successful! Found ${uniquePhones.length} phones, ${uniqueEmails.length} emails.`);
+        if (uniquePhones.length === 0 && uniqueEmails.length === 0) return null;
 
         return {
             phones: uniquePhones.map(p => ({ number: p, confidence: 60 })),
@@ -110,6 +93,99 @@ async function truePeopleSearchLookup(ownerName, city, state) {
         skipTraceLogger.error('[TruePeopleSearch] Exception', { error: err.message });
         return null;
     }
+}
+
+/**
+ * Fallback Scraper: ZabaSearch
+ */
+async function zabaSearchLookup(ownerName, city, state) {
+    try {
+        const nameParts = ownerName.trim().split(' ');
+        const first = nameParts[0] || '';
+        const last = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+        const url = `https://www.zabasearch.com/people/${encodeURIComponent(first)}+${encodeURIComponent(last)}/${encodeURIComponent(city)}/${encodeURIComponent(state)}/`;
+
+        skipTraceLogger.info(`[ZabaSearch] Scraping: ${url}`);
+
+        const response = await fetch(url, { headers: BROWSER_HEADERS });
+        if (!response.ok) return null;
+
+        const html = await response.text();
+        const uniquePhones = parsePhoneNumbers(html);
+        const uniqueEmails = parseEmails(html).filter(e => !e.includes('zabasearch'));
+
+        if (uniquePhones.length === 0 && uniqueEmails.length === 0) return null;
+
+        return {
+            phones: uniquePhones.map(p => ({ number: p, confidence: 60 })),
+            emails: uniqueEmails.map(e => ({ email: e, confidence: 60 })),
+            provider: 'zabasearch'
+        };
+    } catch (err) {
+        skipTraceLogger.error('[ZabaSearch] Exception', { error: err.message });
+        return null;
+    }
+}
+
+/**
+ * Fallback Scraper: ThatsThem
+ */
+async function thatsThemLookup(ownerName, city, state) {
+    try {
+        // format: https://thatsthem.com/name/John-Doe/Nashville-TN
+        const formattedName = ownerName.replace(/\s+/g, '-');
+        const formattedLoc = `${city.replace(/\s+/g, '-')}-${state}`;
+        const url = `https://thatsthem.com/name/${formattedName}/${formattedLoc}`;
+
+        skipTraceLogger.info(`[ThatsThem] Scraping: ${url}`);
+
+        const response = await fetch(url, { headers: BROWSER_HEADERS });
+        if (!response.ok) return null;
+
+        const html = await response.text();
+        const uniquePhones = parsePhoneNumbers(html);
+        const uniqueEmails = parseEmails(html).filter(e => !e.includes('thatsthem'));
+
+        if (uniquePhones.length === 0 && uniqueEmails.length === 0) return null;
+
+        return {
+            phones: uniquePhones.map(p => ({ number: p, confidence: 60 })),
+            emails: uniqueEmails.map(e => ({ email: e, confidence: 60 })),
+            provider: 'thatsthem'
+        };
+    } catch (err) {
+        skipTraceLogger.error('[ThatsThem] Exception', { error: err.message });
+        return null;
+    }
+}
+
+
+/**
+ * OSINT Web Scraping Orchestrator (Replaces Recon-ng)
+ */
+async function runReconSearch(ownerName, city, state) {
+    if (!ownerName || !city || !state) {
+        skipTraceLogger.warn('[OSINT] Missing parameters for recon search.');
+        return null;
+    }
+
+    skipTraceLogger.info(`[OSINT] Launching OSINT Waterfall for ${ownerName} in ${city}, ${state}`);
+
+    // Source 1: TruePeopleSearch
+    let results = await truePeopleSearchLookup(ownerName, city, state);
+    if (results) return results;
+
+    // Source 2: ZabaSearch
+    skipTraceLogger.info(`[OSINT] TruePeopleSearch failed. Cascading to ZabaSearch.`);
+    results = await zabaSearchLookup(ownerName, city, state);
+    if (results) return results;
+
+    // Source 3: ThatsThem
+    skipTraceLogger.info(`[OSINT] ZabaSearch failed. Cascading to ThatsThem.`);
+    results = await thatsThemLookup(ownerName, city, state);
+    if (results) return results;
+
+    return null;
 }
 
 /**
@@ -142,13 +218,13 @@ async function runSkipTrace(property) {
 
     skipTraceLogger.info(`Starting skip trace orchestration for ${ownerName || 'Unknown Owner'} at ${address || 'Unknown Address'}`);
 
-    // Try Primary Provider: OpenSkip
+    // Try Primary Provider: OpenSkip API
     let results = await openSkipLookup(ownerName, address, city, state);
 
-    // Fallback: TruePeopleSearch Scraper
+    // Fallback: Custom Node OSINT Engine
     if (!results || (results.phones.length === 0 && results.emails.length === 0)) {
-        skipTraceLogger.info(`OpenSkip yielded no results, executing TruePeopleSearch fallback.`);
-        results = await truePeopleSearchLookup(ownerName, city, state);
+        skipTraceLogger.info(`[SkipTrace] Primary API failed. Launching OSINT Recon Scraper.`);
+        results = await runReconSearch(ownerName, city, state);
     }
 
     if (!results || (results.phones.length === 0 && results.emails.length === 0)) {
@@ -164,7 +240,8 @@ async function runSkipTrace(property) {
 
 module.exports = {
     runSkipTrace,
-    openSkipLookup,
-    truePeopleSearchLookup,
+    runReconSearch,
+    parsePhoneNumbers,
+    parseEmails,
     normalizeContactData
 };
