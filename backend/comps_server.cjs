@@ -243,75 +243,187 @@ app.post('/api/comps', apiLimiter, async (req, res) => {
 });
 
 // =========================================================================================
-// REAL ZILLOW PROPERTY SCRAPER (PHASE 40_2)
-// Bypass DataDome via Stealth DuckDuckGo Snippet Parsing
+// REAL ZILLOW PROPERTY SCRAPER (PHASE 47)
+// Direct __NEXT_DATA__ JSON Payload Extraction with Playwright Anti-Bot Guard
 // =========================================================================================
-app.post('/api/properties/import-zillow', apiLimiter, requireSubscription, (req, res) => {
+function processZillowData(nextData, res) {
+    let propertyObj = null;
+    const findPropertyData = (obj) => {
+        if (!obj || typeof obj !== 'object') return;
+        // Search the graph for the definitive dictionary containing location and pricing telemetry
+        if (obj.price && obj.address && typeof obj.address === 'object' && obj.address.streetAddress) {
+            propertyObj = obj;
+            return;
+        }
+        if (propertyObj) return;
+
+        for (const key in obj) {
+            if (typeof obj[key] === 'object') {
+                findPropertyData(obj[key]);
+            }
+        }
+    };
+
+    findPropertyData(nextData);
+
+    if (!propertyObj) {
+        console.error('[Zillow Importer] Failed to find property metrics inside JSON payload.');
+        return res.status(500).json({ error: 'Failed to extract metrics from Zillow JSON.' });
+    }
+
+    const { address, price, livingArea, resoFacts, originalPhotos, desktopWebHdpImageLink } = propertyObj;
+
+    const normalizedAddress = address ? `${address.streetAddress}, ${address.city}, ${address.state} ${address.zipcode}` : 'Unknown Address';
+    const formattedPrice = price ? `$${price.toLocaleString()}` : 'Pending';
+
+    const beds = resoFacts?.bedrooms || propertyObj.bedrooms || propertyObj.beds || null;
+    const baths = resoFacts?.bathrooms || propertyObj.bathrooms || propertyObj.baths || null;
+
+    let primaryImage = desktopWebHdpImageLink || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
+
+    if (!desktopWebHdpImageLink && originalPhotos && originalPhotos.length > 0) {
+        const firstPhoto = originalPhotos[0];
+        primaryImage = firstPhoto?.mixedSources?.jpeg?.[firstPhoto.mixedSources?.jpeg?.length - 1]?.url || primaryImage;
+    }
+
+    console.log(`[Zillow Importer] Successfully extracted: ${normalizedAddress} | ${formattedPrice}`);
+
+    return res.json({
+        address: normalizedAddress,
+        arv: formattedPrice,
+        sqft: livingArea || null,
+        beds,
+        baths,
+        image: primaryImage
+    });
+}
+
+app.post('/api/properties/import-zillow', apiLimiter, requireSubscription, async (req, res) => {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: 'Zillow URL required.' });
 
-    let address = 'Unknown Address';
+    if (!url.includes('zillow.com/homedetails')) {
+        return res.status(400).json({ error: 'Invalid Zillow URL. Please provide a valid homedetails link.' });
+    }
+
     try {
-        const urlObj = new URL(url);
-        const pathParts = urlObj.pathname.split('/');
-        const homeDetailsIndex = pathParts.findIndex(p => p === 'homedetails');
-        if (homeDetailsIndex !== -1 && pathParts.length > homeDetailsIndex + 1) {
-            address = pathParts[homeDetailsIndex + 1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        }
-    } catch (e) { }
+        console.log(`[Zillow Importer] Fetching raw HTML for: ${url}`);
 
-    const searchQuery = encodeURIComponent(`site:zillow.com "${address}"`);
-    const https = require('https');
-
-    https.get(`https://html.duckduckgo.com/html/?q=${searchQuery}`, {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5'
-        }
-    }, (ddgRes) => {
-        let data = '';
-        ddgRes.on('data', chunk => data += chunk);
-        ddgRes.on('end', () => {
-            const snippets = data.match(/<a class="result__snippet[^>]*>(.*?)<\/a>/gi) || [];
-            let price = 'Pending';
-            let sqft = null;
-            let beds = null;
-            let baths = null;
-
-            for (let s of snippets) {
-                if (s.includes('$')) {
-                    const priceMatch = s.match(/\$[\d,]+/);
-                    if (priceMatch && price === 'Pending') price = priceMatch[0];
-                }
-                const bedMatch = s.match(/(\d+)\s+beds?/i);
-                if (bedMatch && !beds) beds = bedMatch[1];
-
-                const bathMatch = s.match(/(\d+)\s+baths?/i);
-                if (bathMatch && !baths) baths = bathMatch[1];
-
-                const sqftMatch = s.match(/((?:\d{1,3},)?\d{3})\s+sqft/i);
-                if (sqftMatch && !sqft) sqft = sqftMatch[1];
+        // Phase 1: High-velocity structural fetch
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
             }
-
-            const imgQuery = encodeURIComponent(`site:photos.zillowstatic.com ${address}`);
-            https.get(`https://html.duckduckgo.com/html/?q=${imgQuery}`, {
-                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
-            }, (imgRes) => {
-                let imgData = '';
-                imgRes.on('data', chunk => imgData += chunk);
-                imgRes.on('end', () => {
-                    const zillowUrls = imgData.match(/(?:https:\/\/)?(?:www\.)?photos\.zillowstatic\.com[a-zA-Z0-9_/\-\.]+\.webp/g) || [];
-                    const image = zillowUrls.length > 0 ? (zillowUrls[0].startsWith('http') ? zillowUrls[0] : 'https://' + zillowUrls[0]) : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
-
-                    res.json({ address, arv: price, beds, baths, sqft, image });
-                });
-            }).on('error', () => res.json({ address, arv: price, beds, baths, sqft, image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' }));
         });
-    }).on('error', (err) => {
-        console.error('DDG Scrape Error:', err);
-        res.status(500).json({ error: 'Failed to extract real Zillow metrics.' });
-    });
+
+        const html = await response.text();
+
+        // Detect WAF Captcha interception
+        if (html.includes('captcha') || html.includes('px-captcha') || response.status === 403) {
+            console.warn('[Zillow Importer] Raw fetch intercepted by WAF Captcha. Escalating to Playwright fallback...');
+
+            // Phase 2: Headless Browser Fallback to bypass generic IP filtering
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            });
+            const page = await context.newPage();
+
+            // Abort static assets to minimize spin-up time overhead
+            await page.route(/.*\.((png)|(jpg)|(jpeg)|(webp)|(css)).*/, route => route.abort());
+
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+
+            // Extract the React cache node structurally
+            const nextDataRaw = await page.evaluate(() => {
+                const scriptNode = document.getElementById('__NEXT_DATA__');
+                return scriptNode ? scriptNode.textContent : null;
+            });
+
+            await browser.close();
+
+            if (!nextDataRaw) throw new Error("Blocked indefinitely by advanced WAF Anti-Bot.");
+            return processZillowData(JSON.parse(nextDataRaw), res);
+        }
+
+        const jsonMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/);
+        if (!jsonMatch) {
+            throw new Error("Could not locate __NEXT_DATA__ payload in HTTP structure.");
+        }
+
+        const nextData = JSON.parse(jsonMatch[1]);
+        return processZillowData(nextData, res);
+
+    } catch (error) {
+        console.warn('[Zillow Importer] NATIVE extraction failed. Escalating to DDG Proxy Bypass...', error.message);
+
+        // Phase 3: Ultimate Fallback -> DuckDuckGo Snippet Proxy
+        let address = 'Unknown Address';
+        try {
+            const urlObj = new URL(url);
+            const pathParts = urlObj.pathname.split('/');
+            const homeDetailsIndex = pathParts.findIndex(p => p === 'homedetails');
+            if (homeDetailsIndex !== -1 && pathParts.length > homeDetailsIndex + 1) {
+                address = pathParts[homeDetailsIndex + 1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
+        } catch (e) { }
+
+        const searchQuery = encodeURIComponent(`site:zillow.com "${address}"`);
+        const https = require('https');
+
+        https.get(`https://html.duckduckgo.com/html/?q=${searchQuery}`, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5'
+            }
+        }, (ddgRes) => {
+            let data = '';
+            ddgRes.on('data', chunk => data += chunk);
+            ddgRes.on('end', () => {
+                const snippets = data.match(/<a class="result__snippet[^>]*>(.*?)<\/a>/gi) || [];
+                let price = 'Pending';
+                let sqft = null;
+                let beds = null;
+                let baths = null;
+
+                for (let s of snippets) {
+                    if (s.includes('$')) {
+                        const priceMatch = s.match(/\$[\d,]+/);
+                        if (priceMatch && price === 'Pending') price = priceMatch[0];
+                    }
+                    const bedMatch = s.match(/(\d+)\s+beds?/i);
+                    if (bedMatch && !beds) beds = bedMatch[1];
+
+                    const bathMatch = s.match(/(\d+)\s+baths?/i);
+                    if (bathMatch && !baths) baths = bathMatch[1];
+
+                    const sqftMatch = s.match(/((?:\d{1,3},)?\d{3})\s+sqft/i);
+                    if (sqftMatch && !sqft) sqft = sqftMatch[1];
+                }
+
+                const imgQuery = encodeURIComponent(`site:photos.zillowstatic.com ${address}`);
+                https.get(`https://html.duckduckgo.com/html/?q=${imgQuery}`, {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+                }, (imgRes) => {
+                    let imgData = '';
+                    imgRes.on('data', chunk => imgData += chunk);
+                    imgRes.on('end', () => {
+                        const zillowUrls = imgData.match(/(?:https:\/\/)?(?:www\.)?photos\.zillowstatic\.com[a-zA-Z0-9_/\-\.]+\.webp/g) || [];
+                        const image = zillowUrls.length > 0 ? (zillowUrls[0].startsWith('http') ? zillowUrls[0] : 'https://' + zillowUrls[0]) : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
+
+                        console.log(`[Zillow Importer] DDG Fallback succeeded for: ${address}`);
+                        res.json({ address, arv: price, beds, baths, sqft, image });
+                    });
+                }).on('error', () => res.json({ address, arv: price, beds, baths, sqft, image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' }));
+            });
+        }).on('error', (err) => {
+            console.error('DDG Scrape Error:', err);
+            res.status(500).json({ error: 'Failed to extract real Zillow metrics.' });
+        });
+    }
 });
 
 

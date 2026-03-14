@@ -340,8 +340,8 @@ const Documents = () => {
                     <button className="btn btn-primary w-full py-4 text-lg text-white" onClick={() => window.location.href = '/pricing'}>
                         View Pricing Plans
                     </button>
-                    <button className="btn btn-secondary w-full mt-3" onClick={() => window.location.href = '/dashboard'}>
-                        Back to Dashboard
+                    <button className="btn btn-secondary w-full mt-3" onClick={() => window.location.href = '/pipeline'}>
+                        Back to Workspace
                     </button>
                 </div>
             </div>

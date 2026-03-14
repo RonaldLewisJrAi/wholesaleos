@@ -3,6 +3,7 @@ import { MapPin, Database, Activity, Send, Filter, Plus, X, Search, Home, Shield
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
 import { ENV } from '../config/env';
+import { propertyImportService } from '../services/propertyImportService';
 import DealPacketModal from '../components/DealPacketModal';
 import CompEngineModal from '../components/CompEngineModal';
 import './Properties.css';
@@ -33,6 +34,11 @@ const PropertyCard = ({ property, onLaunchPacket, onRunComps, onImport }) => {
                         <span className={`status-badge w-max ${property.status === 'Under Contract' ? 'bg-warning' : property.status === 'Marketing' ? 'bg-primary' : property.status === 'Web Lead' ? 'bg-secondary' : 'bg-success'}`}>
                             {property.status}
                         </span>
+                        {property.import_status === 'processing' && (
+                            <span className="badge bg-[rgba(0,0,0,0.6)] backdrop-blur-md text-warning border border-warning border-opacity-30 font-bold text-[10px] shadow-lg w-max" title="Background Media Syncing">
+                                <Activity size={10} className="inline mr-1 animate-pulse" /> Importing Photos...
+                            </span>
+                        )}
                         {property.poc_verified && (
                             <span className="badge bg-[rgba(0,0,0,0.6)] backdrop-blur-md text-success border border-success border-opacity-30 font-bold text-[10px] shadow-lg w-max" title="Proof of Control Verified by Admin">
                                 <CheckCircle size={10} className="inline mr-1" /> PoC Verified
@@ -218,19 +224,10 @@ const Properties = () => {
         setIsImporting(true);
         setIsZillowModalOpen(false);
         try {
-            // Call the real Zillow Scraper Proxy Backend
-            const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
-            const scrapeRes = await fetch(`${baseUrl}/api/properties/import-zillow`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user?.id || ''}` // Optional depending on strict auth
-                },
-                body: JSON.stringify({ url: zillowUrlInput })
-            });
-
-            if (!scrapeRes.ok) throw new Error("Scraper returned error");
-            const scrapeData = await scrapeRes.json();
+            // Call the Vercel Serverless Importer via Dedicated Service
+            const response = await propertyImportService.importZillowProperty(zillowUrlInput, user?.id);
+            const scrapeData = response.property;
+            const images = response.images || [];
 
             const { isLocked } = await checkExclusivityLock(scrapeData.address);
             if (isLocked) {
@@ -239,7 +236,7 @@ const Properties = () => {
             }
 
             const newProperty = {
-                id: Date.now(),
+                id: scrapeData.id || Date.now(),
                 address: scrapeData.address || 'Scraped Zillow Property',
                 status: 'Lead',
                 arv: scrapeData.arv || 'Pending',
@@ -247,12 +244,18 @@ const Properties = () => {
                 sqft: scrapeData.sqft || null,
                 beds: scrapeData.beds || null,
                 baths: scrapeData.baths || null,
-                source_url: zillowUrlInput, // Retain the deep link
-                image: scrapeData.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+                source: scrapeData.source || 'zillow',
+                source_url: scrapeData.source_url || zillowUrlInput, // Retain the deep link
+                image: images.length > 0 ? images[0] : (scrapeData.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')
             };
 
             setProperties(prev => [newProperty, ...prev]);
-            alert("Property linkage established from Zillow!");
+
+            if (response.backgroundImport) {
+                alert("Property linkage established from Zillow! Initial images loaded. The remaining gallery is being downloaded in the background.");
+            } else {
+                alert("Property linkage established from Zillow!");
+            }
         } catch (error) {
             console.error("Zillow import failed", error);
             alert("Failed to import property. Check the URL and try again.");

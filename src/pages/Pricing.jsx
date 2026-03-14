@@ -186,8 +186,11 @@ const Pricing = () => {
 
                 {user && (
                     <div className="text-center mt-12 animate-fade-in">
-                        <Link to="/dashboard" className="text-indigo-400 hover:text-indigo-300 underline font-medium">
-                            Return to Dashboard
+                        <Link
+                            to={(subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'DEMO') ? "/dashboard" : "/pipeline"}
+                            className="text-indigo-400 hover:text-indigo-300 underline font-medium"
+                        >
+                            Return to Workspace
                         </Link>
                     </div>
                 )}

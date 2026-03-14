@@ -63,9 +63,9 @@ const RoleBasedRedirect = () => {
     case 'ACQUISITION': return <Navigate to="/lead-intake" replace />;
     case 'DISPOSITION': return <Navigate to="/buyer-matching" replace />;
     case 'VIRTUAL_ASSISTANT': return <Navigate to="/task-queue" replace />;
-    case 'TEAM_MEMBER': return <Navigate to="/dashboard" replace />;
+    case 'TEAM_MEMBER': return <Navigate to="/pipeline" replace />;
     case 'TITLE_COMPANY': return <Navigate to="/title-portal" replace />;
-    default: return <Navigate to="/dashboard" replace />;
+    default: return <Navigate to="/pipeline" replace />;
   }
 };
 

@@ -58,7 +58,7 @@ const Layout = () => {
                             </div>
                             <h2 className="text-2xl font-bold text-white mb-2">Enterprise Control Panel Restricted</h2>
                             <p className="text-gray-400 mb-6">Integrations, APIs, and Webhooks are currently isolated to Global Super Administrators for the Phase 38 Beta environment.</p>
-                            <button className="btn btn-primary" onClick={() => window.location.href = '/dashboard'}>Return to Dashboard</button>
+                            <button className="btn btn-primary" onClick={() => window.location.href = '/pipeline'}>Return to Workspace</button>
                         </div>
                     </main>
                 </div>
