@@ -95,6 +95,7 @@ const MarketplaceFeed = () => {
     const { user } = useAuth();
     const [deals, setDeals] = useState([]);
     const [loading, setLoading] = useState(true);
+    const hasMapboxToken = !!import.meta.env.VITE_MAPBOX_TOKEN;
     const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'radar'
 
     const isTitleCompany = user?.primaryPersona === 'TITLE_COMPANY';
@@ -152,8 +153,13 @@ const MarketplaceFeed = () => {
 
                 <div className="flex gap-4">
                     <button
-                        className="glass-card px-4 py-2 text-sm text-blue-300 hover:text-white transition-colors flex items-center gap-2"
-                        onClick={() => setViewMode(viewMode === 'grid' ? 'radar' : 'grid')}
+                        className={`glass-card px-4 py-2 text-sm transition-colors flex items-center gap-2 ${!hasMapboxToken ? 'opacity-50 cursor-not-allowed text-gray-500' : 'text-blue-300 hover:text-white'}`}
+                        onClick={() => {
+                            if (hasMapboxToken) {
+                                setViewMode(viewMode === 'grid' ? 'radar' : 'grid');
+                            }
+                        }}
+                        title={!hasMapboxToken ? "Mapbox Token Required" : ""}
                     >
                         {viewMode === 'grid' ? <Map size={16} /> : <Target size={16} />}
                         {viewMode === 'grid' ? 'Radar View' : 'Grid View'}

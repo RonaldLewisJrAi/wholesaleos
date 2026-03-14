@@ -10,8 +10,17 @@ const Radar = () => {
     const [county, setCounty] = useState('');
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState([]);
-    const [hasSearched, setHasSearched] = useState(false);
+
+    // Check Mapbox Token for graceful degradation
+    const hasMapboxToken = !!import.meta.env.VITE_MAPBOX_TOKEN;
+    const [hasSearched, setHasSearched] = useState(!hasMapboxToken);
     const [showFilters, setShowFilters] = useState(false);
+
+    React.useEffect(() => {
+        if (!hasMapboxToken) {
+            console.warn("[WholesaleOS] MAPBOX CONFIGURATION REQUIRED: VITE_MAPBOX_TOKEN is missing. Falling back to data table view.");
+        }
+    }, [hasMapboxToken]);
 
     const fetchRealData = async (searchCounty) => {
         try {
@@ -185,7 +194,9 @@ const Radar = () => {
             ) : hasSearched ? (
                 <>
                     <div className="flex-between mb-4">
-                        <h3 className="font-bold text-lg">Active Opportunities matching '{county}'</h3>
+                        <h3 className="font-bold text-lg">
+                            {county ? `Active Opportunities matching '${county}'` : 'Awaiting Market Scan Parameters...'}
+                        </h3>
                         <span className="badge bg-[rgba(255,255,255,0.1)] text-white">{results.length} Records Found</span>
                     </div>
 
