@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabase';
 
-const API_BASE_URL = 'http://localhost:3001/api/ai';
+// Production Vercel relative path instead of localhost
+const API_BASE_URL = '/api/ai';
 
 const getAuthHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -12,7 +13,7 @@ const getAuthHeaders = async () => {
 
 /**
  * OSCAR Conversational API Wrapper
- * Submits questions and context to the backend Vertex engine.
+ * Submits questions and context to the Vercel backend Vertex engine.
  */
 export const submitOscarQuery = async (message, contextContext = 'General Platform Help') => {
     try {
@@ -24,13 +25,14 @@ export const submitOscarQuery = async (message, contextContext = 'General Platfo
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'OSCAR network failure.');
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `OSCAR network failure: ${response.status}`);
         }
 
-        return await response.json();
+        const data = await response.json();
+        return data;
     } catch (error) {
-        console.error("OSCAR Query Failed:", error);
-        throw error;
+        console.error("[OSCAR Service] Query Request Failed:", error);
+        throw error; // Let the React component's specific try/catch handle the UI state
     }
 };
