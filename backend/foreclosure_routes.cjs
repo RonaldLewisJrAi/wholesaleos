@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     try {
         const { county, minScore, sortBy, sortOrder } = req.query;
 
-        let query = supabase.from('foreclosure_leads').select('*');
+        let query = supabase.from('foreclosure_signals').select('*');
 
         if (county) {
             query = query.eq('county', county);
@@ -47,7 +47,7 @@ router.post('/', async (req, res) => {
 
         // Upsert based on parcel_id to prevent duplicates
         const { data, error } = await supabase
-            .from('foreclosure_leads')
+            .from('foreclosure_signals')
             .upsert([leadData], { onConflict: 'parcel_id' })
             .select();
 

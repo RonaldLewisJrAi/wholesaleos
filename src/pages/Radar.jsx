@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Target, TrendingDown, Clock, ChevronRight, Activity, AlertTriangle, Lock, ZoomIn, RefreshCw, DollarSign } from 'lucide-react';
+import { Search, MapPin, Target, TrendingDown, Clock, ChevronRight, Activity, AlertTriangle, Lock, ZoomIn, RefreshCw, DollarSign, Filter } from 'lucide-react';
 import { IntelligenceMap } from '../components/map/IntelligenceMap';
 import { ENV } from '../config/env';
 import { FEATURES } from '../config/features';
