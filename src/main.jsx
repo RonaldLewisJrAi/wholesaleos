@@ -10,6 +10,16 @@ import ErrorBoundary from './core/ErrorBoundary'
 console.info('[SYSTEM STARTUP] React DOM Initialization Commencing...');
 console.info('[SYSTEM STARTUP] Error Boundary Activating...');
 
+// Global Unhandled Promise Rejection Guard
+window.addEventListener("unhandledrejection", (event) => {
+  if (event.reason && event.reason.name === "AbortError") {
+    console.warn("[SYSTEM] Suppressed safe Web Lock AbortError:", event.reason);
+    event.preventDefault(); // Stop the crash from propagating to the ErrorBoundary
+    return;
+  }
+  console.error("Unhandled Promise Rejection:", event.reason);
+});
+
 // Force production rebuild (Phase 43 Cache Invalidation)
 createRoot(document.getElementById('root')).render(
   <StrictMode>

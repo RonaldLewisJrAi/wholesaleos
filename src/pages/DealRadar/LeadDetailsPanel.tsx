@@ -41,10 +41,10 @@ export const LeadDetailsPanel = ({ lead, onClose, onConvert }: { lead: any, onCl
                         <div className="flex items-center gap-2 mb-2">
                             <span className="px-2 py-1 rounded bg-red-500/10 text-red-400 text-xs font-mono border border-red-500/20 flex items-center gap-2">
                                 <AlertOctagon size={14} />
-                                {lead.notice_type}
+                                {lead.distress_type}
                             </span>
                             <span className="text-xs text-blue-400 font-mono bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">
-                                Score: {lead.deal_score}
+                                Score: {lead.radar_score}
                             </span>
                         </div>
                         <h2 className="text-xl font-bold text-white">{lead.address}</h2>
@@ -105,7 +105,7 @@ export const LeadDetailsPanel = ({ lead, onClose, onConvert }: { lead: any, onCl
                             </h3>
                             {traceResult && (
                                 <span className={`text-[10px] tracking-wider font-mono px-2 py-0.5 rounded border ${traceResult.confidence_score === 'HIGH' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                                        'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                    'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                                     }`}>
                                     {traceResult.confidence_score} CONFIDENCE
                                 </span>

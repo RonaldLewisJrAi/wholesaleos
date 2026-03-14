@@ -24,6 +24,21 @@ export default function DealCard({ deal }) {
             }}>
                 <div className="flex-between w-full p-3 absolute top-0 left-0 items-start">
                     <div className="flex flex-col gap-2">
+                        {deal.velocity_score !== undefined && deal.velocity_score > 0 && (
+                            deal.velocity_score >= 80 ? (
+                                <span className="bg-red-500/90 text-white border border-red-500/50 px-2 py-1 flex items-center gap-1 font-mono text-[10px] font-bold shadow-lg rounded backdrop-blur-md w-max uppercase tracking-wider">
+                                    🔥 HOT DEAL
+                                </span>
+                            ) : deal.velocity_score >= 40 ? (
+                                <span className="bg-amber-500/90 text-white border border-amber-500/50 px-2 py-1 flex items-center gap-1 font-mono text-[10px] font-bold shadow-lg rounded backdrop-blur-md w-max uppercase tracking-wider">
+                                    ⚡ FAST MOVING
+                                </span>
+                            ) : (
+                                <span className="bg-gray-800/90 text-gray-300 border border-gray-600/50 px-2 py-1 flex items-center gap-1 font-mono text-[10px] font-bold shadow-lg rounded backdrop-blur-md w-max uppercase tracking-wider">
+                                    🐢 SLOW DEAL
+                                </span>
+                            )
+                        )}
                         <span className={`status-badge w-max bg-primary text-xs font-bold px-2 py-1 rounded shadow-md`}>
                             {deal.status}
                         </span>

@@ -23,9 +23,9 @@ export const DealRadarDashboard = () => {
         setLoading(true);
         try {
             let query = supabase!
-                .from('foreclosure_leads')
+                .from('radar_opportunities')
                 .select('*')
-                .order('deal_score', { ascending: false })
+                .order('radar_score', { ascending: false })
                 .limit(100);
 
             if (filterCounty) {
@@ -36,7 +36,7 @@ export const DealRadarDashboard = () => {
             if (error) throw error;
             setLeads(data || []);
         } catch (error) {
-            console.error("Error fetching foreclosure leads:", error);
+            console.error("Error fetching radar opportunities:", error);
         } finally {
             setLoading(false);
         }
@@ -74,8 +74,8 @@ export const DealRadarDashboard = () => {
 
             if (error) throw error;
 
-            // Optionally delete from foreclosure_leads once converted
-            await supabase!.from('foreclosure_leads').delete().eq('id', lead.id);
+            // Optionally delete from radar_opportunities once converted
+            await supabase!.from('radar_opportunities').delete().eq('id', lead.id);
             setSelectedLead(null);
             fetchLeads();
 
@@ -139,10 +139,10 @@ export const DealRadarDashboard = () => {
                                 <td className="p-4">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold font-mono text-xs
-                                             ${lead.deal_score >= 75 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                                                lead.deal_score >= 50 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                                             ${lead.radar_score >= 75 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                                                lead.radar_score >= 50 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
                                                     'bg-gray-800 text-gray-400'}`}>
-                                            {lead.deal_score}
+                                            {lead.radar_score}
                                         </div>
                                     </div>
                                 </td>
@@ -154,7 +154,7 @@ export const DealRadarDashboard = () => {
                                 <td className="p-4">
                                     <span className="px-2 py-1 rounded bg-red-500/10 text-red-400 text-xs font-mono border border-red-500/20 flex items-center gap-1 w-fit">
                                         <ShieldAlert size={12} />
-                                        {lead.notice_type}
+                                        {lead.distress_type}
                                     </span>
                                 </td>
                                 <td className="p-4 text-gray-400 font-mono text-sm">

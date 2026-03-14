@@ -18,6 +18,7 @@ const mockDeals = [
         assignmentFee: 15000,
         demandSignal: 'High',
         liquidityIndex: 88,
+        velocity_score: 95,
         image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80&w=400&h=250',
     },
     {
@@ -29,6 +30,7 @@ const mockDeals = [
         assignmentFee: 25000,
         demandSignal: 'Very High',
         liquidityIndex: 92,
+        velocity_score: 55,
         image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=400&h=250',
     },
     {
@@ -40,6 +42,7 @@ const mockDeals = [
         assignmentFee: 40000,
         demandSignal: 'Medium',
         liquidityIndex: 65,
+        velocity_score: 15,
         image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=400&h=250',
     },
     {
@@ -245,6 +248,24 @@ const MarketplaceFeed = () => {
 
                                     return (
                                         <>
+                                            {/* Velocity Badge */}
+                                            {deal.velocity_score !== undefined && (
+                                                <div className="absolute top-3 left-3 z-20">
+                                                    {deal.velocity_score >= 80 ? (
+                                                        <span className="bg-red-500/20 text-red-400 border border-red-500/50 px-2 py-1 flex items-center gap-1 font-mono text-[10px] font-bold shadow-lg rounded backdrop-blur-md whitespace-nowrap">
+                                                            🔥 HOT DEAL
+                                                        </span>
+                                                    ) : deal.velocity_score >= 40 ? (
+                                                        <span className="bg-amber-500/20 text-amber-400 border border-amber-500/50 px-2 py-1 flex items-center gap-1 font-mono text-[10px] font-bold shadow-lg rounded backdrop-blur-md whitespace-nowrap">
+                                                            ⚡ FAST MOVING
+                                                        </span>
+                                                    ) : (
+                                                        <span className="bg-gray-800/60 text-gray-400 border border-gray-600/50 px-2 py-1 flex items-center gap-1 font-mono text-[10px] font-bold shadow-lg rounded backdrop-blur-md whitespace-nowrap">
+                                                            🐢 SLOW DEAL
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
                                             <div className="absolute top-3 right-3 z-20 glass-card bg-[var(--bg-tertiary)] px-2 py-1 flex items-center gap-1 font-mono text-xs border-blue-500/30 font-bold shadow-lg">
                                                 <span className={getScoreColor(aiScore)}>
                                                     SCORE: {aiScore}
