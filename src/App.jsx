@@ -40,6 +40,7 @@ import AcademyDashboard from './pages/Academy/AcademyDashboard';
 import AcademyModule from './pages/Academy/AcademyModule';
 import DealSimulator from './pages/Academy/DealSimulator';
 import { DealRadarDashboard } from './pages/DealRadar/DealRadarDashboard';
+import { ReferralDashboard } from './pages/Referrals/ReferralDashboard';
 import { useAuth } from './contexts/useAuth';
 
 const RoleBasedRedirect = () => {
@@ -115,7 +116,7 @@ function App() {
                   <Route path="criteria" element={<ProxyComponent moduleName="Investor Buy Box" />} />
                   <Route path="saved" element={<ProxyComponent moduleName="Saved Properties" />} />
                   <Route path="offers" element={<ProxyComponent moduleName="Offer Manager" />} />
-                  <Route path="referrals" element={<ProxyComponent moduleName="Referral Inbox" />} />
+                  <Route path="referrals" element={<ReferralDashboard />} />
                   <Route path="lead-intake" element={<ProxyComponent moduleName="Lead Intake & Qualification" />} />
                   <Route path="buyer-matching" element={<ProxyComponent moduleName="Buyer Matching Matrix" />} />
                   <Route path="task-queue" element={<ProxyComponent moduleName="Global Task Queue" />} />
