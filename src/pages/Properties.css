@@ -70,9 +70,6 @@
 }
 
 .status-badge {
-    position: absolute;
-    top: var(--spacing-3);
-    right: var(--spacing-3);
     padding: var(--spacing-1) var(--spacing-3);
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
