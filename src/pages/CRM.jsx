@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, UserPlus, Mail, Phone, MapPin, X, UploadCloud, Target } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
+import { ENV } from '../config/env';
 import { calculateDealProbability, calculateBuyerDemandIndex } from '../lib/DealIntelligence';
 import './CRM.css';
 
@@ -148,7 +149,7 @@ const CRM = () => {
         // Quota Check for CRM Leads
         if (user?.id) {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+                const baseUrl = ENV.API_URL;
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -185,7 +186,7 @@ const CRM = () => {
         // Quota Check for CRM Leads (File Upload)
         if (user?.id) {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+                const baseUrl = ENV.API_URL;
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

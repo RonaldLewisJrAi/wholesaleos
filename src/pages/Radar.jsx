@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import { Search, MapPin, AlertTriangle, TrendingDown, Clock, ChevronRight, Filter, X, AlertCircle, DollarSign, RefreshCw, ZoomIn, Lock, Activity } from 'lucide-react';
+import { Search, MapPin, Target, TrendingDown, Clock, ChevronRight, Activity, AlertTriangle, Lock, ZoomIn, RefreshCw, DollarSign } from 'lucide-react';
 import { IntelligenceMap } from '../components/map/IntelligenceMap';
+import { ENV } from '../config/env';
+import { FEATURES } from '../config/features';
 import { useSubscription } from '../contexts/useSubscription';
 
 const Radar = () => {
     const { subscriptionTier, subscriptionStatus } = useSubscription();
+    // BASIC / PRO / SUPER gates
     const isRestricted = !subscriptionTier || subscriptionTier === 'free' || subscriptionTier === 'BASIC' || subscriptionStatus === 'DEMO';
 
     const [county, setCounty] = useState('');
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState([]);
 
-    // Check Mapbox Token for graceful degradation
-    const hasMapboxToken = !!import.meta.env.VITE_MAPBOX_TOKEN;
+    // Check Mapbox Token via centralized Resilience Layer
+    const hasMapboxToken = FEATURES.radarMap;
     const [hasSearched, setHasSearched] = useState(!hasMapboxToken);
     const [showFilters, setShowFilters] = useState(false);
 
@@ -24,19 +27,13 @@ const Radar = () => {
 
     const fetchRealData = async (searchCounty) => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'https://wholesale-os.onrender.com';
-            const response = await fetch(`${baseUrl}/api/foreclosures`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    county: searchCounty,
-                    state: 'TX'
-                })
+            const baseUrl = ENV.API_URL || 'https://wholesale-os.onrender.com';
+            const response = await fetch(`${baseUrl}/api/v1/foreclosure/radar?location=${encodeURIComponent(searchCounty)}`, {
+                method: 'GET'
             });
             const data = await response.json();
 
             if (data && data.results) {
-                // Ensure data flows into the same shape the UI expects
                 const mappedResults = data.results.map((item, index) => ({
                     id: Date.now() + index,
                     address: item.address,

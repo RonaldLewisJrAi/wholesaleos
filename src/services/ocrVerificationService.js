@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ENV } from '../config/env';
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const apiKey = ENV.GEMINI_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 export const ocrVerificationService = {

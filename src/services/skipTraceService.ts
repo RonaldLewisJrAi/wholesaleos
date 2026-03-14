@@ -36,6 +36,6 @@ export async function skipTraceOwner(propertyId: string, address: string, city: 
 
     } catch (error: any) {
         console.error('Skip Trace Execution Error:', error);
-        throw error;
+        return { error: true, message: error.message || 'Skip trace failed due to a network or service error.' };
     }
 }

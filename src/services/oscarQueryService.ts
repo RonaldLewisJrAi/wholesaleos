@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { ENV } from '../config/env';
 import { supabase } from '../lib/supabase';
 import { OSCARIntent } from './oscarIntentParser';
 import { calculateDealScore } from './dealIntelligenceEngine';
 
-// @ts-ignore
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+// Initialize Gemini
+const apiKey = ENV.GEMINI_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 const EXTRACTOR_PROMPT = `

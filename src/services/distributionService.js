@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { ENV } from '../config/env';
 
 export const distributionService = {
     /**
@@ -14,7 +15,7 @@ export const distributionService = {
             // Transition from synchronous loops to scalable background architecture (Phase 30)
             // Call the local Next.js / Vercel Serverless Function to dispatch the deal 
             // without locking the UI or crashing Vite's browser bundler.
-            const HOST = window.location.origin;
+            const HOST = ENV.API_URL || window.location.origin;
             const res = await fetch(`${HOST}/api/v1/distribution`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

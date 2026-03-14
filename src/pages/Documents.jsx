@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Download, CheckCircle, Edit3, UploadCloud, Link as LinkIcon, Lock } from 'lucide-react';
+import { ENV } from '../config/env';
 import SignatureCanvas from 'react-signature-canvas';
 import { supabase } from '../lib/supabase';
 import { useSubscription } from '../contexts/useSubscription';
@@ -215,7 +216,7 @@ const Documents = () => {
             const { data: { session } } = await supabase.auth.getSession();
             const token = session?.access_token;
 
-            const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+            const baseUrl = ENV.API_URL;
             const res = await fetch(`${baseUrl}/api/documents/track`, {
                 method: 'POST',
                 headers: {

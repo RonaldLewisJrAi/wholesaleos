@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Database, Activity, Send, Filter, Plus, X, Search, Home, ShieldCheck, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
+import { ENV } from '../config/env';
 import DealPacketModal from '../components/DealPacketModal';
 import CompEngineModal from '../components/CompEngineModal';
 import './Properties.css';
@@ -197,7 +198,7 @@ const Properties = () => {
         // Quota Check for Scrapes
         if (user?.id) {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+                const baseUrl = ENV.API_URL;
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -267,7 +268,7 @@ const Properties = () => {
         // Quota Check for Scrapes
         if (user?.id) {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+                const baseUrl = ENV.API_URL;
                 const res = await fetch(`${baseUrl}/api/quotas/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

@@ -5,6 +5,8 @@ import { matchDealToInvestors, mockLiquidityInvestors } from '../services/liquid
 import { useAuth } from '../contexts/useAuth';
 import { supabase } from '../lib/supabase';
 import { IntelligenceMap } from '../components/map/IntelligenceMap';
+import { ENV } from '../config/env';
+import { FEATURES } from '../config/features';
 
 const mockDeals = [
     {
@@ -95,7 +97,7 @@ const MarketplaceFeed = () => {
     const { user } = useAuth();
     const [deals, setDeals] = useState([]);
     const [loading, setLoading] = useState(true);
-    const hasMapboxToken = !!import.meta.env.VITE_MAPBOX_TOKEN;
+    const hasMapboxToken = FEATURES.radarMap;
     const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'radar'
 
     const isTitleCompany = user?.primaryPersona === 'TITLE_COMPANY';
