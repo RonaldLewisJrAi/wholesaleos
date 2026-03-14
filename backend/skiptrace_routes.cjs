@@ -74,64 +74,45 @@ router.post('/', async (req, res) => {
             });
         }
 
-        skipTraceLogger.info("Skip trace requested. No cache found. Executing engine.", { userId, propertyId, ownerName });
+        skipTraceLogger.info("Skip trace requested. No cache found. Offloading to background worker.", { userId, propertyId, ownerName });
 
-        // --- EXECUTE OSINT ENGINE ---
-        const results = await runSkipTrace({ ownerName, address, city, state, zip });
+        // --- PHASE 52: UPGRADE TO ASYNC BULLMQ WORKER ---
+        // Vercel serverless has a 10s-60s limit. Multi-source scraping takes longer. Offload to persistent Node worker.
+        try {
+            const { Queue } = require('bullmq');
+            const Redis = require('ioredis');
+            const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 
-        if (!results.phones || (results.phones.length === 0 && results.emails.length === 0)) {
-            return res.status(200).json({
-                success: false,
-                message: results.message || "No contacts found",
-                phones: [],
-                emails: []
+            const connection = new Redis(redisUrl, { maxRetriesPerRequest: null });
+            const skipTraceQueue = new Queue('skipTraceQueue', { connection });
+
+            // Ensure property reflects 'processing' in UI immediately
+            await supabaseAdmin.from('properties').update({ skiptrace_status: 'processing' }).eq('id', propertyId);
+
+            // Dispatch to the persistent Node worker
+            await skipTraceQueue.add('execute-skiptrace', {
+                userId,
+                propertyId,
+                ownerName,
+                address,
+                city,
+                state,
+                zip
             });
+
+            // Close connection to prevent hanging Vercel serverless functions
+            await connection.quit();
+
+            return res.status(202).json({
+                success: true,
+                message: "Skip trace sent to background processor. Status updated to 'processing'.",
+                backgroundProcessing: true
+            });
+
+        } catch (err) {
+            skipTraceLogger.error("Failed to enqueue skip trace job", { err: err.message });
+            return res.status(500).json({ success: false, error: 'Failed to enqueue background skip trace.' });
         }
-
-        const phoneNumber = results.phones.map(p => p.number).join(', ');
-        const emailAddress = results.emails.map(e => e.email).join(', ');
-        const confidence = results.confidenceAverage || 0;
-        const source = results.provider || 'unknown';
-
-        // Save Results to the Database
-        const { data, error } = await supabaseAdmin
-            .from('owner_contacts')
-            .insert({
-                property_id: propertyId,
-                owner_name: ownerName || 'Unknown Owner',
-                phone_number: phoneNumber,
-                email: emailAddress,
-                confidence_score: confidence,
-                source: source
-            })
-            .select()
-            .single();
-
-        if (error) {
-            skipTraceLogger.error("Supabase trace db insert error", { error, propertyId });
-            return res.status(500).json({ success: false, error: 'Failed to save trace results' });
-        }
-
-        // Log the Event
-        await supabaseAdmin.from('platform_events').insert({
-            user_id: userId,
-            event_type: 'OWNER_SKIP_TRACED',
-            metadata: {
-                property_id: propertyId,
-                provider_used: source,
-                contacts_found: results.phones.length + results.emails.length,
-                confidence_average: confidence
-            }
-        });
-
-        return res.status(200).json({
-            success: true,
-            contact: data,
-            phones: results.phones,
-            emails: results.emails,
-            provider: source,
-            confidenceAverage: confidence
-        });
 
     } catch (err) {
         skipTraceLogger.error("Internal API route exception", { error: err.message, stack: err.stack });

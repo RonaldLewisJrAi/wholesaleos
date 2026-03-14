@@ -21,12 +21,17 @@ export const LeadDetailsPanel = ({ lead, onClose, onConvert }: { lead: any, onCl
             );
             if (res.success && res.contact) {
                 setTraceResult(res.contact);
+                setTracing(false);
+            } else if (res.success && res.backgroundProcessing) {
+                // Job sent to BullMQ queue, no contact returned yet
+                setTraceError('Trace safely queued in the background! Please allow 2-3 minutes for the servers to finish building the report.');
+                // Keep tracing animation spinning to simulate working state or leave it pending
             } else {
                 setTraceError('Failed to retrieve contact data.');
+                setTracing(false);
             }
         } catch (err: any) {
             setTraceError(err.message || 'Error occurred during trace.');
-        } finally {
             setTracing(false);
         }
     };
