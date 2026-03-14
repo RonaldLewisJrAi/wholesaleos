@@ -41,6 +41,7 @@ import AcademyModule from './pages/Academy/AcademyModule';
 import DealSimulator from './pages/Academy/DealSimulator';
 import { DealRadarDashboard } from './pages/DealRadar/DealRadarDashboard';
 import { ReferralDashboard } from './pages/Referrals/ReferralDashboard';
+import { NetworkEcosystem } from './pages/Network/NetworkEcosystem';
 import { useAuth } from './contexts/useAuth';
 
 const RoleBasedRedirect = () => {
@@ -112,7 +113,7 @@ function App() {
                   <Route path="spreadsheets" element={<Spreadsheets />} />
 
                   {/* Phase 35: Inter-Persona Placeholder Routes */}
-                  <Route path="match-feed" element={<MarketplaceFeed />} />
+                  <Route path="network" element={<NetworkEcosystem />} />
                   <Route path="criteria" element={<ProxyComponent moduleName="Investor Buy Box" />} />
                   <Route path="saved" element={<ProxyComponent moduleName="Saved Properties" />} />
                   <Route path="offers" element={<ProxyComponent moduleName="Offer Manager" />} />

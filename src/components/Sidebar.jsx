@@ -21,6 +21,7 @@ const Sidebar = () => {
             { name: 'Properties', path: '/properties', icon: <Map size={20} /> },
             { name: 'Opportunity Radar', path: '/radar', icon: <Activity size={20} /> },
             { name: 'Foreclosure Intel', path: '/deal-radar/foreclosures', icon: <Target size={20} /> },
+            { name: 'Trust Network', path: '/network', icon: <ShieldCheck size={20} /> },
             { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> },
             { name: 'Pipeline', path: '/pipeline', icon: <KanbanSquare size={20} /> },
             { name: 'CRM (Leads & Buyers)', path: '/crm', icon: <Users size={20} /> },
@@ -36,6 +37,7 @@ const Sidebar = () => {
         'INVESTOR': [
             { name: 'Investor Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
             { name: 'Match Feed', path: '/match-feed', icon: <Target size={20} /> },
+            { name: 'Trust Network', path: '/network', icon: <ShieldCheck size={20} /> },
             { name: 'My Criteria', path: '/criteria', icon: <Search size={20} /> },
             { name: 'Saved Deals', path: '/saved', icon: <FolderHeart size={20} /> },
             { name: 'Spreadsheets', path: '/spreadsheets', icon: <Table size={20} /> },
@@ -46,6 +48,7 @@ const Sidebar = () => {
         'REALTOR': [
             { name: 'Realtor Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
             { name: 'Referral Inbox', path: '/referrals', icon: <Inbox size={20} /> },
+            { name: 'Trust Network', path: '/network', icon: <ShieldCheck size={20} /> },
             { name: 'My Listings', path: '/listings', icon: <List size={20} /> },
             { name: 'CMA Tool', path: '/cma', icon: <Calculator size={20} /> },
             { name: 'Calendar', path: '/calendar', icon: <CalendarIcon size={20} /> }
