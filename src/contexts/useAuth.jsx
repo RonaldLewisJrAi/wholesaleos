@@ -24,11 +24,31 @@ export const AuthProvider = ({ children }) => {
             return;
         }
 
-        // Remove redundant getSession() call to prevent GoTrue token lock contention (AbortError)
-        // onAuthStateChange already fires an 'INITIAL_SESSION' event automatically on mount.
+        let mounted = true;
+
+        // Manually fetch session to guarantee we don't miss INITIAL_SESSION due to StrictMode race conditions
+        const initSession = async () => {
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                if (error && error.name !== 'AbortError') {
+                    console.error("[AUTH] Initialization error:", error);
+                }
+                // If there's NO session, we can definitively drop the loading gate immediately.
+                if (!data?.session && mounted) {
+                    setLoadingAuth(false);
+                }
+                // If there IS a session, we let onAuthStateChange handle the profile fetch naturally.
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error("[AUTH] Critical Init Exception:", err);
+                }
+                if (mounted) setLoadingAuth(false);
+            }
+        };
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
+                if (!mounted) return;
                 if (session) {
                     try {
                         // Attempt Primary Profile Fetch with maybeSingle to safely return null
@@ -94,11 +114,14 @@ export const AuthProvider = ({ children }) => {
                 } else {
                     setUser(null);
                 }
-                setLoadingAuth(false);
+                if (mounted) setLoadingAuth(false);
             }
         );
 
+        initSession();
+
         return () => {
+            mounted = false;
             if (subscription) subscription.unsubscribe();
         };
     }, []);
