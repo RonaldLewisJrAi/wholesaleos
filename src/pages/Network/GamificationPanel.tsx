@@ -46,8 +46,6 @@ export const GamificationPanel = () => {
 
     const progressPct = Math.min(100, Math.max(0, (trust_score / nextThreshold) * 100));
 
-    const progressPct = Math.min(100, Math.max(0, (trust_score / nextThreshold) * 100));
-
     return (
         <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl p-6 relative overflow-hidden group">
 
