@@ -74,10 +74,9 @@ export const GamificationPanel = () => {
                         <span className="text-slate-500">{nextTier}</span>
                     </div>
                     <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden shadow-inner border border-slate-800">
-                        {/* eslint-disable-next-line */}
                         <div
                             className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full relative w-[var(--progress)] transition-all duration-1000"
-                            style={{ '--progress': `${progressPct}%` } as React.CSSProperties}
+                            ref={(el) => el?.style.setProperty('--progress', `${progressPct}%`)}
                         >
                             <div className="absolute top-0 right-0 bottom-0 w-8 bg-white/20 skew-x-12 animate-[shimmer_2s_infinite]" />
                         </div>

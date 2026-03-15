@@ -67,10 +67,9 @@ export const DealProducers = () => {
 
                     {/* Deal Score Visual Gauge */}
                     <div className="relative z-10 w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        {/* eslint-disable-next-line */}
                         <div
                             className={`h-full rounded-full transition-all duration-1000 w-[var(--progress)] ${producer.avg_deal_score >= 85 ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : producer.avg_deal_score >= 70 ? 'bg-gradient-to-r from-blue-500 to-indigo-400' : 'bg-slate-500'}`}
-                            style={{ '--progress': `${producer.avg_deal_score}%` } as React.CSSProperties}
+                            ref={(el) => el?.style.setProperty('--progress', `${producer.avg_deal_score}%`)}
                         />
                     </div>
                 </div>

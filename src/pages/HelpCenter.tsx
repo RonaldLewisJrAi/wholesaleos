@@ -21,7 +21,7 @@ const KNOWLEDGE_BASE_SECTIONS = [
 export const HelpCenter = () => {
     const [activeSection, setActiveSection] = useState('platform-overview');
 
-    const scrollToSection = (id) => {
+    const scrollToSection = (id: string) => {
         setActiveSection(id);
         const element = document.getElementById(id);
         if (element) {
@@ -89,7 +89,7 @@ export const HelpCenter = () => {
                     <h3 className="text-sm font-bold text-slate-300 mb-2 flex items-center gap-2">
                         <Phone size={14} className="text-indigo-400" /> Contact Support
                     </h3>
-                    <p className="text-xs text-slate-500 mb-3">Email: admin@wholesaleos.com</p>
+                    <p className="text-xs text-slate-500 mb-3">Email: MyWholesaleOS@gmail.com</p>
                     <button className="w-full py-2 bg-[var(--bg-tertiary)] hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-bold text-white uppercase tracking-wider transition-colors">
                         Submit Request Form
                     </button>
@@ -241,6 +241,15 @@ export const HelpCenter = () => {
                                 <div className="bg-slate-900 border border-emerald-500/50 p-4 rounded-xl min-w-[140px] text-center shadow-[0_0_15px_rgba(16,185,129,0.1)]"><div className="text-emerald-400 font-bold mb-1">6</div><div className="text-xs font-bold text-emerald-300">Verified Close</div></div>
                             </div>
 
+                            <h3 className="text-xl font-bold text-white mb-4">Deal Status Definitions</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                                <div className="bg-slate-800/30 p-4 rounded-lg border border-slate-700/50"><strong className="text-slate-300 block mb-1">DRAFT</strong><span className="text-sm text-slate-400">Deal is being analyzed and not yet visible in the marketplace.</span></div>
+                                <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-500/30"><strong className="text-blue-400 block mb-1">ACTIVE</strong><span className="text-sm text-slate-400">Deal has been published to the Deal Room and is available to investors.</span></div>
+                                <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-500/30"><strong className="text-amber-400 block mb-1">RESERVED</strong><span className="text-sm text-slate-400">An investor has placed a locking deposit and the deal is temporarily restricted.</span></div>
+                                <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30"><strong className="text-purple-400 block mb-1">UNDER ESCROW</strong><span className="text-sm text-slate-400">The Title Company has verified the Earnest Money Deposit.</span></div>
+                                <div className="bg-emerald-900/20 p-4 rounded-lg border border-emerald-500/30 md:col-span-2"><strong className="text-emerald-400 block mb-1">CLOSED</strong><span className="text-sm text-slate-400">The deal has completed the Tri-Party Verification process and is permanently recorded.</span></div>
+                            </div>
+
                             <h3 className="text-xl font-bold text-white mb-4">The Triple Verification System</h3>
                             <p className="text-slate-300 mb-4">
                                 WholesaleOS uses a Tri-Party Verification system to guarantee that deals recorded as "Closed" are legitimate transactions. A deal is only marked as VERIFIED CLOSED when three parties independently confirm the transaction:
@@ -260,18 +269,27 @@ export const HelpCenter = () => {
                                 </div>
                             </div>
                             <div className="bg-indigo-900/20 border border-indigo-500/30 p-4 rounded-lg text-sm text-indigo-200">
-                                <strong>Success:</strong> Once all three confirmations occur, the deal becomes permanently recorded as a Verified Close. This automatically increases Trust Scores, improves Deal Producer rankings, and strengthens the Trust Network graph.
+                                <strong>Success:</strong> Once all three confirmations occur, the deal becomes permanently recorded as a Verified Close. This automatically increases Trust Scores, improves Deal Producer rankings, and strengthens the Trust Network graph. This system prevents fake deals from being reported and maintains marketplace integrity.
                             </div>
                         </section>
 
                         {/* 7. Lead Generation */}
                         <section id="lead-generation" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 7. Lead Generation</h2>
-                            <ul className="list-disc pl-5 space-y-2 text-slate-300">
-                                <li><strong>Opportunity Radar:</strong> Heatmaps visualizing high-velocity transaction zones.</li>
-                                <li><strong>Distress Indicators:</strong> OSINT conditions (Tax Delinquent, Code Violations, Vacancy).</li>
-                                <li><strong>Foreclosure Signals:</strong> Alerts for upcoming county auction dates.</li>
-                                <li><strong>OSINT Enrichment:</strong> External data appended to boost `ai_deal_score`.</li>
+                            <ul className="list-disc pl-5 space-y-4 text-slate-300">
+                                <li>
+                                    <strong>Opportunity Radar:</strong> A geographic intelligence engine that identifies acquisition opportunities using:
+                                    <ul className="list-circle pl-5 mt-2 space-y-1 text-sm text-slate-400">
+                                        <li>Foreclosure auction feeds</li>
+                                        <li>Tax delinquency signals</li>
+                                        <li>Vacancy indicators</li>
+                                        <li>High investor demand zones</li>
+                                    </ul>
+                                    <p className="text-sm mt-2 font-mono text-indigo-300">Radar helps wholesalers focus on areas where discounted properties and active buyers overlap.</p>
+                                </li>
+                                <li><strong>Distress Indicators:</strong> Manually flagged OSINT conditions (Tax Delinquent, Code Violations, Vacancy).</li>
+                                <li><strong>Foreclosure Signals:</strong> System alerts for upcoming county auction dates.</li>
+                                <li><strong>OSINT Data Enrichment:</strong> Public data sources are appended to a property record to improve the accuracy of AI evaluation signals such as seller motivation, property condition indicators, and deal prioritization.</li>
                             </ul>
                         </section>
 
@@ -282,7 +300,10 @@ export const HelpCenter = () => {
                                 <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">Deal Reservation System</div>
                                 <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">Secure Document Vault</div>
                                 <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">Proof of Funds Verification</div>
-                                <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 font-medium text-slate-500 italic">Portfolio Manager (Future)</div>
+                                <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 text-slate-400 flex flex-col justify-center">
+                                    <strong className="text-slate-300 font-medium">Portfolio Manager (Future)</strong>
+                                    <span className="text-xs mt-1 italic">Track portfolio ROI, equity growth, and performance metrics.</span>
+                                </div>
                             </div>
                         </section>
 
@@ -292,18 +313,20 @@ export const HelpCenter = () => {
                             <p className="text-slate-300 mb-6">The Network Ecosystem page showcases Trust Leaderboards, Top Deal Producers, and Deal Quality Rankings. The upcoming Network Graph will visualize verified transaction relationships between users.</p>
 
                             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Award size={18} className="text-amber-400" /> Platform Badges</h3>
+                            <p className="text-sm text-slate-400 mb-4">WholesaleOS uses badges to visually identify trusted participants and verified credentials across User Profiles, Deal Cards, and Leaderboards.</p>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                                 <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl"><strong className="text-white block mb-2 text-sm">Verification</strong><div className="text-xs text-slate-400 flex flex-col gap-1"><span>• KYC Verified</span><span>• Proof of Funds Verified</span><span>• Entity Verified</span></div></div>
                                 <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl"><strong className="text-white block mb-2 text-sm">Performance</strong><div className="text-xs text-slate-400 flex flex-col gap-1"><span>• Verified Deal Closer</span><span>• Top Deal Producer</span><span>• AI Deal Specialist</span></div></div>
                                 <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl"><strong className="text-white block mb-2 text-sm">Network</strong><div className="text-xs text-slate-400 flex flex-col gap-1"><span>• Referral Partner</span><span>• Trusted Network Member</span></div></div>
                             </div>
 
-                            <h3 className="text-lg font-bold text-white mb-4">Reputation Tiers</h3>
-                            <div className="flex flex-wrap gap-3">
-                                <div className="px-4 py-2 border border-slate-600 rounded-full text-xs font-bold text-slate-300 bg-slate-800 shadow-md">Bronze: 50-65</div>
-                                <div className="px-4 py-2 border border-slate-400 rounded-full text-xs font-bold text-slate-200 bg-slate-700 shadow-md">Silver: 66-80</div>
-                                <div className="px-4 py-2 border border-amber-500/50 rounded-full text-xs font-bold text-amber-300 bg-amber-900/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]">Gold: 81-90</div>
-                                <div className="px-4 py-2 border border-blue-400/50 rounded-full text-xs font-bold text-blue-300 bg-blue-900/30 shadow-[0_0_15px_rgba(96,165,250,0.3)]">Platinum: 91-100</div>
+                            <h3 className="text-lg font-bold text-white mb-3">Trust Score Impact</h3>
+                            <p className="text-sm text-slate-400 mb-4">Trust Scores directly influence platform visibility and deal access.</p>
+                            <div className="flex flex-col gap-3">
+                                <div className="p-3 border border-blue-400/30 rounded-lg text-sm bg-blue-900/10 flex items-center gap-4"><div className="font-bold text-blue-400 w-32">90+ Platinum</div> <div className="text-slate-300">Priority deal distribution and leaderboard placement.</div></div>
+                                <div className="p-3 border border-amber-500/30 rounded-lg text-sm bg-amber-900/10 flex items-center gap-4"><div className="font-bold text-amber-500 w-32">75–89 Gold/Silver</div> <div className="text-slate-300">Standard marketplace visibility.</div></div>
+                                <div className="p-3 border border-slate-600 rounded-lg text-sm bg-slate-800/50 flex items-center gap-4"><div className="font-bold text-slate-300 w-32">50–74 Bronze</div> <div className="text-slate-300">Limited deal blast privileges.</div></div>
+                                <div className="p-3 border border-red-900/50 rounded-lg text-sm bg-red-900/10 flex items-center gap-4"><div className="font-bold text-red-400 w-32">Below 50</div> <div className="text-slate-300">Restricted access to marketplace features.</div></div>
                             </div>
                         </section>
 
@@ -311,31 +334,45 @@ export const HelpCenter = () => {
                         <section id="referral-network" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 10. Referral Network</h2>
                             <ul className="list-disc pl-5 space-y-2 text-slate-300">
-                                <li><strong>Sending Referrals:</strong> Wholesalers route retail leads to the Network.</li>
-                                <li><strong>Accepting Referrals:</strong> Realtors actively Accept or Decline representation.</li>
-                                <li><strong>Referral Fee Tracking:</strong> Automatically logs percentage splits and records pending revenue.</li>
+                                <li><strong>Sending Referrals:</strong> Wholesalers route unqualified or retail leads to the Network.</li>
+                                <li><strong>Accepting Referrals:</strong> Realtors receive ping notifications and must actively Accept or Decline representation.</li>
+                                <li><strong>Referral Fee Tracking:</strong> Automatically logs percentage splits and tracks expected revenue upon closing.</li>
                             </ul>
                         </section>
 
                         {/* 11. Platform Automation */}
                         <section id="platform-automation" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 11. Platform Automation</h2>
+                            <p className="text-slate-300 mb-4">WholesaleOS automates many tasks normally handled manually in traditional wholesaling operations. These automation systems work together to increase transaction velocity across the platform:</p>
                             <ul className="list-disc pl-5 space-y-2 text-slate-300">
-                                <li><strong>Skip Tracing:</strong> Owner contact discovery.</li>
-                                <li><strong>Deal Blast Engine:</strong> SMS and Email distribution to buyer pools.</li>
-                                <li><strong>AI Deal Intelligence:</strong> Automated deal scoring and risk evaluation.</li>
-                                <li><strong>Distribution Engine:</strong> Routes deals to investors based on geographic buy boxes.</li>
+                                <li><strong>AI Deal Intelligence:</strong> Property risk and equity analysis.</li>
+                                <li><strong>Distribution Engine:</strong> Routing deals to the correct investor buy boxes.</li>
+                                <li><strong>Deal Blast Engine:</strong> Automated SMS and email marketing.</li>
+                                <li><strong>Skip Trace Infrastructure:</strong> Owner contact discovery.</li>
+                                <li><strong>Opportunity Radar:</strong> Distressed property signal detection.</li>
                             </ul>
                         </section>
 
                         {/* 12. Security & Verification */}
                         <section id="security-verification" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 12. Security & Verification</h2>
+
+                            <h3 className="text-lg font-bold text-white mb-3">Marketplace Integrity</h3>
+                            <p className="text-slate-300 mb-4">WholesaleOS maintains marketplace integrity through several safeguards:</p>
+                            <ul className="list-disc pl-5 space-y-2 text-slate-400 text-sm mb-6">
+                                <li>Proof of Control verification for wholesalers</li>
+                                <li>Proof of Funds verification for investors</li>
+                                <li>Tri-Party Verification for deal closings</li>
+                                <li>Trust Score penalties for failed transactions</li>
+                                <li>Super Admin oversight and manual review tools</li>
+                            </ul>
+                            <div className="bg-slate-900 border border-slate-700 p-4 rounded-lg mb-6">
+                                <p className="text-sm text-indigo-300 font-mono">These mechanisms ensure that the marketplace remains transparent and trustworthy.</p>
+                            </div>
+
                             <ul className="list-disc pl-5 space-y-2 text-slate-300">
                                 <li><strong>KYC Verification:</strong> Identity validation to prevent bad actors.</li>
-                                <li><strong>Proof of Control:</strong> Executed A-to-B contracts required before deals go live.</li>
                                 <li><strong>Trust Score System:</strong> Penalty system that restricts functionality for abusive accounts.</li>
-                                <li><strong>Platform Integrity:</strong> Super Admin oversight to guarantee ecosystem safety.</li>
                             </ul>
                         </section>
 
@@ -370,7 +407,7 @@ export const HelpCenter = () => {
 
                             <h3 className="text-xl font-bold text-white mb-4">Support Contact</h3>
                             <ul className="text-slate-300 list-disc pl-5">
-                                <li>admin@wholesaleos.com</li>
+                                <li>MyWholesaleOS@gmail.com</li>
                                 <li>Help Center request form</li>
                             </ul>
                         </section>
