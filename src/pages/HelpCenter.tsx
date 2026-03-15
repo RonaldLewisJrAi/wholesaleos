@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Search, ChevronRight, Hash, Phone, AlertCircle } from 'lucide-react';
+import { BookOpen, Search, ChevronRight, Hash, Phone, AlertCircle, ShieldCheck, Target, Zap, Activity, ShieldAlert, Award } from 'lucide-react';
 
 const KNOWLEDGE_BASE_SECTIONS = [
     { id: 'platform-overview', title: '1. Platform Overview' },
@@ -21,7 +21,7 @@ const KNOWLEDGE_BASE_SECTIONS = [
 export const HelpCenter = () => {
     const [activeSection, setActiveSection] = useState('platform-overview');
 
-    const scrollToSection = (id: string) => {
+    const scrollToSection = (id) => {
         setActiveSection(id);
         const element = document.getElementById(id);
         if (element) {
@@ -72,7 +72,7 @@ export const HelpCenter = () => {
                             <button
                                 key={section.id}
                                 onClick={() => scrollToSection(section.id)}
-                                className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${activeSection === section.id
+                                className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${activeSection === section.id
                                         ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
                                         : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-transparent'
                                     }`}
@@ -87,11 +87,11 @@ export const HelpCenter = () => {
                 {/* Direct Support Module */}
                 <div className="p-6 border-t border-slate-800 bg-indigo-950/20">
                     <h3 className="text-sm font-bold text-slate-300 mb-2 flex items-center gap-2">
-                        <Phone size={14} className="text-indigo-400" /> Need more help?
+                        <Phone size={14} className="text-indigo-400" /> Contact Support
                     </h3>
-                    <p className="text-xs text-slate-500 mb-4">Our support engineers are standing by.</p>
+                    <p className="text-xs text-slate-500 mb-3">Email: admin@wholesaleos.com</p>
                     <button className="w-full py-2 bg-[var(--bg-tertiary)] hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-bold text-white uppercase tracking-wider transition-colors">
-                        Contact Support
+                        Submit Request Form
                     </button>
                 </div>
             </div>
@@ -102,161 +102,277 @@ export const HelpCenter = () => {
 
                     <div className="mb-12 border-b border-slate-800 pb-8">
                         <h1 className="text-4xl font-extrabold text-white mb-4 tracking-tight">WholesaleOS Documentation</h1>
-                        <p className="text-lg text-slate-400 leading-relaxed">
-                            Welcome to the official platform Help Center. View architecture overviews, troubleshoot errors, and master the exact workflows needed to scale your operations.
+                        <p className="text-lg text-slate-400 leading-relaxed max-w-2xl">
+                            The official platform Help Center. This manual mirrors the platform architecture, providing
+                            clear guidance on Deal Intelligence, Tri-Party Verification, and automated transaction distribution.
                         </p>
                     </div>
 
                     <div className="prose prose-invert prose-indigo max-w-none">
 
+                        {/* 1. Platform Overview */}
                         <section id="platform-overview" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 1. Platform Overview</h2>
-                            <p className="text-slate-300 leading-relaxed bg-slate-800/30 p-6 rounded-xl border border-slate-700">
-                                WholesaleOS is a multi-sided SaaS marketplace designed to operate as a "Bloomberg Terminal" for real estate transactions. The ecosystem connects Wholesalers (deal providers) with Cash Buyers (Investors), while integrating Realtors for retail referrals and Title Companies to verify transaction milestones. The platform algorithmically ranks deals, tracks user trust, and automates marketing distribution to accelerate transaction velocity.
+                            <p className="text-slate-300 leading-relaxed bg-slate-800/30 p-6 rounded-xl border border-slate-700 mb-6">
+                                WholesaleOS operates as a multi-sided real estate transaction network, connecting five core personas to orchestrate seamless property acquisitions and dispositions.
                             </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div className="p-4 bg-slate-900 border border-slate-700 rounded-lg"><strong className="text-indigo-400 font-mono text-sm uppercase">Wholesalers &rarr;</strong> <div className="text-slate-300 text-sm mt-1">Source and secure off-market deals</div></div>
+                                <div className="p-4 bg-slate-900 border border-slate-700 rounded-lg"><strong className="text-indigo-400 font-mono text-sm uppercase">Investors &rarr;</strong> <div className="text-slate-300 text-sm mt-1">Acquire discounted properties</div></div>
+                                <div className="p-4 bg-slate-900 border border-slate-700 rounded-lg"><strong className="text-indigo-400 font-mono text-sm uppercase">Realtors &rarr;</strong> <div className="text-slate-300 text-sm mt-1">Receive retail listing referrals</div></div>
+                                <div className="p-4 bg-slate-900 border border-slate-700 rounded-lg"><strong className="text-indigo-400 font-mono text-sm uppercase">Title Companies &rarr;</strong> <div className="text-slate-300 text-sm mt-1">Verify escrow and closing milestones</div></div>
+                                <div className="p-4 bg-slate-900 border border-indigo-900/50 rounded-lg md:col-span-2 flex gap-3"><AlertCircle className="text-indigo-400 shrink-0" /><div className="text-slate-300 text-sm"><strong className="text-white block">Super Admin &rarr;</strong> Maintain platform integrity and verification</div></div>
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-3">Ecosystem Workflow</h3>
+                            <div className="flex flex-wrap gap-2 text-xs text-slate-300 font-mono items-center bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                                <span className="bg-slate-800 px-3 py-1.5 rounded text-white">Source Deal</span> &rarr;
+                                <span className="bg-slate-800 px-3 py-1.5 rounded text-white">Analyze</span> &rarr;
+                                <span className="bg-slate-800 px-3 py-1.5 rounded text-white">Publish</span> &rarr;
+                                <span className="bg-slate-800 px-3 py-1.5 rounded text-white">Reserve</span> &rarr;
+                                <span className="bg-slate-800 px-3 py-1.5 rounded text-white">Verify Escrow</span> &rarr;
+                                <span className="bg-emerald-900/50 px-3 py-1.5 rounded border border-emerald-500/50 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.1)]">Tri-Party Close</span> &rarr;
+                                <span className="bg-indigo-900/50 px-3 py-1.5 rounded border border-indigo-500/50 text-indigo-300">Boost Trust Score</span>
+                            </div>
                         </section>
 
+                        {/* 2. Getting Started */}
                         <section id="getting-started" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 2. Getting Started</h2>
-                            <p className="text-slate-300 mb-4">Before transacting on WholesaleOS, you must configure your operating profile:</p>
-                            <ul className="space-y-3 pl-0 list-none">
-                                <li className="bg-slate-900 border border-slate-800 p-4 rounded-lg"><strong className="text-indigo-400 block mb-1">Profile Setup</strong> Navigate to Settings -&gt; Profile to set your Company Name, Avatar, and contact routing info.</li>
-                                <li className="bg-slate-900 border border-slate-800 p-4 rounded-lg"><strong className="text-indigo-400 block mb-1">KYC Verification</strong> Upload your government-issued ID via the Security tab to gain verified standing.</li>
-                                <li className="bg-slate-900 border border-slate-800 p-4 rounded-lg"><strong className="text-indigo-400 block mb-1">Stripe Linking</strong> Connect a Stripe payout account (Wholesalers) or a payment method (Investors) to process locking deposits and assignment fees natively.</li>
+                            <p className="text-slate-300 mb-4">Before transacting on WholesaleOS, configure your operating profile:</p>
+                            <ul className="space-y-3 pl-0 list-none font-mono text-sm">
+                                <li className="bg-slate-900 border border-slate-800 p-4 rounded-lg flex items-center gap-4"><div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center shrink-0">1</div><div><strong className="text-indigo-400 block mb-1">Profile Setup</strong> Navigate to Profile to set your Company Name and Avatar.</div></li>
+                                <li className="bg-slate-900 border border-slate-800 p-4 rounded-lg flex items-center gap-4"><div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center shrink-0">2</div><div><strong className="text-indigo-400 block mb-1">KYC Verification</strong> Upload your government-issued ID to gain verified standing.</div></li>
+                                <li className="bg-slate-900 border border-slate-800 p-4 rounded-lg flex items-center gap-4"><div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center shrink-0">3</div><div><strong className="text-indigo-400 block mb-1">Stripe Linking</strong> Connect Stripe to process deposits or assignment fees natively.</div></li>
                             </ul>
                         </section>
 
+                        {/* 3. User Personas */}
                         <section id="user-personas" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 3. User Personas</h2>
-                            <p className="text-slate-300 mb-4">WholesaleOS assigns distinct capabilities based on your declared persona:</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="p-5 bg-slate-800/50 border border-slate-700 rounded-xl"><h3 className="font-bold text-white mb-2">Wholesalers</h3><p className="text-sm text-slate-400">Authorized to ingest leads, run comps, analyze deals, and push inventory to the Deal Room.</p></div>
-                                <div className="p-5 bg-slate-800/50 border border-slate-700 rounded-xl"><h3 className="font-bold text-white mb-2">Investors</h3><p className="text-sm text-slate-400">Authorized to browse the marketplace, review AI Deal Scores, and place locking deposits on active deals.</p></div>
-                                <div className="p-5 bg-slate-800/50 border border-slate-700 rounded-xl"><h3 className="font-bold text-white mb-2">Realtors</h3><p className="text-sm text-slate-400">Authorized to receive pre-qualified listing referrals from Wholesalers for retail properties.</p></div>
-                                <div className="p-5 bg-slate-800/50 border border-slate-700 rounded-xl"><h3 className="font-bold text-white mb-2">Title Companies</h3><p className="text-sm text-slate-400">Authorized to verify Earnest Money Deposits (EMD) and push transactions to a "Verified Close" status.</p></div>
-                                <div className="p-5 bg-slate-900 border border-indigo-900 md:col-span-2 rounded-xl flex items-start gap-3"><AlertCircle className="text-indigo-400 shrink-0 mt-1" /><div className="text-sm"><strong className="text-indigo-400 block">Super Admin</strong>Authorized to moderate the network, approve KYC / Proof of Funds documentation, and monitor systemic health.</div></div>
-                            </div>
-                        </section>
-
-                        <section id="core-workspaces" className="scroll-mt-10 mb-16">
-                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 4. Core Workspaces</h2>
-                            <ul className="space-y-4 text-slate-300">
-                                <li><strong>Wholesaler Pipeline (/pipeline):</strong> A Kanban board for managing leads from initial intake through closing.</li>
-                                <li><strong>Deal Room Marketplace (/deals):</strong> The global grid where Investors discover and reserve algorithmic-ranked active deals.</li>
-                                <li><strong>Investor Dashboard (/dashboard):</strong> A curated summary of saved deals, active reservations, and recent market alerts.</li>
-                                <li><strong>Referral Hub (/referrals):</strong> The exchange portal where Wholesalers route retail leads to Realtors for a percentage fee.</li>
-                                <li><strong>Network Ecosystem (/network):</strong> The gamification arena displaying Trust Leaderboards and Top Deal Producers.</li>
-                            </ul>
-                        </section>
-
-                        <section id="deal-intelligence" className="scroll-mt-10 mb-16">
-                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 5. Deal Intelligence</h2>
-                            <p className="text-slate-300 mb-6">The AI Deal Engine evaluates every property published to the marketplace.</p>
-                            <div className="space-y-3">
-                                <div className="flex border-b border-slate-800 pb-3"><div className="w-1/3 font-bold text-indigo-300">Deal Score (0-100)</div><div className="w-2/3 text-slate-400 text-sm">A master rating fusing equity, risk, demand, and the Wholesaler's trust score.</div></div>
-                                <div className="flex border-b border-slate-800 pb-3"><div className="w-1/3 font-bold text-indigo-300">Liquidity Signal</div><div className="w-2/3 text-slate-400 text-sm">A prediction (High/Moderate/Weak) of how fast a deal will sell based on trailing 90-day cash purchases.</div></div>
-                                <div className="flex border-b border-slate-800 pb-3"><div className="w-1/3 font-bold text-indigo-300">Risk Level</div><div className="w-2/3 text-slate-400 text-sm">Evaluates profit margin against estimated repair costs to flag potentially hazardous flips.</div></div>
-                                <div className="flex border-b border-slate-800 pb-3"><div className="w-1/3 font-bold text-indigo-300">Equity Spread</div><div className="w-2/3 text-slate-400 text-sm">The raw dollar amount difference between the ARV and total capital required.</div></div>
-                                <div className="flex border-b border-slate-800 pb-3"><div className="w-1/3 font-bold text-indigo-300">Recommended Offer</div><div className="w-2/3 text-slate-400 text-sm">An automatically calculated Maximum Allowable Offer (MAO) using a risk-adjusted 70% Rule.</div></div>
-                            </div>
-                        </section>
-
-                        <section id="deal-lifecycle" className="scroll-mt-10 mb-16">
-                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 6. Deal Lifecycle</h2>
-                            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 relative">
-                                <div className="absolute left-[39px] top-10 bottom-10 w-0.5 bg-slate-800"></div>
-                                <div className="space-y-6 relative z-10">
-                                    <div className="flex items-start gap-4"><div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center font-bold text-slate-300 shrink-0 text-sm">1</div><div className="pt-1"><strong className="text-white">Lead Intake:</strong> <span className="text-slate-400 text-sm block">Wholesaler adds a property to the Pipeline.</span></div></div>
-                                    <div className="flex items-start gap-4"><div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center font-bold text-slate-300 shrink-0 text-sm">2</div><div className="pt-1"><strong className="text-white">Deal Analysis:</strong> <span className="text-slate-400 text-sm block">Wholesaler enters repair estimates; Comps Engine fetches local ARV.</span></div></div>
-                                    <div className="flex items-start gap-4"><div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center font-bold text-slate-300 shrink-0 text-sm">3</div><div className="pt-1"><strong className="text-white">Publishing Deals:</strong> <span className="text-slate-400 text-sm block">Photos and contracts are uploaded and pushed to the marketplace.</span></div></div>
-                                    <div className="flex items-start gap-4"><div className="w-8 h-8 rounded-full bg-indigo-900 border-2 border-indigo-500 flex items-center justify-center font-bold text-indigo-300 shrink-0 text-sm">4</div><div className="pt-1"><strong className="text-white">Investor Reservation:</strong> <span className="text-slate-400 text-sm block">An Investor views the AI Score and pays a $250 earnest fee to lock the deal.</span></div></div>
-                                    <div className="flex items-start gap-4"><div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center font-bold text-slate-300 shrink-0 text-sm">5</div><div className="pt-1"><strong className="text-white">Escrow & Title:</strong> <span className="text-slate-400 text-sm block">A Title Company verifies the EMD receipt, hard-locking the property.</span></div></div>
-                                    <div className="flex items-start gap-4"><div className="w-8 h-8 rounded-full bg-emerald-900 border-2 border-emerald-500 flex items-center justify-center font-bold text-emerald-300 shrink-0 text-sm">6</div><div className="pt-1"><strong className="text-white">Verified Close:</strong> <span className="text-slate-400 text-sm block">Transaction finalizes via Tri-Party Verification, boosting Trust Scores.</span></div></div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="p-5 bg-slate-900 border border-slate-800 rounded-xl hover:border-indigo-500/30 transition-colors">
+                                    <h3 className="font-bold text-white mb-3 text-lg">Wholesalers</h3>
+                                    <ul className="text-sm text-slate-400 space-y-2 list-none pl-0">
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Lead ingestion</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Deal analysis</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Deal publishing</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Deal blast marketing</li>
+                                    </ul>
+                                </div>
+                                <div className="p-5 bg-slate-900 border border-slate-800 rounded-xl hover:border-emerald-500/30 transition-colors">
+                                    <h3 className="font-bold text-white mb-3 text-lg">Investors</h3>
+                                    <ul className="text-sm text-slate-400 space-y-2 list-none pl-0">
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Deal discovery</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> AI deal intelligence review</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Reservation deposits</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Document vault</li>
+                                    </ul>
+                                </div>
+                                <div className="p-5 bg-slate-900 border border-slate-800 rounded-xl hover:border-amber-500/30 transition-colors">
+                                    <h3 className="font-bold text-white mb-3 text-lg">Realtors</h3>
+                                    <ul className="text-sm text-slate-400 space-y-2 list-none pl-0">
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Referral acceptance</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Listing management</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Referral revenue tracking</li>
+                                    </ul>
+                                </div>
+                                <div className="p-5 bg-slate-900 border border-slate-800 rounded-xl hover:border-blue-500/30 transition-colors">
+                                    <h3 className="font-bold text-white mb-3 text-lg">Title Companies</h3>
+                                    <ul className="text-sm text-slate-400 space-y-2 list-none pl-0">
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> EMD verification</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Escrow tracking</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Closing milestone confirmation</li>
+                                    </ul>
                                 </div>
                             </div>
                         </section>
 
-                        <section id="lead-generation" className="scroll-mt-10 mb-16">
-                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 7. Lead Generation</h2>
-                            <ul className="list-disc pl-5 space-y-2 text-slate-300">
-                                <li><strong>Opportunity Radar:</strong> A heatmap visualizing high-velocity transaction zones and active cash buyers.</li>
-                                <li><strong>Distress Indicators:</strong> Manually flagged OSINT conditions (Tax Delinquent, Code Violations, Vacancy).</li>
-                                <li><strong>Foreclosure Signals:</strong> System alerts for upcoming county auction dates.</li>
-                                <li><strong>OSINT Enrichment:</strong> External data appended to boost a property's priority `ai_deal_score`.</li>
-                            </ul>
-                        </section>
-
-                        <section id="investor-tools" className="scroll-mt-10 mb-16">
-                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 8. Investor Tools</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">1. Deal Reservation Checkout</div>
-                                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">2. Secure Document Vault</div>
-                                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">3. Proof of Funds (POF) Flow</div>
-                                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-500 italic">4. Portfolio Manager (Coming Soon)</div>
+                        {/* 4. Core Workspaces */}
+                        <section id="core-workspaces" className="scroll-mt-10 mb-16">
+                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 4. Core Workspaces</h2>
+                            <p className="text-slate-400 mb-6">Platform Navigation Map:</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm font-mono">
+                                <div className="bg-slate-900 p-4 border border-slate-800 rounded-lg flex items-center gap-3"><span className="text-emerald-400 font-bold w-24">/pipeline</span> <span className="text-slate-300">Wholesaler management board</span></div>
+                                <div className="bg-slate-900 p-4 border border-slate-800 rounded-lg flex items-center gap-3"><span className="text-emerald-400 font-bold w-24">/deals</span> <span className="text-slate-300">Global Deal Room marketplace</span></div>
+                                <div className="bg-slate-900 p-4 border border-slate-800 rounded-lg flex items-center gap-3"><span className="text-emerald-400 font-bold w-24">/dashboard</span> <span className="text-slate-300">Investor intelligence dashboard</span></div>
+                                <div className="bg-slate-900 p-4 border border-slate-800 rounded-lg flex items-center gap-3"><span className="text-emerald-400 font-bold w-24">/referrals</span> <span className="text-slate-300">Realtor referral management hub</span></div>
+                                <div className="bg-slate-900 p-4 border border-slate-800 rounded-lg flex items-center gap-3"><span className="text-emerald-400 font-bold w-24">/network</span> <span className="text-slate-300">Trust scores & Leaderboards</span></div>
+                                <div className="bg-slate-900 p-4 border border-slate-800 rounded-lg flex items-center gap-3"><span className="text-emerald-400 font-bold w-24">/support</span> <span className="text-slate-300">Help Center & Knowledge Base</span></div>
                             </div>
                         </section>
 
-                        <section id="network-ecosystem" className="scroll-mt-10 mb-16">
-                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 9. Network Ecosystem</h2>
+                        {/* 5. Deal Intelligence */}
+                        <section id="deal-intelligence" className="scroll-mt-10 mb-16">
+                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 5. Deal Intelligence Engine</h2>
+                            <p className="text-slate-300 mb-6">The AI Intelligence algorithms evaluate every property published to the marketplace.</p>
+                            <div className="space-y-4">
+                                <div className="flex border-b border-slate-800 pb-4">
+                                    <div className="w-1/3 font-bold text-white flex items-center gap-2"><Target className="text-indigo-400" size={16} /> Deal Score (0-100)</div>
+                                    <div className="w-2/3 text-slate-400 text-sm">Composite rating based on Equity Spread, Local Buyer Demand, Estimated Rehab Risk, Seller Motivation, and the Wholesaler's Trust Score.</div>
+                                </div>
+                                <div className="flex border-b border-slate-800 pb-4">
+                                    <div className="w-1/3 font-bold text-white flex items-center gap-2"><Zap className="text-indigo-400" size={16} /> Liquidity Signal</div>
+                                    <div className="w-2/3 text-slate-400 text-sm">Prediction of how quickly the deal will sell based on recent 90-day cash buyer activity in the zip code.</div>
+                                </div>
+                                <div className="flex border-b border-slate-800 pb-4">
+                                    <div className="w-1/3 font-bold text-white flex items-center gap-2"><ShieldAlert className="text-indigo-400" size={16} /> Risk Level</div>
+                                    <div className="w-2/3 text-slate-400 text-sm">Measures profit margin against estimated repairs to detect risky flips.</div>
+                                </div>
+                                <div className="flex border-b border-slate-800 pb-4">
+                                    <div className="w-1/3 font-bold text-white flex items-center gap-2"><Activity className="text-indigo-400" size={16} /> Equity Spread</div>
+                                    <div className="w-2/3 text-slate-400 text-sm">Difference between ARV and total capital required (Asking + Repairs).</div>
+                                </div>
+                                <div className="flex border-b border-slate-800 pb-4">
+                                    <div className="w-1/3 font-bold text-white flex items-center gap-2"><BookOpen className="text-indigo-400" size={16} /> Recommended Offer</div>
+                                    <div className="w-2/3 text-slate-400 text-sm">Risk-adjusted Maximum Allowable Offer based on the 70% rule.</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* 6. Deal Lifecycle */}
+                        <section id="deal-lifecycle" className="scroll-mt-10 mb-16">
+                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 6. Deal Lifecycle</h2>
+                            <div className="flex flex-col md:flex-row gap-4 mb-10 overflow-x-auto custom-scrollbar pb-4">
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl min-w-[140px] text-center"><div className="text-indigo-400 font-bold mb-1">1</div><div className="text-xs font-mono text-slate-300">Lead Intake</div></div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl min-w-[140px] text-center"><div className="text-indigo-400 font-bold mb-1">2</div><div className="text-xs font-mono text-slate-300">Deal Analysis</div></div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl min-w-[140px] text-center"><div className="text-indigo-400 font-bold mb-1">3</div><div className="text-xs font-mono text-slate-300">Publish to Market</div></div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl min-w-[140px] text-center"><div className="text-indigo-400 font-bold mb-1">4</div><div className="text-xs font-mono text-slate-300">Investor Reservation</div></div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl min-w-[140px] text-center"><div className="text-indigo-400 font-bold mb-1">5</div><div className="text-xs font-mono text-slate-300">Escrow Verification</div></div>
+                                <div className="bg-slate-900 border border-emerald-500/50 p-4 rounded-xl min-w-[140px] text-center shadow-[0_0_15px_rgba(16,185,129,0.1)]"><div className="text-emerald-400 font-bold mb-1">6</div><div className="text-xs font-bold text-emerald-300">Verified Close</div></div>
+                            </div>
+
+                            <h3 className="text-xl font-bold text-white mb-4">The Triple Verification System</h3>
+                            <p className="text-slate-300 mb-4">
+                                WholesaleOS uses a Tri-Party Verification system to guarantee that deals recorded as "Closed" are legitimate transactions. A deal is only marked as VERIFIED CLOSED when three parties independently confirm the transaction:
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div className="bg-slate-800/50 p-5 rounded-lg border border-slate-700">
+                                    <div className="font-bold text-white mb-2">1. Wholesaler</div>
+                                    <div className="text-sm text-slate-400">Confirms the property assignment or sale was successfully executed.</div>
+                                </div>
+                                <div className="bg-slate-800/50 p-5 rounded-lg border border-slate-700">
+                                    <div className="font-bold text-white mb-2">2. Investor</div>
+                                    <div className="text-sm text-slate-400">Confirms the purchase was completed and funds were transferred.</div>
+                                </div>
+                                <div className="bg-slate-800/50 p-5 rounded-lg border border-slate-700">
+                                    <div className="font-bold text-white mb-2">3. Title Company</div>
+                                    <div className="text-sm text-slate-400">Confirms escrow completion and document recording.</div>
+                                </div>
+                            </div>
+                            <div className="bg-indigo-900/20 border border-indigo-500/30 p-4 rounded-lg text-sm text-indigo-200">
+                                <strong>Success:</strong> Once all three confirmations occur, the deal becomes permanently recorded as a Verified Close. This automatically increases Trust Scores, improves Deal Producer rankings, and strengthens the Trust Network graph.
+                            </div>
+                        </section>
+
+                        {/* 7. Lead Generation */}
+                        <section id="lead-generation" className="scroll-mt-10 mb-16">
+                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 7. Lead Generation</h2>
                             <ul className="list-disc pl-5 space-y-2 text-slate-300">
-                                <li><strong>Trust Score:</strong> Your reputation (0-100). Increases with verified closings; decreases with dropped contracts.</li>
-                                <li><strong>Deal Score:</strong> An aggregate metric of the quality of deals a Wholesaler produces.</li>
-                                <li><strong>Trust Leaderboards:</strong> Ranks the most reliable players in the marketplace.</li>
-                                <li><strong>Top Deal Producers:</strong> Showcases Wholesalers providing the deepest discount properties.</li>
+                                <li><strong>Opportunity Radar:</strong> Heatmaps visualizing high-velocity transaction zones.</li>
+                                <li><strong>Distress Indicators:</strong> OSINT conditions (Tax Delinquent, Code Violations, Vacancy).</li>
+                                <li><strong>Foreclosure Signals:</strong> Alerts for upcoming county auction dates.</li>
+                                <li><strong>OSINT Enrichment:</strong> External data appended to boost `ai_deal_score`.</li>
                             </ul>
                         </section>
 
-                        <section id="referral-network" className="scroll-mt-10 mb-16">
-                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 10. Referral Network</h2>
-                            <p className="text-slate-300">Retail leads generated by Wholesalers are dispatched to Realtors via the Referral Hub. Realtors can <strong>Accept</strong> or <strong>Decline</strong> the referral matrix and agree to specific fee percentages (tracked automatically by the platform closing engine).</p>
+                        {/* 8. Investor Tools */}
+                        <section id="investor-tools" className="scroll-mt-10 mb-16">
+                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 8. Investor Tools</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">Deal Reservation System</div>
+                                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">Secure Document Vault</div>
+                                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 font-medium text-slate-300">Proof of Funds Verification</div>
+                                <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 font-medium text-slate-500 italic">Portfolio Manager (Future)</div>
+                            </div>
                         </section>
 
+                        {/* 9. Network Ecosystem */}
+                        <section id="network-ecosystem" className="scroll-mt-10 mb-16">
+                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 9. Network Ecosystem</h2>
+                            <p className="text-slate-300 mb-6">The Network Ecosystem page showcases Trust Leaderboards, Top Deal Producers, and Deal Quality Rankings. The upcoming Network Graph will visualize verified transaction relationships between users.</p>
+
+                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Award size={18} className="text-amber-400" /> Platform Badges</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl"><strong className="text-white block mb-2 text-sm">Verification</strong><div className="text-xs text-slate-400 flex flex-col gap-1"><span>• KYC Verified</span><span>• Proof of Funds Verified</span><span>• Entity Verified</span></div></div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl"><strong className="text-white block mb-2 text-sm">Performance</strong><div className="text-xs text-slate-400 flex flex-col gap-1"><span>• Verified Deal Closer</span><span>• Top Deal Producer</span><span>• AI Deal Specialist</span></div></div>
+                                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl"><strong className="text-white block mb-2 text-sm">Network</strong><div className="text-xs text-slate-400 flex flex-col gap-1"><span>• Referral Partner</span><span>• Trusted Network Member</span></div></div>
+                            </div>
+
+                            <h3 className="text-lg font-bold text-white mb-4">Reputation Tiers</h3>
+                            <div className="flex flex-wrap gap-3">
+                                <div className="px-4 py-2 border border-slate-600 rounded-full text-xs font-bold text-slate-300 bg-slate-800 shadow-md">Bronze: 50-65</div>
+                                <div className="px-4 py-2 border border-slate-400 rounded-full text-xs font-bold text-slate-200 bg-slate-700 shadow-md">Silver: 66-80</div>
+                                <div className="px-4 py-2 border border-amber-500/50 rounded-full text-xs font-bold text-amber-300 bg-amber-900/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]">Gold: 81-90</div>
+                                <div className="px-4 py-2 border border-blue-400/50 rounded-full text-xs font-bold text-blue-300 bg-blue-900/30 shadow-[0_0_15px_rgba(96,165,250,0.3)]">Platinum: 91-100</div>
+                            </div>
+                        </section>
+
+                        {/* 10. Referral Network */}
+                        <section id="referral-network" className="scroll-mt-10 mb-16">
+                            <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 10. Referral Network</h2>
+                            <ul className="list-disc pl-5 space-y-2 text-slate-300">
+                                <li><strong>Sending Referrals:</strong> Wholesalers route retail leads to the Network.</li>
+                                <li><strong>Accepting Referrals:</strong> Realtors actively Accept or Decline representation.</li>
+                                <li><strong>Referral Fee Tracking:</strong> Automatically logs percentage splits and records pending revenue.</li>
+                            </ul>
+                        </section>
+
+                        {/* 11. Platform Automation */}
                         <section id="platform-automation" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 11. Platform Automation</h2>
                             <ul className="list-disc pl-5 space-y-2 text-slate-300">
-                                <li><strong>Skip Tracing:</strong> Bulk or single lookups for owner phone numbers.</li>
-                                <li><strong>Deal Blast Engine:</strong> 1-click execution to distribute a published deal via SMS and Email to the matched buyer pool.</li>
-                                <li><strong>AI Deal Intelligence:</strong> Asynchronous evaluation of property metrics using background OSINT processors.</li>
-                                <li><strong>Distribution Engine:</strong> The routing system that matches a property's zip code to an Investor's Buy Box.</li>
+                                <li><strong>Skip Tracing:</strong> Owner contact discovery.</li>
+                                <li><strong>Deal Blast Engine:</strong> SMS and Email distribution to buyer pools.</li>
+                                <li><strong>AI Deal Intelligence:</strong> Automated deal scoring and risk evaluation.</li>
+                                <li><strong>Distribution Engine:</strong> Routes deals to investors based on geographic buy boxes.</li>
                             </ul>
                         </section>
 
+                        {/* 12. Security & Verification */}
                         <section id="security-verification" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 12. Security & Verification</h2>
                             <ul className="list-disc pl-5 space-y-2 text-slate-300">
                                 <li><strong>KYC Verification:</strong> Identity validation to prevent bad actors.</li>
-                                <li><strong>Proof of Control (POC):</strong> Wholesalers must upload executed A-to-B contracts before deals go live.</li>
-                                <li><strong>Trust Score System:</strong> An algorithmic penalty system that restricts functionality for abusive accounts.</li>
-                                <li><strong>Platform Integrity:</strong> Super Admin dashboard kill-switches for fraudulent activity.</li>
+                                <li><strong>Proof of Control:</strong> Executed A-to-B contracts required before deals go live.</li>
+                                <li><strong>Trust Score System:</strong> Penalty system that restricts functionality for abusive accounts.</li>
+                                <li><strong>Platform Integrity:</strong> Super Admin oversight to guarantee ecosystem safety.</li>
                             </ul>
                         </section>
 
+                        {/* 13. Subscription & Billing */}
                         <section id="subscription-billing" className="scroll-mt-10 mb-16">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 13. Subscription & Billing</h2>
-                            <p className="text-slate-300 mb-4">Upgrading is handled dynamically via the `/pricing` page. Payments process off-site via Stripe Checkout.</p>
                             <div className="flex gap-4">
-                                <span className="bg-slate-800 px-3 py-1 rounded-full text-xs font-bold text-slate-300 border border-slate-700">PROFESSIONAL ($100/mo)</span>
-                                <span className="bg-indigo-900/50 px-3 py-1 rounded-full text-xs font-bold text-indigo-300 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]">PRO ($500/mo)</span>
-                                <span className="bg-purple-900/50 px-3 py-1 rounded-full text-xs font-bold text-purple-300 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]">SUPER ($1000/mo)</span>
+                                <span className="bg-slate-800 px-3 py-1 rounded-full text-xs font-bold text-slate-300 border border-slate-700">PROFESSIONAL</span>
+                                <span className="bg-indigo-900/50 px-3 py-1 rounded-full text-xs font-bold text-indigo-300 border border-indigo-500/50">PRO</span>
+                                <span className="bg-purple-900/50 px-3 py-1 rounded-full text-xs font-bold text-purple-300 border border-purple-500/50">SUPER</span>
                             </div>
+                            <p className="text-sm text-slate-400 mt-4">Upgrading is handled via the `/pricing` page. Payments process securely via Stripe.</p>
                         </section>
 
+                        {/* 14. Troubleshooting */}
                         <section id="troubleshooting" className="scroll-mt-10">
                             <h2 className="text-2xl font-bold text-white border-none flex items-center gap-2 mb-6 tracking-tight"><Hash className="text-indigo-500" /> 14. Troubleshooting</h2>
-                            <div className="space-y-4">
-                                <details className="bg-slate-800 p-4 rounded-lg cursor-pointer">
-                                    <summary className="font-bold text-white">Deal Publishing Errors</summary>
-                                    <p className="text-sm text-slate-400 mt-2">Ensure you have attached at least 3 photos, input the ARV/MAO, and verified your POC document.</p>
-                                </details>
-                                <details className="bg-slate-800 p-4 rounded-lg cursor-pointer">
-                                    <summary className="font-bold text-white">Verification Issues</summary>
-                                    <p className="text-sm text-slate-400 mt-2">Proof of Funds processing can take 24-48 hours depending on admin volume.</p>
-                                </details>
-                                <details className="bg-slate-800 p-4 rounded-lg cursor-pointer">
-                                    <summary className="font-bold text-white">Reservation Problems</summary>
-                                    <p className="text-sm text-slate-400 mt-2">If a deal is tagged 'RESERVED' by another buyer, it is locked. You must wait for their 24hr escrow period to lapse.</p>
-                                </details>
+                            <div className="space-y-4 mb-8">
+                                <div className="bg-slate-800 p-4 rounded-lg">
+                                    <h4 className="font-bold text-white mb-1 text-sm">Deal Publishing Errors</h4>
+                                    <p className="text-sm text-slate-400">Missing photos, ARV, MAO, or Proof of Control.</p>
+                                </div>
+                                <div className="bg-slate-800 p-4 rounded-lg">
+                                    <h4 className="font-bold text-white mb-1 text-sm">Verification Issues</h4>
+                                    <p className="text-sm text-slate-400">Proof of Funds review may take 24-48 hours.</p>
+                                </div>
+                                <div className="bg-slate-800 p-4 rounded-lg">
+                                    <h4 className="font-bold text-white mb-1 text-sm">Deal Reservation Problems</h4>
+                                    <p className="text-sm text-slate-400">Deals already reserved cannot be double-booked.</p>
+                                </div>
                             </div>
+
+                            <h3 className="text-xl font-bold text-white mb-4">Support Contact</h3>
+                            <ul className="text-slate-300 list-disc pl-5">
+                                <li>admin@wholesaleos.com</li>
+                                <li>Help Center request form</li>
+                            </ul>
                         </section>
 
                     </div>
