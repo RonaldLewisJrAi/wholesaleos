@@ -11,6 +11,8 @@ import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability
 import { matchDealToInvestors, mockLiquidityInvestors } from '../../services/liquidityEngine';
 import ClosingVerificationPanel from '../../components/deals/ClosingVerificationPanel';
 import { databaseService } from '../../services/databaseService';
+import { DealIntelligencePanel } from '../../components/DealIntelligencePanel';
+import { generateDealIntelligence } from '../../services/dealEvaluatorEngine';
 
 const ProgressIndicator = ({ status }) => {
     const steps = [
@@ -76,6 +78,7 @@ export const DealRoom = () => {
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     const [signing, setSigning] = useState(false);
+    const [aiReport, setAiReport] = useState(null);
 
     // Reservation Modal State
     const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
@@ -130,6 +133,24 @@ export const DealRoom = () => {
         };
         fetchDeal();
     }, [id]);
+
+    useEffect(() => {
+        if (!deal) return;
+        const parseCurrency = (str) => parseInt(String(str).replace(/[^0-9]/g, '') || '0', 10);
+
+        const fetchAI = async () => {
+            const report = await generateDealIntelligence({
+                property_id: deal.id,
+                arv: parseCurrency(deal.arv),
+                asking_price: parseCurrency(deal.mao),
+                estimated_repairs: parseCurrency(deal.rehab),
+                zip_code: deal.zip_code || '37138',
+                wholesaler_id: deal.user_id || undefined
+            });
+            setAiReport(report);
+        };
+        fetchAI();
+    }, [deal]);
 
     useEffect(() => {
         const fetchVaultDocs = async () => {
@@ -332,30 +353,7 @@ export const DealRoom = () => {
                     </div>
 
                     {/* Intelligence Summary */}
-                    <div className="glass-card p-6 group transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_25px_rgba(78,123,255,0.15)]">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-blue-900/30 pb-2">
-                            <Target className="text-blue-400" size={18} /> Deal Intelligence
-                        </h3>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-[var(--bg-tertiary)] border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
-                                <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">ARV</label>
-                                <span className="text-xl font-mono font-bold text-white">{deal.arv}</span>
-                            </div>
-                            <div className="bg-emerald-900/10 border border-emerald-500/30 rounded-lg p-4 shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-colors transform group-hover:-translate-y-0.5 relative overflow-hidden">
-                                <div className="absolute inset-0 bg-emerald-500/5 pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
-                                <label className="text-[10px] text-emerald-400 uppercase tracking-widest font-mono mb-1 block relative z-10">Asking Price</label>
-                                <span className="text-2xl font-mono font-bold text-emerald-400 relative z-10">{deal.mao}</span>
-                            </div>
-                            <div className="bg-[var(--bg-tertiary)] border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
-                                <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">Est. Rehab</label>
-                                <span className="text-xl font-mono font-bold text-amber-400">{deal.rehab || 'TBD'}</span>
-                            </div>
-                            <div className="bg-[var(--bg-tertiary)] border border-blue-900/40 rounded-lg p-4 transition-colors group-hover:border-blue-500/30">
-                                <label className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 block">Est. ROI</label>
-                                <span className="text-xl font-mono font-bold text-blue-400">22.4%</span>
-                            </div>
-                        </div>
-                    </div>
+                    <DealIntelligencePanel report={aiReport} isGenerating={!aiReport} />
 
                     {/* Document Vault */}
                     <div className="glass-card p-6 group transition-all duration-300 hover:border-blue-500/50">
