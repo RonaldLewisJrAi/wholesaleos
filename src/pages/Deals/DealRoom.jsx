@@ -13,6 +13,7 @@ import ClosingVerificationPanel from '../../components/deals/ClosingVerification
 import { databaseService } from '../../services/databaseService';
 import { DealIntelligencePanel } from '../../components/DealIntelligencePanel';
 import { generateDealIntelligence } from '../../services/dealEvaluatorEngine';
+import { MotivatedSellerUpload } from '../../components/deals/MotivatedSellerUpload';
 
 const ProgressIndicator = ({ status }) => {
     const steps = [
@@ -97,6 +98,9 @@ export const DealRoom = () => {
     // Priority Deal Blast State
     const [isPriorityBlast, setIsPriorityBlast] = useState(false);
 
+    // Distress Intake Modal state
+    const [isDistressModalOpen, setIsDistressModalOpen] = useState(false);
+
     useEffect(() => {
         const fetchDeal = async () => {
             setLoading(true);
@@ -145,7 +149,8 @@ export const DealRoom = () => {
                 asking_price: parseCurrency(deal.mao),
                 estimated_repairs: parseCurrency(deal.rehab),
                 zip_code: deal.zip_code || '37138',
-                wholesaler_id: deal.user_id || undefined
+                wholesaler_id: deal.user_id || undefined,
+                distress_score: deal.distress_score || undefined
             });
             setAiReport(report);
         };
@@ -325,6 +330,11 @@ export const DealRoom = () => {
                                         {academyStatus === 'CERTIFIED' && (
                                             <span className="px-3 py-1 rounded border border-emerald-500/50 bg-emerald-900/60 text-emerald-400 text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1" title="Certified Wholesaler">
                                                 <Award size={12} className="inline mr-1" /> Certified
+                                            </span>
+                                        )}
+                                        {deal.distress_score >= 50 && (
+                                            <span className="px-3 py-1 rounded bg-red-600/90 text-white border border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1 animate-pulse" title="High Distress Market Factors Detected">
+                                                🚨 MOTIVATED SELLER
                                             </span>
                                         )}
                                     </div>
@@ -623,6 +633,16 @@ export const DealRoom = () => {
                                     >
                                         {deal.status === 'Lead' || deal.status === 'DRAFT' ? 'Publish to Marketplace' : deal.status === 'RESERVED' ? 'Deal Lock Activated' : 'Deal is Syndicated'}
                                     </button>
+
+                                    {/* Action button to attach Motivated Seller OSINT */}
+                                    {(deal.status === 'Lead' || deal.status === 'DRAFT') && (
+                                        <button
+                                            className="w-full mt-3 py-3 rounded-lg text-sm font-mono font-bold tracking-widest uppercase transition-all bg-[var(--bg-tertiary)] hover:bg-slate-800 text-slate-300 border border-slate-700 hover:border-red-500/50 flex justify-center items-center gap-2"
+                                            onClick={() => setIsDistressModalOpen(true)}
+                                        >
+                                            <ShieldAlert size={16} className="text-red-500" /> Attach Distress OSINT
+                                        </button>
+                                    )}
                                 </>
                             ) : (
                                 <>
@@ -705,6 +725,24 @@ export const DealRoom = () => {
                                 {isReserving ? <Loader2 className="animate-spin" size={16} /> : 'Pay $250 & Lock Deal'}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Motivated Seller OSINT Modal */}
+            {isDistressModalOpen && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                    <div className="w-full max-w-xl animate-fade-in shadow-[0_0_50px_rgba(239,68,68,0.15)] relative">
+                        <MotivatedSellerUpload
+                            leadId={deal.id}
+                            onComplete={() => {
+                                setIsDistressModalOpen(false);
+                                alert('Distress data received. AI Score will adjust momentarily based on OSINT ingestion weights.');
+                                // Refresh deal data hack for UI
+                                window.location.reload();
+                            }}
+                            onCancel={() => setIsDistressModalOpen(false)}
+                        />
                     </div>
                 </div>
             )}

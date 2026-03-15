@@ -9,6 +9,7 @@ export interface DealIntelligenceParams {
     estimated_repairs: number;
     zip_code: string;
     wholesaler_id?: string;
+    distress_score?: number;
 }
 
 export interface DealIntelligenceReport {
@@ -90,8 +91,12 @@ export async function generateDealIntelligence(params: DealIntelligenceParams): 
     if (risk_level === 'Low') base_score += 10;
     else if (risk_level === 'High') base_score -= 15;
 
-    // Apply Wholesaler Trust Bonus
-    let ai_deal_score = Math.floor(base_score + trust_bonus);
+    // Phase 57: Motivated Seller Distress Boost
+    // Extremely distressed properties receive massive artificial bumps indicating ultra-high motivation
+    const distress_bonus = params.distress_score ? Math.floor(params.distress_score * 0.25) : 0; // Max +25 pts
+
+    // Apply Wholesaler Trust Bonus & Distress Bonus
+    let ai_deal_score = Math.floor(base_score + trust_bonus + distress_bonus);
     ai_deal_score = Math.max(0, Math.min(100, ai_deal_score));
 
     // 6. Offer Math (70% Rule Adjusted for Risk)

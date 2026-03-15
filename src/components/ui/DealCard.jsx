@@ -39,6 +39,11 @@ export default function DealCard({ deal }) {
                                 </span>
                             )
                         )}
+                        {deal.distress_score >= 50 && (
+                            <span className="bg-red-600/90 text-white border border-red-500 px-2 py-1 flex items-center gap-1 font-mono text-[10px] font-bold shadow-[0_0_15px_rgba(220,38,38,0.5)] rounded backdrop-blur-md w-max uppercase tracking-wider animate-pulse">
+                                🚨 HIGH DISTRESS
+                            </span>
+                        )}
                         <span className={`status-badge w-max bg-primary text-xs font-bold px-2 py-1 rounded shadow-md`}>
                             {deal.status}
                         </span>
@@ -50,9 +55,20 @@ export default function DealCard({ deal }) {
                     </div>
                     {deal.status !== 'Web Lead' && (
                         <div className="flex gap-1 flex-col items-end">
-                            <span className={`badge ${tier.class} font-bold text-xs shadow-lg px-2 py-1 rounded`} title={`Wholesaler Trust Score: ${trustScore}/100`}>
-                                <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
-                            </span>
+                            {deal.ai_deal_score ? (
+                                <span className={`badge ${deal.ai_deal_score >= 80 ? 'bg-emerald-900/90 text-emerald-400 border-emerald-500/50' : deal.ai_deal_score >= 50 ? 'bg-amber-900/90 text-amber-400 border-amber-500/50' : 'bg-red-900/90 text-red-400 border-red-500/50'} font-bold text-xs shadow-lg px-2 py-1 rounded border backdrop-blur-md flex items-center gap-1`} title={`AI Deal Score: ${deal.ai_deal_score}`}>
+                                    <ShieldCheck size={12} /> AI Score: {deal.ai_deal_score}
+                                </span>
+                            ) : (
+                                <span className={`badge ${tier.class} font-bold text-xs shadow-lg px-2 py-1 rounded border border-white/10 backdrop-blur-md`} title={`Wholesaler Trust Score: ${trustScore}/100`}>
+                                    <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
+                                </span>
+                            )}
+                            {deal.liquidity_signal && (
+                                <span className="badge bg-blue-900/90 text-blue-300 border border-blue-500/50 font-bold text-[10px] shadow-lg px-2 py-1 rounded flex items-center gap-1 uppercase tracking-widest backdrop-blur-md">
+                                    Demand: {deal.liquidity_signal}
+                                </span>
+                            )}
                             {deal.wholesaler?.academy_status === 'GRADUATE' && (
                                 <span className="badge bg-blue-900/80 text-blue-300 border border-blue-500/50 font-bold text-[10px] shadow-lg px-2 py-1 rounded flex items-center gap-1 uppercase tracking-widest" title="WholesaleOS Academy Graduate">
                                     <GraduationCap size={10} /> Graduate
