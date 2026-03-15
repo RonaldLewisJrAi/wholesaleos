@@ -31,6 +31,7 @@ import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import Pricing from './pages/Pricing';
 import AuthCallback from './components/AuthCallback';
+import { HelpCenter } from './pages/Support/HelpCenter';
 import ProxyComponent from './pages/Workstations/ProxyComponent';
 import Spreadsheets from './pages/Workstations/Spreadsheets';
 import DealRoom from './pages/Deals/DealRoom';
@@ -43,6 +44,24 @@ import { DealRadarDashboard } from './pages/DealRadar/DealRadarDashboard';
 import { ReferralDashboard } from './pages/Referrals/ReferralDashboard';
 import { NetworkEcosystem } from './pages/Network/NetworkEcosystem';
 import { useAuth } from './contexts/useAuth';
+import DeveloperDashboard from './pages/Developer/DeveloperDashboard';
+import { requireSuperAdmin, requireAdmin } from './utils/roleGuard';
+
+const SuperAdminRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!requireSuperAdmin(user)) {
+    return <div className="h-screen w-full flex items-center justify-center bg-[var(--bg-primary)] text-rose-500 text-2xl font-bold font-mono uppercase tracking-widest">Access Restricted</div>;
+  }
+  return children;
+};
+
+const AdminRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!requireAdmin(user)) {
+    return <div className="h-screen w-full flex items-center justify-center bg-[var(--bg-primary)] text-rose-500 text-2xl font-bold font-mono uppercase tracking-widest">Access Restricted</div>;
+  }
+  return children;
+};
 
 const RoleBasedRedirect = () => {
   const { user, loadingAuth } = useAuth();
@@ -89,7 +108,7 @@ function App() {
                 <Route path="/deal/:id" element={<DealRoom />} />
 
                 {/* Phase 15: Global Super Admin Sandbox */}
-                <Route path="/super-admin" element={<SuperAdminLayout />}>
+                <Route path="/super-admin" element={<SuperAdminRoute><SuperAdminLayout /></SuperAdminRoute>}>
                   <Route index element={<SuperAdminOverview />} />
                   <Route path="users" element={<SuperAdminUsers />} />
                   <Route path="deals" element={<SuperAdminDeals />} />
@@ -127,12 +146,17 @@ function App() {
                   <Route path="dialer" element={<ProxyComponent moduleName="Auto-Dialer & Scripts" />} />
                   <Route path="leads-queue" element={<ProxyComponent moduleName="Lead Action Queue" />} />
                   <Route path="appointments" element={<ProxyComponent moduleName="Appointment Bookings" />} />
-                  <Route path="integrations" element={<Settings />} />
-                  <Route path="admin" element={<AdminDashboard />} />
-                  <Route path="academy" element={<AcademyDashboard />} />
+                  <Route path="integrations" element={<SuperAdminRoute><Settings /></SuperAdminRoute>} />
+                  <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+
+                  {/* Phase 60: Developer Sandbox */}
+                  <Route path="developer" element={<DeveloperDashboard />} />
+
+                  <Route path="Academy" element={<AcademyDashboard />} />
                   <Route path="academy/:moduleId" element={<AcademyModule />} />
                   <Route path="simulator" element={<DealSimulator />} />
                   <Route path="deal-radar/foreclosures" element={<DealRadarDashboard />} />
+                  <Route path="support" element={<HelpCenter />} />
                   <Route path="terms" element={<TermsOfService />} />
                   <Route path="privacy" element={<PrivacyPolicy />} />
                 </Route>

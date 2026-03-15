@@ -56,12 +56,14 @@ export default function DealCard({ deal }) {
                     {deal.status !== 'Web Lead' && (
                         <div className="flex gap-1 flex-col items-end">
                             {deal.ai_deal_score ? (
-                                <span className={`badge ${deal.ai_deal_score >= 80 ? 'bg-emerald-900/90 text-emerald-400 border-emerald-500/50' : deal.ai_deal_score >= 50 ? 'bg-amber-900/90 text-amber-400 border-amber-500/50' : 'bg-red-900/90 text-red-400 border-red-500/50'} font-bold text-xs shadow-lg px-2 py-1 rounded border backdrop-blur-md flex items-center gap-1`} title={`AI Deal Score: ${deal.ai_deal_score}`}>
+                                <span className={`badge ${deal.ai_deal_score >= 80 ? 'bg-emerald-900/90 text-emerald-400 border border-emerald-500/50' : deal.ai_deal_score >= 60 ? 'bg-amber-900/90 text-amber-400 border border-amber-500/50' : 'bg-red-900/90 text-red-500 border border-red-500/50'} font-bold text-xs shadow-lg px-2 py-1 flex items-center gap-1 rounded backdrop-blur-md`}>
                                     <ShieldCheck size={12} /> AI Score: {deal.ai_deal_score}
+                                    <HelpTooltip topic="Deal Score" description="Calculated from Equity Spread, Buyer Demand, Rehab Risk, Seller Motivation, and the Wholesaler's Trust Score." position="bottom" />
                                 </span>
                             ) : (
-                                <span className={`badge ${tier.class} font-bold text-xs shadow-lg px-2 py-1 rounded border border-white/10 backdrop-blur-md`} title={`Wholesaler Trust Score: ${trustScore}/100`}>
+                                <span className={`badge ${tier.class} font-bold text-xs flex items-center shadow-lg px-2 py-1 rounded border border-white/10 backdrop-blur-md`} title={`Wholesaler Trust Score: ${trustScore}/100`}>
                                     <ShieldCheck size={12} className="inline mr-1" /> {tier.label}
+                                    <HelpTooltip topic="Trust Score" description="Dictates Marketplace Visibility. 90+ Priority routing. 75-89 Standard visibility. 50-74 Limited blast." position="bottom" />
                                 </span>
                             )}
                             {deal.liquidity_signal && (

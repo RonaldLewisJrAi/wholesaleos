@@ -6,7 +6,7 @@ import { useSubscription } from '../contexts/useSubscription';
 import '../App.css';
 
 const Pricing = () => {
-    const { user, loadingAuth } = useAuth();
+    const { user, loadingAuth, developerMode } = useAuth();
     const { subscriptionTier, subscriptionStatus } = useSubscription();
     const navigate = useNavigate();
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
@@ -14,6 +14,11 @@ const Pricing = () => {
     const handleUpgrade = async (tier) => {
         if (!user) {
             navigate('/signup', { state: { returnTo: '/pricing', intendedTier: tier } });
+            return;
+        }
+
+        if (developerMode) {
+            alert(JSON.stringify({ success: true, message: "Developer sandbox payment simulated" }, null, 2));
             return;
         }
 

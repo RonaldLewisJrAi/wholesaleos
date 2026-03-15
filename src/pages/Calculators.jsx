@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calculator, DollarSign, Percent, TrendingUp } from 'lucide-react';
+import { HelpTooltip } from '../components/HelpTooltip';
 import './Calculators.css';
 
 const Calculators = () => {
@@ -92,7 +93,10 @@ const Calculators = () => {
                     <div className="card mao-result-card glass-panel">
                         <div className="mao-header">
                             <h3>Maximum Allowable Offer</h3>
-                            <span className="mao-badge">MAO</span>
+                            <div className="flex items-center">
+                                <span className="mao-badge">MAO</span>
+                                <HelpTooltip topic="Recommended Offer (MAO)" description="Maximum Allowable Offer calculated using the 70% rule to ensure sufficient profit buffer for fix-and-flip investors." position="top" />
+                            </div>
                         </div>
                         <div className="mao-value-display">
                             ${mao.toLocaleString()}

@@ -12,7 +12,7 @@ import { useSubscription } from '../contexts/useSubscription';
 import { useGuidance } from '../contexts/GuidanceContext';
 
 const Layout = () => {
-    const { user, loadingAuth } = useAuth();
+    const { user, loadingAuth, developerMode } = useAuth();
     const { systemRole, subscriptionStatus, subscriptionTier, loadingSub } = useSubscription();
     const { isAssistantOpen } = useGuidance();
 
@@ -69,9 +69,14 @@ const Layout = () => {
 
     return (
         <div className="layout-container dark-vision-ui">
+            {developerMode && (
+                <div className="bg-amber-500 text-black font-bold text-center py-1 text-sm tracking-widest uppercase shadow-[0_0_10px_rgba(245,158,11,0.5)] z-50 absolute w-full top-0">
+                    Developer Mode Active — Sandbox Environment
+                </div>
+            )}
             <GlobalStatusBanner />
             <Sidebar />
-            <div className={`main-wrapper flex-1 min-w-0 overflow-hidden ${isAssistantOpen ? 'assistant-open' : ''}`}>
+            <div className={`main-wrapper flex-1 min-w-0 overflow-hidden ${isAssistantOpen ? 'assistant-open' : ''} ${developerMode ? 'mt-7' : ''}`}>
                 <VerifiedClosingTicker />
                 <Header />
                 <div className="main-content p-4 min-h-screen flex flex-col items-center">

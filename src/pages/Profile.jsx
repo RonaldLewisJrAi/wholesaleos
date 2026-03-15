@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Building, MapPin, DollarSign, Percent, Save, Camera, Target, Calculator, Headphones, ShieldCheck, Activity, Sun, Moon } from 'lucide-react';
 import { useSubscription } from '../contexts/useSubscription';
+import { useAuth } from '../contexts/useAuth';
 import { supabase } from '../lib/supabase';
 import './Profile.css';
 
 const Profile = () => {
+    const { developerMode } = useAuth();
     // Basic Profile State
     const [profile, setProfile] = useState({
         firstName: '',
@@ -128,6 +130,11 @@ const Profile = () => {
     };
 
     const handleCheckout = async () => {
+        if (developerMode) {
+            alert(JSON.stringify({ success: true, message: "Developer sandbox payment simulated" }, null, 2));
+            return;
+        }
+
         setIsSaving(true);
         try {
             const response = await fetch('/api/stripe/checkout', {

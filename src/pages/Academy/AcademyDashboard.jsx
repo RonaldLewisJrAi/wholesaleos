@@ -160,6 +160,19 @@ export default function AcademyDashboard() {
                     </div>
                 ))}
             </div>
+
+            <div className="mt-12 bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:bg-indigo-900/30">
+                <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Platform Documentation</h3>
+                    <p className="text-sm text-indigo-300 font-mono">Need technical instructions on how WholesaleOS features operate? Access the official Knowledge Base.</p>
+                </div>
+                <button
+                    onClick={() => navigate('/support')}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-lg font-bold tracking-wide transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)] whitespace-nowrap"
+                >
+                    Open Platform Knowledge Base
+                </button>
+            </div>
         </div>
     );
 }

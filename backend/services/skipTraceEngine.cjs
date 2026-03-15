@@ -280,7 +280,17 @@ function normalizeContactData(results) {
 /**
  * Primary Orchestrator logic
  */
-async function runSkipTrace(property) {
+async function runSkipTrace(property, developerMode = false) {
+    if (developerMode) {
+        skipTraceLogger.info(`[SkipTrace] 🛑 DEVELOPER MODE ACTIVE: Bypassing OSINT APIs.`);
+        return {
+            phones: [{ number: "(555) 555-0123", confidence: 100 }],
+            emails: [{ email: "sandbox@example.com", confidence: 100 }],
+            provider: 'sandbox_mock',
+            confidenceAverage: 100
+        };
+    }
+
     const { ownerName, address, city, state } = property;
 
     skipTraceLogger.info(`Starting skip trace orchestration for ${ownerName || 'Unknown Owner'} at ${address || 'Unknown Address'}`);

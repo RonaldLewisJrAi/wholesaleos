@@ -3,6 +3,7 @@ import { Calculator, TrendingUp, DollarSign, Hammer, AlertTriangle, ShieldCheck,
 import { useAuth } from '../contexts/useAuth';
 import { calculateDealScore, calculateLiquiditySignal, calculateCloseProbability } from '../services/dealIntelligenceEngine';
 import { matchDealToInvestors, mockLiquidityInvestors } from '../services/liquidityEngine';
+import { HelpTooltip } from '../components/HelpTooltip';
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -222,7 +223,7 @@ const DealAnalyzer = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-blue-900/30">
-                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1">Deal Score</div>
+                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-1 flex items-center gap-1">Deal Score <HelpTooltip topic="Deal Score" description="Calculated from Equity Spread, Buyer Demand, Rehab Risk, Seller Motivation, and the Wholesaler's Trust Score." position="bottom" /></div>
                                     <div className={`text-3xl font-mono font-bold ${dealScore >= 80 ? 'text-blue-400' : 'text-yellow-400'}`}>
                                         {dealScore}
                                     </div>
@@ -247,6 +248,7 @@ const DealAnalyzer = () => {
                             <div className="mt-4 bg-blue-900/10 border border-blue-500/20 rounded-lg p-4">
                                 <div className="text-[10px] text-blue-300 uppercase tracking-widest font-mono mb-2 flex items-center gap-2">
                                     <ShieldCheck size={14} /> Maximum Allowable Offer (70% Rule)
+                                    <HelpTooltip topic="Recommended Offer (MAO)" description="Maximum Allowable Offer calculated using the 70% rule to ensure sufficient profit buffer for fix-and-flip investors." position="top" />
                                 </div>
                                 <div className="text-2xl font-mono font-bold text-white">
                                     {formatCurrency(mao)}

@@ -6,7 +6,16 @@ export const dealBlastEngine = {
      * Pushes a deal beyond standard matchmaking by injecting High Trust
      * and Recently Active investors into the distribution array.
      */
-    async executePriorityBlast(deal, wholesalerId) {
+    async executePriorityBlast(deal, wholesalerId, developerMode = false) {
+        if (developerMode) {
+            console.log('[BLAST ENGINE] 🛑 DEVELOPER MODE ACTIVE: Intercepting Priority Blast sequence.');
+            return {
+                success: true,
+                message: "Developer sandbox deal blast simulated",
+                count: 0
+            };
+        }
+
         if (!deal || !deal.id) return { success: false, error: 'Invalid Deal Payload' };
 
         console.log('[BLAST ENGINE] 🔥 Initiating Priority Sequence for:', deal.address);

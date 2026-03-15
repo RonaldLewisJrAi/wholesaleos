@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
                     console.info("[AUTH] Checking for existing user profile:", session.user.id);
                     const { data: profile, error } = await supabase
                         .from('profiles')
-                        .select('*, organization_id')
+                        .select('*, organization_id, role')
                         .eq('id', session.user.id)
                         .maybeSingle();
 
@@ -62,12 +62,22 @@ export const AuthProvider = ({ children }) => {
                             setUser(session.user);
                         }
                     } else {
-                        console.info("[AUTH] Profile loaded correctly. Persona:", profile.primary_persona);
+                        const safeProfile = { ...profile };
+                        if (safeProfile.role === 'developer') {
+                            const restrictedKeys = ['stripe_account_id', 'bank_account_number', 'payout_amount', 'service_role_key', 'stripe_secret_key'];
+                            restrictedKeys.forEach(key => {
+                                safeProfile[key] = 'restricted';
+                            });
+                        }
+
+                        console.info("[AUTH] Profile loaded correctly. Persona:", safeProfile.primary_persona);
                         setUser({
                             ...session.user,
-                            primary_persona: profile?.primary_persona || 'WHOLESALER',
-                            organization_id: profile?.organization_id || null,
-                            tier: profile?.tier || 'none'
+                            ...safeProfile,
+                            primary_persona: safeProfile?.primary_persona || 'WHOLESALER',
+                            organization_id: safeProfile?.organization_id || null,
+                            tier: safeProfile?.tier || 'none',
+                            role: safeProfile?.role || 'user'
                         });
                     }
                 } catch (err) {
@@ -118,13 +128,16 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
+    // Phase 60: Extract Sandbox Flag
+    const developerMode = user?.role === 'developer';
+
     // Phase 37 Safe Boot Loader Gate
     if (loadingAuth) {
         return <LoadingScreen />;
     }
 
     return (
-        <AuthContext.Provider value={{ user, loadingAuth }}>
+        <AuthContext.Provider value={{ user, loadingAuth, developerMode }}>
             {children}
         </AuthContext.Provider>
     );
