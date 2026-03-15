@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, FileText, Zap, ChevronRight, Hash, Calendar, AlertOctagon, UserSearch, Phone, Mail } from 'lucide-react';
 import { skipTraceOwner } from '../../services/skipTraceService';
-import { supabase } from '../../services/supabaseClient';
+import { supabase } from '../../lib/supabase';
 
 export const LeadDetailsPanel = ({ lead, onClose, onConvert }: { lead: any, onClose: any, onConvert: any }) => {
     const [tracing, setTracing] = useState(false);

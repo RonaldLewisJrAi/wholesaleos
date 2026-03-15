@@ -7,7 +7,7 @@ import '../App.css';
 
 const Pricing = () => {
     const { user, loadingAuth } = useAuth();
-    const { subscriptionTier } = useSubscription();
+    const { subscriptionTier, subscriptionStatus } = useSubscription();
     const navigate = useNavigate();
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
